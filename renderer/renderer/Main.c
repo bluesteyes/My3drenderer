@@ -23,8 +23,13 @@ bool initialize_window(void)
 
 		return false;
 	}
+	// Use SDL to query what is the fullscreen max. width and height
+	SDL_DisplayMode display_mode;
+	SDL_GetCurrentDisplayMode(0, &display_mode);
+	window_width = display_mode.w;
+	window_height = display_mode.h;
 
-	// TODO: Create a SDL window		
+	// Create a SDL window		
 	window = SDL_CreateWindow(
 		NULL,
 		SDL_WINDOWPOS_CENTERED,
@@ -39,7 +44,7 @@ bool initialize_window(void)
 		return false;
 	}
 
-	// TODO: Create a SDL renderer
+	// Create a SDL renderer
 	renderer = SDL_CreateRenderer(window, -1, 0);
 
 	if (!renderer)
@@ -47,6 +52,8 @@ bool initialize_window(void)
 		fprintf(stderr, "Error creating SDL renderer. \n");
 		return false;
 	}
+
+	SDL_SetWindowFullscreen(window,SDL_WINDOW_FULLSCREEN);
 
 	return true;
 }
