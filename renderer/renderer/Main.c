@@ -95,15 +95,26 @@ void update(void)
 {
 }
 
-void clear_color_buffer(uint32_t color)
+void draw_grid(void)
 {
-	for (int y = 0; y < window_height; y++)
-		for (int x = 0; x < window_width; x++)
-			color_buffer[(window_width) * y + x] = color;
-		
+	//TODO:
+	//Draw a background grid that fills the entire window.
+	//Lines should be rendered at every row/col multiple of 10.
 
+	for (int y = 0; y < window_height; y += 20)
+		for (int x = 0; x < window_width; x += 20)		
+				color_buffer[(window_width)*y + x] = 0xFF00FF00;
+			
+			
 }
 
+void clear_color_buffer(uint32_t color)
+{
+	for (int y = 0; y < window_height; y = y + 1)
+		for (int x = 0; x < window_width; x = x + 1)
+			color_buffer[(window_width) * y + x] = color;
+	
+}
 
 void render_color_buffer(void)
 {
@@ -122,9 +133,10 @@ void render(void)
 	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 	SDL_RenderClear(renderer);
 
+	draw_grid();
 	render_color_buffer();
 
-	clear_color_buffer(0xFFFFFF00);
+	clear_color_buffer(0xFF000000);
 	SDL_RenderPresent(renderer);
 }
 
@@ -135,7 +147,6 @@ void destroy_window(void)
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 }
-
 
 int main(int argc, char* args[])
 {	
@@ -151,7 +162,6 @@ int main(int argc, char* args[])
 	}
 
 	destroy_window();
-
 
 	return 0;
 }
