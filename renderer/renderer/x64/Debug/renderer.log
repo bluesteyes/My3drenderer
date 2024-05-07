@@ -1,2 +1,4 @@
-﻿  Main.c
+﻿  display.c
+  Main.c
+  Generating Code...
   renderer.vcxproj -> F:\My3drenderer\renderer\x64\Debug\renderer.exe
