@@ -14,11 +14,11 @@ extern int window_width;
 extern int window_height;
 
 bool initialize_window(void);
+void draw_pixel(int x, int y, uint32_t color);
 void draw_rect(int upper_left_pos_x, int upper_left_pos_y, int width, int height, uint32_t color);
 void draw_grid(void);
 void clear_color_buffer(uint32_t color);
 void render_color_buffer(void);
-void destroy_window(void);
 
 #endif // !DISPLAY_H
 

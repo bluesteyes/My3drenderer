@@ -1,4 +1,5 @@
-﻿  display.c
-  Main.c
-  Generating Code...
+﻿  Main.c
+F:\My3drenderer\renderer\renderer\Main.c(114,22): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
+F:\My3drenderer\renderer\renderer\Main.c(115,22): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
+F:\My3drenderer\renderer\renderer\Main.c(143,2): warning C4013: 'destroy_window' undefined; assuming extern returning int
   renderer.vcxproj -> F:\My3drenderer\renderer\x64\Debug\renderer.exe

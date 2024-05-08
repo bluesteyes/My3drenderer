@@ -54,6 +54,17 @@ bool initialize_window(void)
 }
 
 
+
+
+void draw_pixel(int x, int y, uint32_t color)
+{
+	if (x>=0 && x < window_width && y>= 0 && y < window_height)
+	{
+		color_buffer[(window_width * y) + x] = color;
+	}
+		
+}
+
 void draw_rect(int upper_left_pos_x, int upper_left_pos_y, int width, int height, uint32_t color)
 {
 	for (int y = 0; y < height; y += 1)
@@ -63,12 +74,12 @@ void draw_rect(int upper_left_pos_x, int upper_left_pos_y, int width, int height
 			int current_x = upper_left_pos_x + x;
 			int current_y = upper_left_pos_y + y;
 
-			color_buffer[(window_width)*current_y + current_x] = color;
+			//color_buffer[(window_width)*current_y + current_x] = color;
+			draw_pixel(current_x, current_y, color);
 		}
 	}
 
 }
-
 
 void draw_grid(void)
 {
@@ -78,7 +89,7 @@ void draw_grid(void)
 
 	for (int y = 0; y < window_height; y += 20)
 		for (int x = 0; x < window_width; x += 20)
-			color_buffer[(window_width)*y + x] = 0xFF00FF00;
+			color_buffer[(window_width)*y + x] = 0xFF333333;
 
 
 }
@@ -86,8 +97,8 @@ void draw_grid(void)
 
 void clear_color_buffer(uint32_t color)
 {
-	for (int y = 0; y < window_height; y = y + 1)
-		for (int x = 0; x < window_width; x = x + 1)
+	for (int y = 0; y < window_height; y += 1)
+		for (int x = 0; x < window_width; x += 1)
 			color_buffer[(window_width)*y + x] = color;
 
 }

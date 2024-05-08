@@ -3,6 +3,15 @@
 #include <stdbool.h>
 #include <SDL.h>
 #include "Display.h"
+#include "Vector.h"
+
+//////////////////////////////////////////////////////////////////////////////////
+// Declare an array of vectors/points
+//////////////////////////////////////////////////////////////////////////////////
+const int N_POINTS = 9 * 9 * 9;
+vect3_t cube_points[9 * 9 * 9]; // 9x9x9 cube
+vect2_t projected_points[9 * 9 * 9];
+int fov_factor = 128;
 
 bool is_running = false;
 
@@ -18,8 +27,25 @@ void setup()
 		SDL_TEXTUREACCESS_STREAMING,
 		window_width,
 		window_height
-
 	);
+
+	//Start loading my array of vectors
+	//From -1 to 1 (in this 9*9*9 cube)
+
+	int point_count = 0;
+
+	for (float x = -1; x <= 1; x += 0.25)
+	{
+		for (float y = -1; y <= 1; y += 0.25)
+		{
+			for (float z = -1; z <= 1; z += 0.25)
+			{
+				vect3_t new_points = { .x = x, .y = y, .z = z };
+				cube_points[point_count++] = new_points;
+			}
+		}
+	}
+			
 }
 void process_input(void)
 {
@@ -38,17 +64,56 @@ void process_input(void)
 			
 	}
 }
+
+//////////////////////////////////////////////////////////////////////////////////
+// Function that recieve a 3d vector and return a projected 2d point
+//////////////////////////////////////////////////////////////////////////////////
+
+vect2_t project(vect3_t point)
+{
+	vect2_t projected_point = {
+		.x = fov_factor * point.x,
+		.y = fov_factor * point.y,
+	};
+
+	return projected_point;
+}
+
 void update(void)
 {
+	for (int i = 0; i < N_POINTS; i++)
+	{
+		vect3_t point = cube_points[i];
+
+		//Project the current point
+		vect2_t projected_point = project(point);
+
+		//Save the projected 2d vector in the array of projected points
+		projected_points[i] = projected_point;
+		
+	}
 }
 
 void render(void)
 {
-	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-	SDL_RenderClear(renderer);
+
 	draw_grid();
-	draw_rect(window_width/2,window_height/2,500,300,0xFF009900);
 	
+	//Loop all projected points and render them
+	for (int i = 0; i < N_POINTS; i++)
+	{
+		vect2_t projected_point = projected_points[i];
+		
+		draw_rect(		
+			projected_point.x + window_width/2,
+			projected_point.y + window_height/2,
+			4,
+			4,
+			0xffffff00
+		);
+	}
+
+
 	render_color_buffer();
 
 	clear_color_buffer(0xFF000000);
