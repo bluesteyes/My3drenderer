@@ -12,7 +12,8 @@ const int N_POINTS = 9 * 9 * 9;
 vect3_t cube_points[9 * 9 * 9]; // 9x9x9 cube
 vect2_t projected_points[9 * 9 * 9];
 int fov_factor = 640;
-vect3_t camera_position = { .x = 0, .y= 0, .z = -5 };
+vect3_t camera_position = {.x = 0, .y= 0, .z = -5};
+vect3_t cube_rotation = {.x = 0, .y = 0, .z = 0};
 
 bool is_running = false;
 
@@ -69,7 +70,6 @@ void process_input(void)
 //////////////////////////////////////////////////////////////////////////////////
 // Function that recieve a 3d vector and return a projected 2d point
 //////////////////////////////////////////////////////////////////////////////////
-
 vect2_t project(vect3_t point)
 {
 	vect2_t projected_point = {
@@ -80,17 +80,28 @@ vect2_t project(vect3_t point)
 	return projected_point;
 }
 
+//////////////////////////////////////////////////////////////////////////////////
+// Call update function every frame
+//////////////////////////////////////////////////////////////////////////////////
 void update(void)
 {
+	cube_rotation.x += 0.01;
+	cube_rotation.y += 0.01;
+	cube_rotation.z += 0.01;
+
 	for (int i = 0; i < N_POINTS; i++)
 	{
 		vect3_t point = cube_points[i];
 
-		//Move the points away from the camera through z axis
-		point.z  -= camera_position.z;
+		vect3_t transformed_point = vect3_rotate_x(point, cube_rotation.x);
+		transformed_point = vect3_rotate_y(transformed_point, cube_rotation.y);
+		transformed_point = vect3_rotate_z(transformed_point, cube_rotation.z);
+
+		//Translate the points away from the camera through z axis
+		transformed_point.z  -= camera_position.z;
 
 		//Project the current point
-		vect2_t projected_point = project(point);
+		vect2_t projected_point = project(transformed_point);
 
 		//Save the projected 2d vector in the array of projected points
 		projected_points[i] = projected_point;

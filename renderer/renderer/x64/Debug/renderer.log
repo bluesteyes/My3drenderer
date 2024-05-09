@@ -1,5 +1,8 @@
-﻿  Main.c
-F:\My3drenderer\renderer\renderer\Main.c(112,22): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(113,22): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(141,2): warning C4013: 'destroy_window' undefined; assuming extern returning int
+﻿  vector.c
+F:\My3drenderer\renderer\renderer\vector.c(10,25): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\vector.c(11,25): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\vector.c(21,25): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\vector.c(23,25): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\vector.c(31,25): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\vector.c(32,25): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
   renderer.vcxproj -> F:\My3drenderer\renderer\x64\Debug\renderer.exe

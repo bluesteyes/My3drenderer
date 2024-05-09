@@ -18,6 +18,7 @@ bool initialize_window(void)
 
 		return false;
 	}
+
 	// Use SDL to query what is the fullscreen max. width and height
 	SDL_DisplayMode display_mode;
 	SDL_GetCurrentDisplayMode(0, &display_mode);
