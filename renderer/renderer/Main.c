@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include "display.h"
 #include "vector.h"
+#include "mesh.h"
 
 //////////////////////////////////////////////////////////////////////////////////
 // Declare an array of vectors/points
@@ -12,6 +13,8 @@
 //vect3_t cube_points[9 * 9 * 9]; // 9x9x9 cube
 //vect2_t projected_points[9 * 9 * 9];
 
+triangle_t triangles_to_render[N_MESH_FACES];
+
 int fov_factor = 1280;
 vect3_t camera_position = {.x = 0, .y= 0, .z = -5};
 vect3_t cube_rotation = {.x = 0, .y = 0, .z = 0};
@@ -19,6 +22,9 @@ vect3_t cube_rotation = {.x = 0, .y = 0, .z = 0};
 
 bool is_running = false;
 int previous_frame_time = 0;
+
+
+
 void setup()
 {
 	// Allocate the required memory in bytes to hold the color buffer
@@ -104,6 +110,47 @@ void update(void)
 	cube_rotation.x += 0.01;
 	cube_rotation.y += 0.01;
 	cube_rotation.z += 0.01;
+	
+	//Loop all triangle faces of cube mesh
+	for (int i = 0; i < N_MESH_FACES; i++)
+	{
+		face_t mesh_face = mesh_faces[i];
+		
+		vect3_t face_vertices[3];
+		face_vertices[0] = mesh_vertices[mesh_face.a - 1];
+		face_vertices[1] = mesh_vertices[mesh_face.b - 1];
+		face_vertices[2] = mesh_vertices[mesh_face.c - 1];
+	
+		triangle_t projected_triangle;
+
+		//Loop through all three vertices of this current face and apply transformation
+		for (int j = 0; j < 3; j++)
+		{
+			vect3_t transformed_vertex = face_vertices[j];
+
+			transformed_vertex = vect3_rotate_x(transformed_vertex, cube_rotation.x);
+			transformed_vertex = vect3_rotate_y(transformed_vertex, cube_rotation.y);
+			transformed_vertex = vect3_rotate_z(transformed_vertex, cube_rotation.z);
+		
+			//Translate the points away from the camera through z axis
+			transformed_vertex.z -= camera_position.z;
+
+			//project the current vertex
+			vect2_t projected_point = project(transformed_vertex);
+
+			//scale and translated the projected points to the middle of the screen
+			projected_point.x += (window_width / 2);
+			projected_point.y += (window_height / 2);
+
+
+			//save the projected 2d vertex in the array of projected triangle points
+			projected_triangle.points[j] = projected_point;
+		}
+
+		//save the projected triagnle in the array of triangles to render
+		triangles_to_render[i] = projected_triangle;
+
+	}
 
 	//for (int i = 0; i < N_POINTS; i++)
 	//{
@@ -129,6 +176,22 @@ void render(void)
 {
 
 	draw_grid();
+
+	
+
+	//Loop all projected triangles and render them
+	for (int i = 0; i < N_MESH_FACES; i++)
+	{
+		triangle_t triangle = triangles_to_render[i];
+
+		draw_rect(triangle.points[0].x, triangle.points[0].y, 3, 3, 0xFFFFFF00);
+		draw_rect(triangle.points[1].x, triangle.points[1].y, 3, 3, 0xFFFFFF00);
+		draw_rect(triangle.points[2].x, triangle.points[2].y, 3, 3, 0xFFFFFF00);
+
+		
+	}
+
+			
 	
 	//Loop all projected points and render them
 	/*for (int i = 0; i < N_POINTS; i++)

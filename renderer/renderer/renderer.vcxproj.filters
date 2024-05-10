@@ -24,16 +24,25 @@
     <ClCompile Include="vector.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="mesh.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="triangle.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="display.h">
-      <Filter>源文件</Filter>
+      <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="vector.h">
-      <Filter>源文件</Filter>
+      <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="mesh.h">
-      <Filter>源文件</Filter>
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="triangle.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
