@@ -15,7 +15,7 @@
 
 triangle_t triangles_to_render[N_MESH_FACES];
 
-int fov_factor = 1280;
+int fov_factor = 640;
 vect3_t camera_position = {.x = 0, .y= 0, .z = -5};
 vect3_t cube_rotation = {.x = 0, .y = 0, .z = 0};
 
@@ -184,12 +184,26 @@ void render(void)
 	{
 		triangle_t triangle = triangles_to_render[i];
 
+		//draw vertex of triangle
 		draw_rect(triangle.points[0].x, triangle.points[0].y, 3, 3, 0xFFFFFF00);
 		draw_rect(triangle.points[1].x, triangle.points[1].y, 3, 3, 0xFFFFFF00);
 		draw_rect(triangle.points[2].x, triangle.points[2].y, 3, 3, 0xFFFFFF00);
 
+		//draw unfilled triangle
+		draw_triangle(
+			triangle.points[0].x,
+			triangle.points[0].y,
+			triangle.points[1].x,
+			triangle.points[1].y,
+			triangle.points[2].x,
+			triangle.points[2].y,
+			0xFF00FF00
 		
+		);
+
 	}
+
+	
 
 			
 	
