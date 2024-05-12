@@ -1,7 +1,18 @@
+#include <stdio.h>
+#include "array.h"
 #include "mesh.h"
 
-//TODO: create implementation for mesh.h functions
-vect3_t mesh_vertices[N_MESH_VERTICES] = {
+
+//Initialize the mesh array
+
+mesh_t mesh = {
+	.vertices = NULL,
+	.faces = NULL,
+	.rotation = { 0, 0, 0 }
+};
+
+//create implementation for mesh.h functions
+vect3_t cube_vertices[N_CUBE_VERTICES] = {
 
 	{.x = -1, .y = -1, .z = -1}, //1
 	{.x = -1, .y =  1, .z = -1}, //2
@@ -14,7 +25,7 @@ vect3_t mesh_vertices[N_MESH_VERTICES] = {
 
 };
 
-face_t mesh_faces[N_MESH_FACES] = {
+face_t cube_faces[N_CUBE_FACES] = {
 	//front
 	{.a = 1, .b = 2, .c = 3},
 	{.a = 1, .b = 3, .c = 4},
@@ -34,3 +45,20 @@ face_t mesh_faces[N_MESH_FACES] = {
 	{.a = 6, .b = 8, .c = 1},
 	{.a = 6, .b = 1, .c = 4},
 };
+
+void load_cube_mesh_data(void)
+{
+	for (int i = 0; i < N_CUBE_VERTICES; i++)
+	{
+		vect3_t cube_vertex = cube_vertices[i];
+		array_push(mesh.vertices, cube_vertex);
+	}
+
+	for (int i = 0; i < N_CUBE_FACES; i++)
+	{
+		face_t cube_face = cube_faces[i];
+		array_push(mesh.faces, cube_face);
+
+	}
+
+}
