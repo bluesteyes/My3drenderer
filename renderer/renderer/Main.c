@@ -25,7 +25,7 @@ triangle_t* triangles_to_render = NULL;
 //////////////////////////////////////////////////////////////////////////////////
 
 int fov_factor = 1024;
-vect3_t camera_position = {.x = 0, .y= 0, .z = -5};
+vect3_t camera_position = {.x = 0, .y= 0, .z = -3};
 //vect3_t cube_rotation = {.x = 0, .y = 0, .z = 0};
 
 
@@ -50,7 +50,9 @@ void setup()
 		window_height
 	);
 	//Loads the cube values in the mesh data structure
-	load_cube_mesh_data();
+	//load_cube_mesh_data();
+
+	load_obj_mesh_data("./assets/f22.obj");
 
 	//Start loading my array of vectors
 	//From -1 to 1 (in this 9*9*9 cube)
@@ -127,9 +129,9 @@ void update(void)
 
 	previous_frame_time = SDL_GetTicks();
 
-	mesh.rotation.x += 0.01;
-	mesh.rotation.y += 0.01;
-	mesh.rotation.z += 0.01;
+	mesh.rotation.x += 0.02;
+	mesh.rotation.y += 0.00;
+	mesh.rotation.z += 0.00;
 	
 	//Loop all triangle faces of cube mesh
 	int num_faces = array_length(mesh.faces);
@@ -276,10 +278,11 @@ int main(int argc, char* args[])
 		process_input();
 		update();
 		render();
+
 	}
 
 	destroy_window();
-	//free_resource();
+	free_resource();
 
 	return 0;
 }
