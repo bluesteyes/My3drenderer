@@ -1,7 +1,172 @@
 #include <math.h>
 #include "vector.h"
 
-//TODO: Implementation of all vector functions
+
+//////////////////////////////////////////////////////////////////////////////////
+// Implementation of all vector 2d functions
+//////////////////////////////////////////////////////////////////////////////////
+
+vect2_t vect2_add(vect2_t a, vect2_t b)
+{
+	vect2_t result = { 
+		
+		.x = a.x + b.x, 
+		.y = a.y + b.y 
+	};
+
+	return result;
+}
+
+vect2_t vect2_sub(vect2_t a, vect2_t b)
+{
+	vect2_t result = {
+
+		.x = a.x - b.x,
+		.y = a.y - b.y
+	};
+
+	return result;
+}
+
+
+vect2_t vect2_mul(vect2_t a, float factor)
+{
+	vect2_t result = {
+
+		.x = a.x * factor,
+		.y = a.y * factor
+	};
+
+	return result;
+}
+
+vect2_t vect2_div(vect2_t a, float factor)
+{
+	vect2_t result = {
+
+		.x = a.x / factor,
+		.y = a.y / factor
+	};
+
+	return result;
+}
+
+
+float vect2_dot(vect2_t a, vect2_t b)
+{
+	float result = a.x * b.x + a.y * b.y;
+
+	return result;
+}
+
+
+
+float vect2_length(vect2_t v)
+{
+	return sqrt(v.x * v.x + v.y * v.y);
+}
+
+void vect2_normalize(vect2_t* v)
+{
+
+    float length = sqrt(v->x * v->x + v->y * v->y);
+
+	v->x /= length;
+	v->y /= length;
+
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+// Implementation of all vector 3d functions
+//////////////////////////////////////////////////////////////////////////////////
+
+vect3_t vect3_add(vect3_t a, vect3_t b)
+{
+	vect3_t result = {
+
+		.x = a.x + b.x,
+		.y = a.y + b.y,
+		.z = a.z + b.z
+	};
+
+	return result;
+}
+
+vect3_t vect3_sub(vect3_t a, vect3_t b)
+{
+	vect3_t result = {
+
+		.x = a.x - b.x,
+		.y = a.y - b.y,
+		.z = a.z - b.z
+	};
+
+	return result;
+}
+
+vect3_t vect3_mul(vect3_t a, float factor)
+{
+	vect3_t result = {
+
+		.x = a.x * factor,
+		.y = a.y * factor,
+		.z = a.z * factor
+	};
+
+	return result;
+}
+
+vect3_t vect3_div(vect3_t a, float factor)
+{
+	vect3_t result = {
+
+		.x = a.x / factor,
+		.y = a.y / factor,
+		.z = a.z / factor
+	};
+
+	return result;
+}
+
+
+vect3_t vect3_cross(vect3_t a, vect3_t b)
+{
+	vect3_t result = {
+		.x = a.y * b.z - a.z * b.y,
+		.y = a.z * b.x - a.x * b.z,
+		.z = a.x * b.y - a.y * b.x
+	};
+
+	return result;
+}
+
+
+float vect3_dot(vect3_t a, vect3_t b)
+{
+	float result = a.x * b.x + a.y * b.y + a.z * b.z;
+
+	return result;
+}
+
+
+float vect3_length(vect3_t v)
+{
+	return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+}
+
+void vect3_normalize(vect3_t* v)
+{
+
+	float length = sqrt(v->x * v->x + v->y * v->y + v->z * v->z);
+	
+	v->x /= length;
+	v->y /= length;
+	v->z /= length;
+	
+
+}
+
+
 
 vect3_t vect3_rotate_x(vect3_t v, float angle)
 {
