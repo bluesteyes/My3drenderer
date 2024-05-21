@@ -167,7 +167,6 @@ void vect3_normalize(vect3_t* v)
 }
 
 
-
 vect3_t vect3_rotate_x(vect3_t v, float angle)
 {
 	vect3_t rotated_vector = {
@@ -198,4 +197,21 @@ vect3_t vect3_rotate_z(vect3_t v, float angle)
 		.z = v.z
 	};
 	return rotated_vector;
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+// Implementation of all vector 3d functions
+//////////////////////////////////////////////////////////////////////////////////
+vect4_t vect4_from_vect3(vect3_t v){
+
+	vect4_t result = {v.x, v.y, v.z, 1.0};
+
+	return result;
+
+}
+
+vect3_t vect3_from_vect4(vect4_t v) {
+	vect3_t result = { v.x, v.y, v.z };
+
+	return result;
 }
