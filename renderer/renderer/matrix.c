@@ -141,10 +141,7 @@ mat4_t mat4_mul_mat4(mat4_t a, mat4_t b) {
 			result.m[i][j] = a.m[i][0] * b.m[0][j] + a.m[i][1] * b.m[1][j] + a.m[i][2] * b.m[2][j] + a.m[i][3] * b.m[3][j];
 		}
 	}
-
 	return result;
-
-
 
 }
 
@@ -157,6 +154,39 @@ vect4_t mat4_mul_vect4(mat4_t m, vect4_t v) {
 	result.y = m.m[1][0] * v.x + m.m[1][1] * v.y + m.m[1][2] * v.z + m.m[1][3] * v.w;
 	result.z = m.m[2][0] * v.x + m.m[2][1] * v.y + m.m[2][2] * v.z + m.m[2][3] * v.w;
 	result.w = m.m[3][0] * v.x + m.m[3][1] * v.y + m.m[3][2] * v.z + m.m[3][3] * v.w;
+
+	return result;
+
+}
+
+mat4_t mat4_make_perspective(float fov, float aspect, float znear, float zfar){
+
+// | (h/w)*1/tan(fov/2)             0            0                 0 |
+// |                  0  1/tan(fov/2)            0                 0 |
+// |                  0             0   zf/(zf-zn)  (-zf*zn)/(zf-zn) |
+// |                  0             0            1                 0 |
+
+	mat4_t m = { {{0}} };
+	m.m[0][0] = aspect * (1 / tan(fov / 2));
+	m.m[1][1] = 1 / tan(fov / 2);
+	m.m[2][2] = zfar / (zfar - znear);
+	m.m[2][3] = (-zfar * znear) / (zfar - znear);
+	m.m[3][2] = 1.0;
+
+	return m;
+}
+
+vect4_t mat4_mul_vect4_project(mat4_t mat_proj, vect4_t v) {
+	//multiply the projection matrix by our original vector
+	vect4_t result = mat4_mul_vect4(mat_proj, v);
+
+	//perform perspective divide with orginal z-value that is now stored in w
+	if (result.w != 0.0) {
+		
+		result.x = result.x / result.w;
+		result.y = result.y / result.w;
+		result.z = result.z / result.w;
+	}
 
 	return result;
 

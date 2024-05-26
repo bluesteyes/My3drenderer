@@ -25,10 +25,10 @@ triangle_t* triangles_to_render = NULL;
 // Global variables for excution status and game loop
 //////////////////////////////////////////////////////////////////////////////////
 
-int fov_factor = 1024;
+//int fov_factor = 1024;
 vect3_t camera_position = {.x = 0, .y= 0, .z = 0};
 //vect3_t cube_rotation = {.x = 0, .y = 0, .z = 0};
-
+mat4_t proj_matrix;
 
 bool is_running = false;
 int previous_frame_time = 0;
@@ -54,6 +54,14 @@ void setup()
 		window_width,
 		window_height
 	);
+
+	//Initialize the perspective projection matrix
+	float fov = M_PI / 3.0; //the same as 60 degree
+	float aspect = (float)(window_height) / (float)(window_width);
+	float znear = 0.1;
+	float zfar = 100;
+	proj_matrix = mat4_make_perspective(fov, aspect, znear, zfar);
+
 	//Loads the cube values in the mesh data structure
 	load_cube_mesh_data();
 
@@ -116,15 +124,18 @@ void process_input(void)
 //////////////////////////////////////////////////////////////////////////////////
 // Function that recieve a 3d vector and return a projected 2d point
 //////////////////////////////////////////////////////////////////////////////////
-vect2_t project(vect3_t point)
-{
-	vect2_t projected_point = {
-		.x = fov_factor * point.x / point.z,
-		.y = fov_factor * point.y / point.z,
-	};
+//vect2_t project(vect3_t point)
+//{
+//	vect2_t projected_point = {
+//		.x = fov_factor * point.x / point.z,
+//		.y = fov_factor * point.y / point.z,
+//	};
+//
+//	return projected_point;
+//}
 
-	return projected_point;
-}
+
+
 
 //////////////////////////////////////////////////////////////////////////////////
 // Call update function every frame
@@ -151,14 +162,14 @@ void update(void)
 
 	//Change the mesh scale/rotation values per animation frame
 	mesh.rotation.x += 0.01;
-	mesh.rotation.y += 0.01;
-	mesh.rotation.z += 0.01;
+	//mesh.rotation.y += 0.01;
+	//.rotation.z += 0.01;
 	
-	mesh.scale.x += 0.000;
-	mesh.scale.y += 0.000;
+	//mesh.scale.x += 0;
+	//mesh.scale.y += 0;
 
-	mesh.translation.x += 0.000;
-	mesh.translation.z = 5.0;
+	//mesh.translation.x += 0.000;
+	mesh.translation.z = 5;
 
 	//create  scale, rotation and translation matrix that will be used to multiply the mesh vertices
 	mat4_t scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
@@ -192,6 +203,7 @@ void update(void)
 			mat4_t world_matrix = mat4_identity();
 
 			//multiply all matrices and load the world matrix
+			//order matters: first scale, next rotate, then translate >>> [T]*[R]*[S]*v
 			world_matrix = mat4_mul_mat4(scale_matrix, world_matrix);
 			world_matrix = mat4_mul_mat4(rotation_matrix_z, world_matrix);
 			world_matrix = mat4_mul_mat4(rotation_matrix_y, world_matrix);
@@ -258,20 +270,28 @@ void update(void)
 		}
 
 
-		vect2_t projected_point[3];
+		vect4_t projected_point[3];
 		//Loop through all three vertices of this current face and apply projection
 		for (int j = 0; j < 3; j++)
 		{
 			//project the current vertex
-			projected_point[j] = project(vect3_from_vect4 (transformed_vertices[j]));
+			//projected_point[j] = project(vect3_from_vect4 (transformed_vertices[j]));
+			projected_point[j] = mat4_mul_vect4_project(proj_matrix, transformed_vertices[j]);
 
-			//scale and translated the projected points to the middle of the screen
-			projected_point[j].x += (window_width / 2);
-			projected_point[j].y += (window_height / 2);		
+			//scale into the viewport
+			projected_point[j].x *= (window_width / 2.0);
+			projected_point[j].y *= (window_height / 2.0);
+
+			//translate the projected points to the middle of the screen
+			projected_point[j].x += (window_width / 2.0);
+			projected_point[j].y += (window_height / 2.0);		
+
+			
 		}
 		// Calculate the average depth for each face based on the vertices after transformation
 		float avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z +
 			transformed_vertices[2].z) / 3;
+
 		// save the projected 2d vertex in the array of projected triangle points
 		triangle_t projected_triangle = {
 			.points = {
@@ -289,12 +309,11 @@ void update(void)
 
 		//save the projected triagnle in the array of triangles to render
 		//triangles_to_render[i] = projected_triangle;
-
 		array_push(triangles_to_render, projected_triangle);
 
 	}
 
-	//TODO: sort the triangles to render by their avg_depth
+	//TODO: sort the triangles to render by their avg_depth >>>> [bubble sort]
 	int num_triangles = array_length(triangles_to_render);
 	for (int i = 0; i < num_triangles; i++)
 	{
