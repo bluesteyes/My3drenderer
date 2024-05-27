@@ -36,7 +36,7 @@ void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int x2, int y2, u
 	for (int y = y0; y <= y2; y++)
 	{
 		//draw a line from x_start until x_end
-		draw_line(round(x_start), y, round(x_end), y, color);
+		draw_line(x_start, y, x_end, y, color);
 
 		//based on the slope value increment x_start and x_end for the next scanline
 		x_start += inverse_slope_1;
@@ -70,7 +70,7 @@ void fill_flat_top_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint
 	for (int y = y2; y >= y0; y--)
 	{
 		//draw a line from x_start until x_end
-		draw_line(round(x_start), y, round(x_end), y, color);
+		draw_line(x_start, y, x_end, y, color);
 
 		//based on the slope value increment x_start and x_end for the next scanline
 		x_start -= inverse_slope_1;
@@ -130,7 +130,7 @@ void draw_filled_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32
 	{
 		//calculate new vertex (Mx,My) using triangle similarity
 		int My = y1;
-		int Mx = ((float)((x2 - x0) * (y1 - y0)) / (float)(y2 - y0)) + x0;
+		int Mx = (((x2 - x0) * (y1 - y0)) / (y2 - y0)) + x0;
 
 
 		//draw flat bottom triangle

@@ -7,6 +7,7 @@
 #include "matrix.h"
 #include "vector.h"
 #include "mesh.h"
+#include "light.h"
 
 //////////////////////////////////////////////////////////////////////////////////
 // Array of triangles that should be rendered frame by frame
@@ -25,9 +26,7 @@ triangle_t* triangles_to_render = NULL;
 // Global variables for excution status and game loop
 //////////////////////////////////////////////////////////////////////////////////
 
-//int fov_factor = 1024;
-vect3_t camera_position = {.x = 0, .y= 0, .z = 0};
-//vect3_t cube_rotation = {.x = 0, .y = 0, .z = 0};
+vect3_t camera_position = {.x = 0, .y = 0, .z = 0};
 mat4_t proj_matrix;
 
 bool is_running = false;
@@ -55,6 +54,7 @@ void setup()
 		window_height
 	);
 
+
 	//Initialize the perspective projection matrix
 	float fov = M_PI / 3.0; //the same as 60 degree
 	float aspect = (float)(window_height) / (float)(window_width);
@@ -63,9 +63,9 @@ void setup()
 	proj_matrix = mat4_make_perspective(fov, aspect, znear, zfar);
 
 	//Loads the cube values in the mesh data structure
-	load_cube_mesh_data();
+	//load_cube_mesh_data();
 
-	//load_obj_mesh_data("./assets/cube.obj");
+    load_obj_mesh_data("./assets/f22.obj");
 
 	//Start loading my array of vectors
 	//From -1 to 1 (in this 9*9*9 cube)
@@ -161,9 +161,9 @@ void update(void)
 
 
 	//Change the mesh scale/rotation values per animation frame
-	mesh.rotation.x += 0.01;
-	//mesh.rotation.y += 0.01;
-	//.rotation.z += 0.01;
+	mesh.rotation.x += 0.02;
+	//mesh.rotation.y += 0.03;
+	//mesh.rotation.z += 0.03;
 	
 	//mesh.scale.x += 0;
 	//mesh.scale.y += 0;
@@ -238,31 +238,32 @@ void update(void)
 		
 		
 		//backface culling to see if the current face should be projected
-		if (cull_method == CULL_BACKFACE)
-		{
-			vect3_t vector_a = vect3_from_vect4(transformed_vertices[0]); /*  A  */
-			vect3_t vector_b = vect3_from_vect4(transformed_vertices[1]); /* / \ */
-			vect3_t vector_c = vect3_from_vect4(transformed_vertices[2]); /*C---B*/
+		
+		vect3_t vector_a = vect3_from_vect4(transformed_vertices[0]); /*  A  */
+		vect3_t vector_b = vect3_from_vect4(transformed_vertices[1]); /* / \ */
+		vect3_t vector_c = vect3_from_vect4(transformed_vertices[2]); /*C---B*/
 
-			//get the vector subtraction of (B - A) and (C - B)
-			vect3_t vector_ab = vect3_sub(vector_b, vector_a);
-			vect3_t vector_ac = vect3_sub(vector_c, vector_a);
+		//get the vector subtraction of (B - A) and (C - B)
+		vect3_t vector_ab = vect3_sub(vector_b, vector_a);
+		vect3_t vector_ac = vect3_sub(vector_c, vector_a);
 
-			vect3_normalize(&vector_ab);
-			vect3_normalize(&vector_ac);
+		vect3_normalize(&vector_ab);
+		vect3_normalize(&vector_ac);
 
-			//compute the face normal (using cross product to find perpendicular)
-			vect3_t normal_vect = vect3_cross(vector_ab, vector_ac);
+		//compute the face normal (using cross product to find perpendicular)
+		vect3_t normal_vect = vect3_cross(vector_ab, vector_ac);
 
-			//normalize the face normal vector
-			vect3_normalize(&normal_vect);
+		//normalize the face normal vector
+		vect3_normalize(&normal_vect);
 
-			//find the vector between a point in the triangle and the camera origin
-			vect3_t cam_ray = vect3_sub(camera_position, vector_a);
+		//find the vector between a point in the triangle and the camera origin
+		vect3_t cam_ray = vect3_sub(camera_position, vector_a);
 
-			//calculate how align the camera ray is with the face normal (using dot product)
-			float dot_normal_cam = vect3_dot(normal_vect, cam_ray);
+		//calculate how align the camera ray is with the face normal (using dot product)
+		float dot_normal_cam = vect3_dot(normal_vect, cam_ray);
 
+
+		if (cull_method == CULL_BACKFACE){
 			//bypassing the triangles that looking away from the camera
 			if (dot_normal_cam < 0){
 				continue;
@@ -278,6 +279,9 @@ void update(void)
 			//projected_point[j] = project(vect3_from_vect4 (transformed_vertices[j]));
 			projected_point[j] = mat4_mul_vect4_project(proj_matrix, transformed_vertices[j]);
 
+			//invert the y value to account for flipped screen y coordinate
+			projected_point[j].y *= -1;
+
 			//scale into the viewport
 			projected_point[j].x *= (window_width / 2.0);
 			projected_point[j].y *= (window_height / 2.0);
@@ -292,6 +296,13 @@ void update(void)
 		float avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z +
 			transformed_vertices[2].z) / 3;
 
+		//calculate how align the light direction is with the face normal (using dot product)
+		float light_intensity_factor = -vect3_dot(normal_vect, light.direction);
+
+		// Calculate the triangle color based on the light angle
+		
+		uint32_t  triangle_color = light_apply_intensity(mesh_face.color, light_intensity_factor);
+
 		// save the projected 2d vertex in the array of projected triangle points
 		triangle_t projected_triangle = {
 			.points = {
@@ -300,9 +311,9 @@ void update(void)
 				projected_triangle.points[2] = projected_point[2]
 			},
 			.color = {
-				projected_triangle.color = mesh_face.color,
+				projected_triangle.color = triangle_color,
 			},
-			//TODO: average depth of each triangle face
+			//average depth of each triangle face
 			.avg_depth = avg_depth
 			
 		};
@@ -313,7 +324,7 @@ void update(void)
 
 	}
 
-	//TODO: sort the triangles to render by their avg_depth >>>> [bubble sort]
+	//sort the triangles to render by their avg_depth >>>> [bubble sort]
 	int num_triangles = array_length(triangles_to_render);
 	for (int i = 0; i < num_triangles; i++)
 	{
@@ -366,10 +377,12 @@ void render(void)
 		//draw filled triangle
 		if (render_method == RENDER_FILL_TRIANGLE || render_method == RENDER_FILL_TRIANGLE_WIRE)
 		{
+				
 			draw_filled_triangle(
 				triangle.points[0].x, triangle.points[0].y, //VERTEX A
 				triangle.points[1].x, triangle.points[1].y, //VERTEX B
 				triangle.points[2].x, triangle.points[2].y, //VERTEX C
+
 				triangle.color
 			);
 		}
