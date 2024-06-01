@@ -58,5 +58,6 @@ vect3_t vect3_rotate_z(vect3_t v, float angle);
 //////////////////////////////////////////////////////////////////////////////////
 vect4_t vect4_from_vect3(vect3_t v);
 vect3_t vect3_from_vect4(vect4_t v);
+vect2_t vect2_from_vect4(vect4_t v);
 #endif // !VECTOR_H
 

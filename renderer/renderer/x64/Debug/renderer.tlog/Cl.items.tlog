@@ -4,5 +4,7 @@ F:\My3drenderer\renderer\renderer\light.c;F:\My3drenderer\renderer\renderer\x64\
 F:\My3drenderer\renderer\renderer\Main.c;F:\My3drenderer\renderer\renderer\x64\Debug\Main.obj
 F:\My3drenderer\renderer\renderer\matrix.c;F:\My3drenderer\renderer\renderer\x64\Debug\matrix.obj
 F:\My3drenderer\renderer\renderer\mesh.c;F:\My3drenderer\renderer\renderer\x64\Debug\mesh.obj
+F:\My3drenderer\renderer\renderer\swap.c;F:\My3drenderer\renderer\renderer\x64\Debug\swap.obj
+F:\My3drenderer\renderer\renderer\texture.c;F:\My3drenderer\renderer\renderer\x64\Debug\texture.obj
 F:\My3drenderer\renderer\renderer\triangle.c;F:\My3drenderer\renderer\renderer\x64\Debug\triangle.obj
 F:\My3drenderer\renderer\renderer\vector.c;F:\My3drenderer\renderer\renderer\x64\Debug\vector.obj

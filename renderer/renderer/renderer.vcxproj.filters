@@ -39,6 +39,12 @@
     <ClCompile Include="light.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="texture.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="swap.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="display.h">
@@ -60,6 +66,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="light.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="swap.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

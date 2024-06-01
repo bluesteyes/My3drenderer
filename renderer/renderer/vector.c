@@ -215,3 +215,9 @@ vect3_t vect3_from_vect4(vect4_t v) {
 
 	return result;
 }
+
+vect2_t vect2_from_vect4(vect4_t v) {
+	vect2_t result = { v.x, v.y };
+
+	return result;
+}

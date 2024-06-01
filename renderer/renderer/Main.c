@@ -6,6 +6,8 @@
 #include "display.h"
 #include "matrix.h"
 #include "vector.h"
+#include "triangle.h"
+#include "texture.h"
 #include "mesh.h"
 #include "light.h"
 
@@ -15,17 +17,10 @@
 
 triangle_t* triangles_to_render = NULL;
 
-//////////////////////////////////////////////////////////////////////////////////
-// Declare an array of vectors/points
-//////////////////////////////////////////////////////////////////////////////////
-//const int N_POINTS = 9 * 9 * 9;
-//vect3_t cube_points[9 * 9 * 9]; // 9x9x9 cube
-//vect2_t projected_points[9 * 9 * 9];
 
 //////////////////////////////////////////////////////////////////////////////////
 // Global variables for excution status and game loop
 //////////////////////////////////////////////////////////////////////////////////
-
 vect3_t camera_position = {.x = 0, .y = 0, .z = 0};
 mat4_t proj_matrix;
 
@@ -54,7 +49,6 @@ void setup()
 		window_height
 	);
 
-
 	//Initialize the perspective projection matrix
 	float fov = M_PI / 3.0; //the same as 60 degree
 	float aspect = (float)(window_height) / (float)(window_width);
@@ -62,28 +56,14 @@ void setup()
 	float zfar = 100;
 	proj_matrix = mat4_make_perspective(fov, aspect, znear, zfar);
 
-	//Loads the cube values in the mesh data structure
-	//load_cube_mesh_data();
+	//manually load the hardcoded texture data from the static array
+	mesh_texture = (uint32_t*)REDBRICK_TEXTURE;
+	texture_width = 64;
+	texture_height = 64;
 
-    load_obj_mesh_data("./assets/f22.obj");
-
-	//Start loading my array of vectors
-	//From -1 to 1 (in this 9*9*9 cube)
-
-	/*int point_count = 0;
-
-	for (float x = -1; x <= 1; x += 0.25)
-	{
-		for (float y = -1; y <= 1; y += 0.25)
-		{
-			for (float z = -1; z <= 1; z += 0.25)
-			{
-				vect3_t new_points = { .x = x, .y = y, .z = z };
-				cube_points[point_count++] = new_points;
-			}
-		}
-	}*/
-
+	//Loads the vertex and faces values for the mesh data structure
+	load_cube_mesh_data();
+    //load_obj_mesh_data("./assets/cube.obj");
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -110,32 +90,19 @@ void process_input(void)
 				render_method = RENDER_FILL_TRIANGLE;
 			if (event.key.keysym.sym == SDLK_4)
 				render_method = RENDER_FILL_TRIANGLE_WIRE;
-			if (event.key.keysym.sym == SDLK_5) {
+			if (event.key.keysym.sym == SDLK_5)
+				render_method = RENDER_TEXTURED;
+			if (event.key.keysym.sym == SDLK_6)
+				render_method = RENDER_TEXTURED_WIRE;
+			if (event.key.keysym.sym == SDLK_7) {
 				cull_method = CULL_BACKFACE;
 			}	
-			if (event.key.keysym.sym == SDLK_6) {
+			if (event.key.keysym.sym == SDLK_8) {
 				cull_method = CULL_NONE;
 			}	
 			break;
-			
 	}
 }
-
-//////////////////////////////////////////////////////////////////////////////////
-// Function that recieve a 3d vector and return a projected 2d point
-//////////////////////////////////////////////////////////////////////////////////
-//vect2_t project(vect3_t point)
-//{
-//	vect2_t projected_point = {
-//		.x = fov_factor * point.x / point.z,
-//		.y = fov_factor * point.y / point.z,
-//	};
-//
-//	return projected_point;
-//}
-
-
-
 
 //////////////////////////////////////////////////////////////////////////////////
 // Call update function every frame
@@ -149,8 +116,7 @@ void update(void)
 	int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - previous_frame_time);
 
 	//Only delay excution if running too fast
-	if (time_to_wait > 0 && time_to_wait <= FRAME_TARGET_TIME )
-	{
+	if (time_to_wait > 0 && time_to_wait <= FRAME_TARGET_TIME ){
 		SDL_Delay(time_to_wait);
 	}
 
@@ -159,11 +125,10 @@ void update(void)
 
 	previous_frame_time = SDL_GetTicks();
 
-
 	//Change the mesh scale/rotation values per animation frame
-	mesh.rotation.x += 0.02;
-	//mesh.rotation.y += 0.03;
-	//mesh.rotation.z += 0.03;
+	//mesh.rotation.x += 0.03;
+	mesh.rotation.y += 0.02;
+	//mesh.rotation.z += 0.06;
 	
 	//mesh.scale.x += 0;
 	//mesh.scale.y += 0;
@@ -195,8 +160,7 @@ void update(void)
 		vect4_t transformed_vertices[3];
 
 		//Loop through all three vertices of this current face and apply transformation
-		for (int j = 0; j < 3; j++)
-		{
+		for (int j = 0; j < 3; j++){
 			vect4_t transformed_vertex = vect4_from_vect3 (face_vertices[j]);
 
 			//create a world matrix combining scale, rotation and translation
@@ -213,32 +177,12 @@ void update(void)
 			//multiply the world matrix with the original vector
 			transformed_vertex = mat4_mul_vect4(world_matrix, transformed_vertex);
 
-			////use a matrix to scale, rotate and translate our original vertex
-			////rotate
-			//transformed_vertex = mat4_mul_vect4(rotation_matrix_x, transformed_vertex);
-			//transformed_vertex = mat4_mul_vect4(rotation_matrix_y, transformed_vertex);
-			//transformed_vertex = mat4_mul_vect4(rotation_matrix_z, transformed_vertex);
-
-			////scale
-			//transformed_vertex = mat4_mul_vect4(scale_matrix, transformed_vertex);
-			////translate
-			//transformed_vertex = mat4_mul_vect4(translation_matrix, transformed_vertex);
-
-
-			/*transformed_vertex = vect3_rotate_x(transformed_vertex, mesh.rotation.x);
-			transformed_vertex = vect3_rotate_y(transformed_vertex, mesh.rotation.y);
-			transformed_vertex = vect3_rotate_z(transformed_vertex, mesh.rotation.z);*/
-
-			//Translate the points away from the camera through z axis
-			//transformed_vertex.z = 5;
-
 			//Save transformed vertex in the array of transformed vertices
 			transformed_vertices[j] = transformed_vertex;
 		}
 		
 		
-		//backface culling to see if the current face should be projected
-		
+		//backface culling to see if the current face should be projected	
 		vect3_t vector_a = vect3_from_vect4(transformed_vertices[0]); /*  A  */
 		vect3_t vector_b = vect3_from_vect4(transformed_vertices[1]); /* / \ */
 		vect3_t vector_c = vect3_from_vect4(transformed_vertices[2]); /*C---B*/
@@ -271,24 +215,23 @@ void update(void)
 		}
 
 
-		vect4_t projected_point[3];
+		vect4_t projected_points[3];
 		//Loop through all three vertices of this current face and apply projection
-		for (int j = 0; j < 3; j++)
-		{
+		for (int j = 0; j < 3; j++){
 			//project the current vertex
 			//projected_point[j] = project(vect3_from_vect4 (transformed_vertices[j]));
-			projected_point[j] = mat4_mul_vect4_project(proj_matrix, transformed_vertices[j]);
+			projected_points[j] = mat4_mul_vect4_project(proj_matrix, transformed_vertices[j]);
 
 			//invert the y value to account for flipped screen y coordinate
-			projected_point[j].y *= -1;
+			projected_points[j].y *= -1;
 
 			//scale into the viewport
-			projected_point[j].x *= (window_width / 2.0);
-			projected_point[j].y *= (window_height / 2.0);
+			projected_points[j].x *= (window_width / 2.0);
+			projected_points[j].y *= (window_height / 2.0);
 
 			//translate the projected points to the middle of the screen
-			projected_point[j].x += (window_width / 2.0);
-			projected_point[j].y += (window_height / 2.0);		
+			projected_points[j].x += (window_width / 2.0);
+			projected_points[j].y += (window_height / 2.0);		
 
 			
 		}
@@ -306,57 +249,38 @@ void update(void)
 		// save the projected 2d vertex in the array of projected triangle points
 		triangle_t projected_triangle = {
 			.points = {
-				projected_triangle.points[0] = projected_point[0],
-				projected_triangle.points[1] = projected_point[1],
-				projected_triangle.points[2] = projected_point[2]
+				{projected_points[0].x, projected_points[0].y, projected_points[0].z, projected_points[0].w},
+				{projected_points[1].x, projected_points[1].y, projected_points[1].z, projected_points[1].w},
+				{projected_points[2].x, projected_points[2].y, projected_points[2].z, projected_points[2].w}
 			},
-			.color = {
-				projected_triangle.color = triangle_color,
+			.texcoords = {
+				{mesh_face.a_uv.u, mesh_face.a_uv.v},
+				{mesh_face.b_uv.u, mesh_face.b_uv.v},
+				{mesh_face.c_uv.u, mesh_face.c_uv.v}
+
 			},
+			.color = triangle_color,
 			//average depth of each triangle face
 			.avg_depth = avg_depth
 			
 		};
 
 		//save the projected triagnle in the array of triangles to render
-		//triangles_to_render[i] = projected_triangle;
 		array_push(triangles_to_render, projected_triangle);
 
 	}
 
 	//sort the triangles to render by their avg_depth >>>> [bubble sort]
 	int num_triangles = array_length(triangles_to_render);
-	for (int i = 0; i < num_triangles; i++)
-	{
-		for (int j = i; j < num_triangles; j++)
-		{
-			if (triangles_to_render[i].avg_depth < triangles_to_render[j].avg_depth)
-			{
+	for (int i = 0; i < num_triangles; i++){
+		for (int j = i; j < num_triangles; j++){
+			if (triangles_to_render[i].avg_depth < triangles_to_render[j].avg_depth){
 				triangle_t temp = triangles_to_render[i];
 				triangles_to_render[i] = triangles_to_render[j];
 				triangles_to_render[j] = temp;
 			}
 		}
 	}
-
-	//for (int i = 0; i < N_POINTS; i++)
-	//{
-	//	vect3_t point = cube_points[i];
-
-	//	vect3_t transformed_point = vect3_rotate_x(point, cube_rotation.x);
-	//	transformed_point = vect3_rotate_y(transformed_point, cube_rotation.y);
-	//	transformed_point = vect3_rotate_z(transformed_point, cube_rotation.z);
-
-	//	//Translate the points away from the camera through z axis
-	//	transformed_point.z  -= camera_position.z;
-
-	//	//Project the current point
-	//	vect2_t projected_point = project(transformed_point);
-
-	//	//Save the projected 2d vector in the array of projected points
-	//	projected_points[i] = projected_point;
-	//	
-	//}
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -369,14 +293,12 @@ void render(void)
 	int num_triangles = array_length(triangles_to_render);
 
 	//loop all projected triangles and render them
-	for (int i = 0; i < num_triangles; i++)
-	{
+	for (int i = 0; i < num_triangles; i++){
 		triangle_t triangle = triangles_to_render[i];
 
 
 		//draw filled triangle
-		if (render_method == RENDER_FILL_TRIANGLE || render_method == RENDER_FILL_TRIANGLE_WIRE)
-		{
+		if (render_method == RENDER_FILL_TRIANGLE || render_method == RENDER_FILL_TRIANGLE_WIRE){
 				
 			draw_filled_triangle(
 				triangle.points[0].x, triangle.points[0].y, //VERTEX A
@@ -386,10 +308,20 @@ void render(void)
 				triangle.color
 			);
 		}
+		//draw textureed triangle
+		if (render_method == RENDER_TEXTURED || render_method == RENDER_TEXTURED_WIRE ){
+			draw_textured_triangle(
+				triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w, triangle.texcoords[0].u, triangle.texcoords[0].v, //VERTEX A
+				triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w, triangle.texcoords[1].u, triangle.texcoords[1].v, //VERTEX B
+				triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, triangle.texcoords[2].u, triangle.texcoords[2].v, //VERTEX C
+				mesh_texture
+			);
+			
+		}
+
 		//draw triangle wireframe
 		if (render_method == RENDER_WIRE || render_method == RENDER_WIRE_VERTEX || 
-			render_method == RENDER_FILL_TRIANGLE_WIRE)
-		{
+			render_method == RENDER_FILL_TRIANGLE_WIRE || render_method == RENDER_TEXTURED_WIRE){
 			draw_triangle(
 				triangle.points[0].x, triangle.points[0].y, //VERTEX A
 				triangle.points[1].x, triangle.points[1].y, //VERTEX B
@@ -400,39 +332,14 @@ void render(void)
 		}
 		
 		//draw vertex of triangle
-		if (render_method == RENDER_WIRE_VERTEX)
-		{
+		if (render_method == RENDER_WIRE_VERTEX){
 			draw_rect(triangle.points[0].x - 3, triangle.points[0].y - 3, 6, 6, 0xFFFF0000); //draw vertex a
 			draw_rect(triangle.points[1].x - 3, triangle.points[1].y - 3, 6, 6, 0xFFFF0000); //draw vertex b
 			draw_rect(triangle.points[2].x - 3, triangle.points[2].y - 3, 6, 6, 0xFFFF0000); //draw vertex c
-		}
-		
-
+		}	
 	}
 
-	//draw_triangle(300, 100, 50, 400, 500, 700, 0xFF00FF00);
-
-	//draw_filled_triangle(300,100,50,400,500,700, 0xFFFF5500);
-	
-
-			
-	
-	//Loop all projected points and render them
-	/*for (int i = 0; i < N_POINTS; i++)
-	{
-		vect2_t projected_point = projected_points[i];
-		
-		draw_rect(		
-			projected_point.x + (window_width/2),
-			projected_point.y + (window_height/2),
-			4,
-			4,
-			0xffffff00
-		);
-	}*/
-
 	//Clear the array of "triangle to render" every frame loop
-
 	render_color_buffer();
 
 	clear_color_buffer(0xFF000000);
@@ -442,25 +349,21 @@ void render(void)
 //////////////////////////////////////////////////////////////////////////////////
 // Free the memory that was dynamically allocated by the program
 //////////////////////////////////////////////////////////////////////////////////
-void free_resource(void)
-{
+void free_resource(void){
 	free(color_buffer);
 	array_free(mesh.vertices);
 	array_free(mesh.faces);
 }
 
-int main(int argc, char* args[])
-{	
+int main(int argc, char* args[]){	
 	is_running = initialize_window();
 
 	setup();
 	
-	while(is_running)
-	{
+	while(is_running){
 		process_input();
 		update();
 		render();
-
 	}
 
 	destroy_window();

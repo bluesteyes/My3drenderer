@@ -10,10 +10,8 @@
  int window_height = 600;
 
 
-bool initialize_window(void)
-{
-	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
-	{
+bool initialize_window(void){
+	if (SDL_Init(SDL_INIT_EVERYTHING) != 0){
 		fprintf(stderr, "Error initializing SDL. \n");
 
 		return false;
@@ -34,8 +32,7 @@ bool initialize_window(void)
 		window_height,
 		SDL_WINDOW_BORDERLESS
 	);
-	if (!window)
-	{
+	if (!window){
 		fprintf(stderr, "Error creating SDL window. \n");
 		return false;
 	}
@@ -43,8 +40,7 @@ bool initialize_window(void)
 	// Create a SDL renderer
 	renderer = SDL_CreateRenderer(window, -1, 0);
 
-	if (!renderer)
-	{
+	if (!renderer){
 		fprintf(stderr, "Error creating SDL renderer. \n");
 		return false;
 	}
@@ -57,18 +53,15 @@ bool initialize_window(void)
 
 
 
-void draw_pixel(int x, int y, uint32_t color)
-{
-	if (x>=0 && x < window_width && y>= 0 && y < window_height)
-	{
+void draw_pixel(int x, int y, uint32_t color){
+	if (x>=0 && x < window_width && y>= 0 && y < window_height){
 		color_buffer[(window_width * y) + x] = color;
 	}
 		
 }
 
 // this draw line function use the algorithm of DDA
-void draw_line(int x0, int y0, int x1, int y1, uint32_t color)
-{
+void draw_line(int x0, int y0, int x1, int y1, uint32_t color){
 	int delta_x = (x1 - x0);
 	int delta_y = (y1 - y0);
 
@@ -81,27 +74,17 @@ void draw_line(int x0, int y0, int x1, int y1, uint32_t color)
 	float x_inc = delta_x / (float)side_length;
 	float y_inc = delta_y / (float)side_length;
 
-	for (int i = 0; i < side_length; i++)
-	{
+	for (int i = 0; i < side_length; i++){
 		draw_pixel(round(current_x),round(current_y), color);
 
 		current_x += x_inc;
 		current_y += y_inc;
 	}
-
-
-}
-
-void draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color)
-{
-	draw_line(x0, y0, x1, y1, color);
-	draw_line(x1, y1, x2, y2, color);
-	draw_line(x2, y2, x0, y0, color);
 }
 
 
-void draw_rect(int upper_left_pos_x, int upper_left_pos_y, int width, int height, uint32_t color)
-{
+
+void draw_rect(int upper_left_pos_x, int upper_left_pos_y, int width, int height, uint32_t color){
 	for (int y = 0; y < height; y += 1)
 	{
 		for (int x = 0; x < width; x += 1)
@@ -113,12 +96,10 @@ void draw_rect(int upper_left_pos_x, int upper_left_pos_y, int width, int height
 			draw_pixel(current_x, current_y, color);
 		}
 	}
-
 }
 
-void draw_grid(void)
-{
-	//TODO:
+void draw_grid(void){
+
 	//Draw a background grid that fills the entire window.
 	//Lines should be rendered at every row/col multiple of 10.
 
@@ -126,20 +107,17 @@ void draw_grid(void)
 		for (int x = 0; x < window_width; x += 20)
 			color_buffer[(window_width)*y + x] = 0xFF333333;
 
-
 }
 
 
-void clear_color_buffer(uint32_t color)
-{
+void clear_color_buffer(uint32_t color){
 	for (int y = 0; y < window_height; y += 1)
 		for (int x = 0; x < window_width; x += 1)
 			color_buffer[(window_width)*y + x] = color;
 
 }
 
-void render_color_buffer(void)
-{
+void render_color_buffer(void){
 	SDL_UpdateTexture(
 		color_buffer_texture,
 		NULL,
@@ -152,8 +130,7 @@ void render_color_buffer(void)
 
 
 
-void destroy_window(void)
-{
+void destroy_window(void){
 	
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
