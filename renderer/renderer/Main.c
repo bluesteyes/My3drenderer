@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <SDL.h>
 #include "array.h"
+#include "upng.h"
 #include "display.h"
 #include "matrix.h"
 #include "vector.h"
@@ -43,7 +44,7 @@ void setup()
 	// Creating a SDL texture that is used to display the color buffer
 	color_buffer_texture = SDL_CreateTexture(
 		renderer,
-		SDL_PIXELFORMAT_ARGB8888,
+		SDL_PIXELFORMAT_RGBA32,
 		SDL_TEXTUREACCESS_STREAMING,
 		window_width,
 		window_height
@@ -57,12 +58,13 @@ void setup()
 	proj_matrix = mat4_make_perspective(fov, aspect, znear, zfar);
 
 	//manually load the hardcoded texture data from the static array
-	mesh_texture = (uint32_t*)REDBRICK_TEXTURE;
-	texture_width = 64;
-	texture_height = 64;
+	//mesh_texture = (uint32_t*)REDBRICK_TEXTURE;
+	//texture_width = 64;
+	//texture_height = 64;
 
 	//Loads the vertex and faces values for the mesh data structure
 	load_cube_mesh_data();
+	load_png_texture_data("./assets/cube.png");
     //load_obj_mesh_data("./assets/cube.obj");
 }
 
