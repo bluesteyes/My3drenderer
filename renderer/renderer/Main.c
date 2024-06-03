@@ -63,9 +63,9 @@ void setup()
 	//texture_height = 64;
 
 	//Loads the vertex and faces values for the mesh data structure
-	load_cube_mesh_data();
-	load_png_texture_data("./assets/cube.png");
-    //load_obj_mesh_data("./assets/cube.obj");
+	//load_cube_mesh_data();
+	load_png_texture_data("./assets/f22.png");
+    load_obj_mesh_data("./assets/f22.obj");
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -128,8 +128,8 @@ void update(void)
 	previous_frame_time = SDL_GetTicks();
 
 	//Change the mesh scale/rotation values per animation frame
-	//mesh.rotation.x += 0.03;
-	mesh.rotation.y += 0.02;
+	mesh.rotation.x += 0.02;
+	//mesh.rotation.y += 0.02;
 	//mesh.rotation.z += 0.06;
 	
 	//mesh.scale.x += 0;
@@ -155,9 +155,9 @@ void update(void)
 		face_t mesh_face = mesh.faces[i];
 		
 		vect3_t face_vertices[3];
-		face_vertices[0] = mesh.vertices[mesh_face.a - 1];
-		face_vertices[1] = mesh.vertices[mesh_face.b - 1];
-		face_vertices[2] = mesh.vertices[mesh_face.c - 1];
+		face_vertices[0] = mesh.vertices[mesh_face.a ];
+		face_vertices[1] = mesh.vertices[mesh_face.b ];
+		face_vertices[2] = mesh.vertices[mesh_face.c ];
 
 		vect4_t transformed_vertices[3];
 
@@ -353,6 +353,7 @@ void render(void)
 //////////////////////////////////////////////////////////////////////////////////
 void free_resource(void){
 	free(color_buffer);
+	upng_free(png_texture);
 	array_free(mesh.vertices);
 	array_free(mesh.faces);
 }

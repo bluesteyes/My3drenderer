@@ -158,8 +158,8 @@ void draw_texel(
 	interpolated_v /= interpolated_reciprocal_w;
 
 	//map the uv coordinates to the full texture width and height
-	int tex_x = abs((int)(interpolated_u * texture_width));
-	int tex_y = abs((int)(interpolated_v * texture_height));
+	int tex_x = abs((int)(interpolated_u * texture_width) % texture_width);
+	int tex_y = abs((int)(interpolated_v * texture_height) % texture_height);
 
 	draw_pixel(x, y, texture[(texture_width * tex_y) + tex_x]);
 }
@@ -273,23 +273,27 @@ void draw_textured_triangle(
 	if (y1 > y2) {
 		int_swap(&y1, &y2);
 		int_swap(&x1, &x2);
-
 		float_swap(&z1, &z2);
 		float_swap(&w1, &w2);
-
 		float_swap(&v1, &v2);
 		float_swap(&u1, &u2);
 	}
 	if (y0 > y1) {
 		int_swap(&y0, &y1);
 		int_swap(&x0, &x1);
-
 		float_swap(&z0, &z1);
 		float_swap(&w0, &w1);
-
 		float_swap(&v0, &v1);
 		float_swap(&u0, &u1);
 	}
+
+	//flip the v component to account for inverted uv-coordinates (v grows downwards)
+	v0 = 1.0 - v0;
+	v1 = 1.0 - v1;
+	v2 = 1.0 - v2;
+
+
+
 	//create vector points after we sorted the vertices
 	vect4_t point_a = { x0, y0, z0, w0 };
 	vect4_t point_b = { x1, y1, z1, w1 };
