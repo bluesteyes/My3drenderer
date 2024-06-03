@@ -16,7 +16,9 @@
 // Array of triangles that should be rendered frame by frame
 //////////////////////////////////////////////////////////////////////////////////
 
-triangle_t* triangles_to_render = NULL;
+#define MAX_TRIANGLES_PER_MESH 10000
+triangle_t triangles_to_render[MAX_TRIANGLES_PER_MESH];
+int num_triangles_to_render = 0;
 
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -65,8 +67,8 @@ void setup()
 
 	//Loads the vertex and faces values for the mesh data structure
 	//load_cube_mesh_data();
-	load_png_texture_data("./assets/f22.png");
-    load_obj_mesh_data("./assets/f22.obj");
+	load_png_texture_data("./assets/drone.png");
+    load_obj_mesh_data("./assets/drone.obj");
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -123,14 +125,14 @@ void update(void)
 		SDL_Delay(time_to_wait);
 	}
 
-	//Initialize the array of triangles to render
-	triangles_to_render = NULL;
+	//Initialize the counter of triangles to render for the current frame
+	num_triangles_to_render = 0;
 
 	previous_frame_time = SDL_GetTicks();
 
 	//Change the mesh scale/rotation values per animation frame
-	mesh.rotation.x += 0.02;
-	//mesh.rotation.y += 0.02;
+	//mesh.rotation.x += 0.02;
+	mesh.rotation.y += 0.1;
 	//mesh.rotation.z += 0.06;
 	
 	//mesh.scale.x += 0;
@@ -239,8 +241,8 @@ void update(void)
 			
 		}
 		// Calculate the average depth for each face based on the vertices after transformation
-		float avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z +
-			transformed_vertices[2].z) / 3;
+		//float avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z +
+		//	transformed_vertices[2].z) / 3;
 
 		//calculate how align the light direction is with the face normal (using dot product)
 		float light_intensity_factor = -vect3_dot(normal_vect, light.direction);
@@ -263,27 +265,28 @@ void update(void)
 
 			},
 			.color = triangle_color,
-			//average depth of each triangle face
-			.avg_depth = avg_depth
-			
 		};
 
 		//save the projected triagnle in the array of triangles to render
-		array_push(triangles_to_render, projected_triangle);
-
-	}
-
-	//sort the triangles to render by their avg_depth >>>> [bubble sort]
-	int num_triangles = array_length(triangles_to_render);
-	for (int i = 0; i < num_triangles; i++){
-		for (int j = i; j < num_triangles; j++){
-			if (triangles_to_render[i].avg_depth < triangles_to_render[j].avg_depth){
-				triangle_t temp = triangles_to_render[i];
-				triangles_to_render[i] = triangles_to_render[j];
-				triangles_to_render[j] = temp;
-			}
+		if (num_triangles_to_render < MAX_TRIANGLES_PER_MESH){
+			triangles_to_render[num_triangles_to_render] = projected_triangle;
+			num_triangles_to_render++;
 		}
+		
+
 	}
+
+	////sort the triangles to render by their avg_depth >>>> [bubble sort]
+	//int num_triangles = array_length(triangles_to_render);
+	//for (int i = 0; i < num_triangles; i++){
+	//	for (int j = i; j < num_triangles; j++){
+	//		if (triangles_to_render[i].avg_depth < triangles_to_render[j].avg_depth){
+	//			triangle_t temp = triangles_to_render[i];
+	//			triangles_to_render[i] = triangles_to_render[j];
+	//			triangles_to_render[j] = temp;
+	//		}
+	//	}
+	//}
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -293,10 +296,9 @@ void render(void)
 {
 	draw_grid();
 
-	int num_triangles = array_length(triangles_to_render);
 
 	//loop all projected triangles and render them
-	for (int i = 0; i < num_triangles; i++){
+	for (int i = 0; i < num_triangles_to_render; i++){
 		triangle_t triangle = triangles_to_render[i];
 
 
@@ -304,9 +306,9 @@ void render(void)
 		if (render_method == RENDER_FILL_TRIANGLE || render_method == RENDER_FILL_TRIANGLE_WIRE){
 				
 			draw_filled_triangle(
-				triangle.points[0].x, triangle.points[0].y, //VERTEX A
-				triangle.points[1].x, triangle.points[1].y, //VERTEX B
-				triangle.points[2].x, triangle.points[2].y, //VERTEX C
+				triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w, //VERTEX A
+				triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w, //VERTEX B
+				triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, //VERTEX C
 
 				triangle.color
 			);
@@ -342,9 +344,7 @@ void render(void)
 		}	
 	}
 
-	//Clear the array of "triangle to render" every frame loop
 	render_color_buffer();
-
 	clear_color_buffer(0xFF000000);
 	clear_z_buffer();
 	SDL_RenderPresent(renderer);
