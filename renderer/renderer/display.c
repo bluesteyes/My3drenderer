@@ -3,6 +3,7 @@
 
  SDL_Window* window = NULL;
  SDL_Renderer* renderer = NULL;
+ float* z_buffer = NULL;
  uint32_t* color_buffer = NULL;
  SDL_Texture* color_buffer_texture = NULL;
 
@@ -51,8 +52,6 @@ bool initialize_window(void){
 }
 
 
-
-
 void draw_pixel(int x, int y, uint32_t color){
 	if (x>=0 && x < window_width && y>= 0 && y < window_height){
 		color_buffer[(window_width * y) + x] = color;
@@ -81,7 +80,6 @@ void draw_line(int x0, int y0, int x1, int y1, uint32_t color){
 		current_y += y_inc;
 	}
 }
-
 
 
 void draw_rect(int upper_left_pos_x, int upper_left_pos_y, int width, int height, uint32_t color){
@@ -117,6 +115,14 @@ void clear_color_buffer(uint32_t color){
 
 }
 
+void clear_z_buffer(void) {
+	for (int y = 0; y < window_height; y += 1)
+		for (int x = 0; x < window_width; x += 1)
+			z_buffer[(window_width)*y + x] = 1.0;
+
+	
+}
+
 void render_color_buffer(void){
 	SDL_UpdateTexture(
 		color_buffer_texture,
@@ -127,7 +133,6 @@ void render_color_buffer(void){
 
 	SDL_RenderCopy(renderer, color_buffer_texture, NULL, NULL);
 }
-
 
 
 void destroy_window(void){
