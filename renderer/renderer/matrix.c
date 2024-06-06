@@ -191,3 +191,29 @@ vect4_t mat4_mul_vect4_project(mat4_t mat_proj, vect4_t v) {
 	return result;
 
 }
+
+mat4_t mat4_look_at(vect3_t eye, vect3_t target, vect3_t up) {
+
+	vect3_t z = vect3_sub(target, eye);  //forward direction
+	vect3_normalize(&z);
+
+	vect3_t x = vect3_cross(up, z); //right direction -> left handed system
+	vect3_normalize(&x);
+
+	vect3_t y = vect3_cross(z, x); // up direction -> left handed system
+
+	// | x.x     x.y     x.z     -dot(x,eye) |
+	// | y.x     y.y     y.z     -dot(y,eye) |
+	// | z.x     z.y     z.z     -dot(z,eye) |
+	// |   0       0       0              1  |
+
+	mat4_t view_matrix = { {
+		{x.x, x.y, x.z, -vect3_dot(x, eye)},
+		{y.x, y.y, y.z, -vect3_dot(y, eye)},
+		{z.x, z.y, z.z, -vect3_dot(z, eye)},
+		{  0,   0,   0,                  1}
+
+	} };
+
+	return view_matrix;
+}

@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include "array.h"
 #include "upng.h"
+#include "camera.h"
 #include "display.h"
 #include "matrix.h"
 #include "vector.h"
@@ -16,7 +17,7 @@
 // Array of triangles that should be rendered frame by frame
 //////////////////////////////////////////////////////////////////////////////////
 
-#define MAX_TRIANGLES_PER_MESH 10000
+#define MAX_TRIANGLES_PER_MESH 200000
 triangle_t triangles_to_render[MAX_TRIANGLES_PER_MESH];
 int num_triangles_to_render = 0;
 
@@ -24,7 +25,9 @@ int num_triangles_to_render = 0;
 //////////////////////////////////////////////////////////////////////////////////
 // Global variables for excution status and game loop
 //////////////////////////////////////////////////////////////////////////////////
-vect3_t camera_position = {.x = 0, .y = 0, .z = 0};
+
+mat4_t world_matrix;
+mat4_t view_matrix;
 mat4_t proj_matrix;
 
 bool is_running = false;
@@ -54,7 +57,7 @@ void setup()
 	);
 
 	//Initialize the perspective projection matrix
-	float fov = M_PI / 3.0; //the same as 60 degree
+	float fov = M_PI / 3; //the same as 60 degree
 	float aspect = (float)(window_height) / (float)(window_width);
 	float znear = 0.1;
 	float zfar = 100;
@@ -67,8 +70,8 @@ void setup()
 
 	//Loads the vertex and faces values for the mesh data structure
 	//load_cube_mesh_data();
-	load_png_texture_data("./assets/drone.png");
-    load_obj_mesh_data("./assets/drone.obj");
+	load_png_texture_data("./assets/f22.png");
+    load_obj_mesh_data("./assets/f22.obj");
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -132,7 +135,7 @@ void update(void)
 
 	//Change the mesh scale/rotation values per animation frame
 	//mesh.rotation.x += 0.02;
-	mesh.rotation.y += 0.1;
+	//mesh.rotation.y += 0.01;
 	//mesh.rotation.z += 0.06;
 	
 	//mesh.scale.x += 0;
@@ -141,15 +144,22 @@ void update(void)
 	//mesh.translation.x += 0.000;
 	mesh.translation.z = 5;
 
+	//change the animation position per animation frame
+	camera.position.x += 0.05;
+	//camera.position.y += 0.005;
+	//create the view matrix looking at a hardcoded target point
+	vect3_t target = { 0, 0, 5 };
+	vect3_t up_direction = { 0, 1, 0 };
+	view_matrix = mat4_look_at(camera.position, target, up_direction);
+
 	//create  scale, rotation and translation matrix that will be used to multiply the mesh vertices
 	mat4_t scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
-	
 	mat4_t rotation_matrix_x = mat4_make_rotation_x(mesh.rotation.x);
 	mat4_t rotation_matrix_y = mat4_make_rotation_y(mesh.rotation.y);
 	mat4_t rotation_matrix_z = mat4_make_rotation_z(mesh.rotation.z);
-
 	mat4_t translation_matrix = mat4_make_translation(mesh.translation.x,
 		mesh.translation.y, mesh.translation.z);
+
 	//Loop all triangle faces of cube mesh
 	int num_faces = array_length(mesh.faces);
 
@@ -169,7 +179,7 @@ void update(void)
 			vect4_t transformed_vertex = vect4_from_vect3 (face_vertices[j]);
 
 			//create a world matrix combining scale, rotation and translation
-			mat4_t world_matrix = mat4_identity();
+			world_matrix = mat4_identity();
 
 			//multiply all matrices and load the world matrix
 			//order matters: first scale, next rotate, then translate >>> [T]*[R]*[S]*v
@@ -181,6 +191,12 @@ void update(void)
 
 			//multiply the world matrix with the original vector
 			transformed_vertex = mat4_mul_vect4(world_matrix, transformed_vertex);
+
+			
+
+			//multiply the view matrix with the world matrix transformed vector to transform the scene to camera space
+			transformed_vertex = mat4_mul_vect4(view_matrix, transformed_vertex);
+
 
 			//Save transformed vertex in the array of transformed vertices
 			transformed_vertices[j] = transformed_vertex;
@@ -206,7 +222,8 @@ void update(void)
 		vect3_normalize(&normal_vect);
 
 		//find the vector between a point in the triangle and the camera origin
-		vect3_t cam_ray = vect3_sub(camera_position, vector_a);
+		vect3_t origin = {0, 0, 0};
+		vect3_t cam_ray = vect3_sub(origin, vector_a);
 
 		//calculate how align the camera ray is with the face normal (using dot product)
 		float dot_normal_cam = vect3_dot(normal_vect, cam_ray);
@@ -240,9 +257,7 @@ void update(void)
 
 			
 		}
-		// Calculate the average depth for each face based on the vertices after transformation
-		//float avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z +
-		//	transformed_vertices[2].z) / 3;
+
 
 		//calculate how align the light direction is with the face normal (using dot product)
 		float light_intensity_factor = -vect3_dot(normal_vect, light.direction);
@@ -275,18 +290,6 @@ void update(void)
 		
 
 	}
-
-	////sort the triangles to render by their avg_depth >>>> [bubble sort]
-	//int num_triangles = array_length(triangles_to_render);
-	//for (int i = 0; i < num_triangles; i++){
-	//	for (int j = i; j < num_triangles; j++){
-	//		if (triangles_to_render[i].avg_depth < triangles_to_render[j].avg_depth){
-	//			triangle_t temp = triangles_to_render[i];
-	//			triangles_to_render[i] = triangles_to_render[j];
-	//			triangles_to_render[j] = temp;
-	//		}
-	//	}
-	//}
 }
 
 //////////////////////////////////////////////////////////////////////////////////
