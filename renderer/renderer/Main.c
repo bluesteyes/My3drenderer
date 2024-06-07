@@ -13,6 +13,17 @@
 #include "mesh.h"
 #include "light.h"
 
+
+
+
+//////////////////////////////////////////////////////////////////////////////////
+// Global variables for excution status and game loop
+//////////////////////////////////////////////////////////////////////////////////
+
+bool is_running = false;
+int previous_frame_time = 0;
+float delta_time = 0;
+
 //////////////////////////////////////////////////////////////////////////////////
 // Array of triangles that should be rendered frame by frame
 //////////////////////////////////////////////////////////////////////////////////
@@ -21,17 +32,13 @@
 triangle_t triangles_to_render[MAX_TRIANGLES_PER_MESH];
 int num_triangles_to_render = 0;
 
-
 //////////////////////////////////////////////////////////////////////////////////
-// Global variables for excution status and game loop
+// Declaration of our global transformation matrices
 //////////////////////////////////////////////////////////////////////////////////
 
 mat4_t world_matrix;
 mat4_t view_matrix;
 mat4_t proj_matrix;
-
-bool is_running = false;
-int previous_frame_time = 0;
 
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -128,25 +135,30 @@ void update(void)
 		SDL_Delay(time_to_wait);
 	}
 
-	//Initialize the counter of triangles to render for the current frame
-	num_triangles_to_render = 0;
+	//get a delta time factor converted to seconds to be used to update our game object
+	delta_time = (SDL_GetTicks() - previous_frame_time) / 1000.0; //-> 1/framerate
+	
 
 	previous_frame_time = SDL_GetTicks();
 
-	//Change the mesh scale/rotation values per animation frame
-	//mesh.rotation.x += 0.02;
-	//mesh.rotation.y += 0.01;
-	//mesh.rotation.z += 0.06;
+	//Initialize the counter of triangles to render for the current frame
+	num_triangles_to_render = 0;
+
 	
+
+	//Change the mesh scale/rotation values per animation frame
+	mesh.rotation.x += 0.6 * delta_time;
+	mesh.rotation.y += 0.6 * delta_time;
+	mesh.rotation.z += 0.6 * delta_time;
 	//mesh.scale.x += 0;
 	//mesh.scale.y += 0;
-
 	//mesh.translation.x += 0.000;
 	mesh.translation.z = 5;
 
 	//change the animation position per animation frame
-	camera.position.x += 0.05;
-	//camera.position.y += 0.005;
+	camera.position.x += 0.5 * delta_time;
+	camera.position.y += 0.5 * delta_time;
+
 	//create the view matrix looking at a hardcoded target point
 	vect3_t target = { 0, 0, 5 };
 	vect3_t up_direction = { 0, 1, 0 };

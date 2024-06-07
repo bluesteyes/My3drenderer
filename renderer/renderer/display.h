@@ -7,7 +7,7 @@
 #include <sdl.h>
 
 #define FPS 60
-#define FRAME_TARGET_TIME (1000 / FPS)
+#define FRAME_TARGET_TIME (1000 / FPS) // this is delta time in miliseconds
 
 enum cull_method
 {
