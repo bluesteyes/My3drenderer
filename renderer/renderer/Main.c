@@ -114,7 +114,36 @@ void process_input(void)
 			}	
 			if (event.key.keysym.sym == SDLK_8) {
 				cull_method = CULL_NONE;
-			}	
+			}
+			if (event.key.keysym.sym == SDLK_9) {
+				camera.position.y += 3.0 * delta_time;
+			}
+			if (event.key.keysym.sym == SDLK_0) {
+				camera.position.y -= 3.0 * delta_time;
+			}
+
+			if (event.key.keysym.sym == SDLK_a) {
+				camera.position.x += 3.0 * delta_time;
+			}
+			if (event.key.keysym.sym == SDLK_d) {
+				camera.position.x -= 3.0 * delta_time;
+			}
+			if (event.key.keysym.sym == SDLK_LEFT) {
+				camera.yaw += 1.0 * delta_time;
+			}
+			if (event.key.keysym.sym == SDLK_RIGHT) {
+				camera.yaw -= 1.0 * delta_time;
+			}
+			if (event.key.keysym.sym == SDLK_UP) {
+				camera.forward_velocity = vect3_mul(camera.direction, 3.0 * delta_time);
+				camera.position = vect3_add(camera.position, camera.forward_velocity);
+			}
+			if (event.key.keysym.sym == SDLK_DOWN) {
+				camera.forward_velocity = vect3_mul(camera.direction, 3.0 * delta_time);
+				camera.position = vect3_sub(camera.position, camera.forward_velocity);
+			}
+
+
 			break;
 	}
 }
@@ -147,21 +176,35 @@ void update(void)
 	
 
 	//Change the mesh scale/rotation values per animation frame
-	mesh.rotation.x += 0.6 * delta_time;
-	mesh.rotation.y += 0.6 * delta_time;
-	mesh.rotation.z += 0.6 * delta_time;
+	mesh.rotation.x += 0.0 * delta_time;
+	mesh.rotation.y += 0.0 * delta_time;
+	mesh.rotation.z += 0.0 * delta_time;
 	//mesh.scale.x += 0;
 	//mesh.scale.y += 0;
 	//mesh.translation.x += 0.000;
 	mesh.translation.z = 5;
 
 	//change the animation position per animation frame
-	camera.position.x += 0.5 * delta_time;
-	camera.position.y += 0.5 * delta_time;
+	//camera.position.x += 0.5 * delta_time;
+	//camera.position.y += 0.5 * delta_time;
+	//camera.position.z += 0.5 * delta_time;
+	//camera.forward_velocity = vect3_mul(camera.direction, 5 * delta_time);
+	//camera.position = vect3_sub(camera.position, camera.forward_velocity);
 
-	//create the view matrix looking at a hardcoded target point
-	vect3_t target = { 0, 0, 5 };
+
+	//initialize the target looking at the positive z-axis
+	vect3_t target = { 0, 0, 1 };
+
+	//apply yaw rotation to vectors
+	mat4_t camera_yaw_rotation = mat4_make_rotation_y(camera.yaw);
+	camera.direction = vect3_from_vect4(mat4_mul_vect4(camera_yaw_rotation, vect4_from_vect3(target)));
+
+
+	//offset the camera position in the direction where the camera is pointing at
+	target = vect3_add(camera.position, camera.direction);
 	vect3_t up_direction = { 0, 1, 0 };
+
+	//create view matrix
 	view_matrix = mat4_look_at(camera.position, target, up_direction);
 
 	//create  scale, rotation and translation matrix that will be used to multiply the mesh vertices
