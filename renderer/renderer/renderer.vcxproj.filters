@@ -51,6 +51,9 @@
     <ClCompile Include="camera.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="clipping.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="display.h">
@@ -84,6 +87,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="camera.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="clipping.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

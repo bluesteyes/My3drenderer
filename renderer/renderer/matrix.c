@@ -1,7 +1,7 @@
 #include <math.h>
 #include "matrix.h"
 
-mat4_t mat4_identity(void) {
+mat4_t mat4_identity(void){
 	// | 1 0 0 0 |
 	// | 0 1 0 0 |
 	// | 0 0 1 0 |
@@ -16,7 +16,7 @@ mat4_t mat4_identity(void) {
 	return m;
 }
 
-mat4_t mat4_make_scale(float sx, float sy, float sz) {
+mat4_t mat4_make_scale(float sx, float sy, float sz){
 	// | sx 0  0  0 |
 	// | 0  sy 0  0 |
 	// | 0  0  sz 0 |
@@ -31,7 +31,7 @@ mat4_t mat4_make_scale(float sx, float sy, float sz) {
 	return m;
 }
 
-mat4_t mat4_make_rotation_x(float angle) {
+mat4_t mat4_make_rotation_x(float angle){
 	float c = cos(angle);
 	float s = sin(angle);
 
@@ -50,7 +50,7 @@ mat4_t mat4_make_rotation_x(float angle) {
 }
 
 
-mat4_t mat4_make_rotation_y(float angle) {
+mat4_t mat4_make_rotation_y(float angle){
 	float c = cos(angle);
 	float s = sin(angle);
 
@@ -69,7 +69,7 @@ mat4_t mat4_make_rotation_y(float angle) {
 }
 
 
-mat4_t mat4_make_rotation_z(float angle) {
+mat4_t mat4_make_rotation_z(float angle){
 	float c = cos(angle);
 	float s = sin(angle);
 
@@ -87,9 +87,7 @@ mat4_t mat4_make_rotation_z(float angle) {
 	return m;
 }
 
-
-
-mat4_t mat4_make_translation(float tx, float ty, float tz) {
+mat4_t mat4_make_translation(float tx, float ty, float tz){
 	// | 1 0 0 tx |
 	// | 0 1 0 ty |
 	// | 0 0 1 tz |
@@ -102,10 +100,9 @@ mat4_t mat4_make_translation(float tx, float ty, float tz) {
 	m.m[2][3] = tz;
 
 	return m;
-
 }
 
-mat4_t mat4_mul_mat4(mat4_t a, mat4_t b) {
+mat4_t mat4_mul_mat4(mat4_t a, mat4_t b){
 
 	mat4_t result;
 	int rows = 4;
@@ -134,19 +131,17 @@ mat4_t mat4_mul_mat4(mat4_t a, mat4_t b) {
 	//result.m[2][3] = a.m[2][0] * b.m[0][3] + a.m[2][1] * b.m[1][3] + a.m[2][2] * b.m[2][2] + a.m[2][3] * b.m[3][3];
 	//result.m[3][3] = a.m[3][0] * b.m[0][3] + a.m[3][1] * b.m[1][3] + a.m[3][2] * b.m[2][2] + a.m[3][3] * b.m[3][3];
 
-	for (int i = 0; i < rows; i++)
-	{
+	for (int i = 0; i < rows; i++){
 		for (int j = 0; j < columns; j++)
 		{
 			result.m[i][j] = a.m[i][0] * b.m[0][j] + a.m[i][1] * b.m[1][j] + a.m[i][2] * b.m[2][j] + a.m[i][3] * b.m[3][j];
 		}
 	}
 	return result;
-
 }
 
 
-vect4_t mat4_mul_vect4(mat4_t m, vect4_t v) {
+vect4_t mat4_mul_vect4(mat4_t m, vect4_t v){
 
 	vect4_t result;
 
@@ -156,7 +151,6 @@ vect4_t mat4_mul_vect4(mat4_t m, vect4_t v) {
 	result.w = m.m[3][0] * v.x + m.m[3][1] * v.y + m.m[3][2] * v.z + m.m[3][3] * v.w;
 
 	return result;
-
 }
 
 mat4_t mat4_make_perspective(float fov, float aspect, float znear, float zfar){
@@ -189,7 +183,6 @@ vect4_t mat4_mul_vect4_project(mat4_t mat_proj, vect4_t v) {
 	}
 
 	return result;
-
 }
 
 mat4_t mat4_look_at(vect3_t eye, vect3_t target, vect3_t up) {

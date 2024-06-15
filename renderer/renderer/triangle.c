@@ -126,12 +126,11 @@ void draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t colo
 // Function to draw the z-tested pixel at x,y position 
 ///////////////////////////////////////////////////////////////////////////////
 
-void draw_depth_tested_pixel(
+void draw_triangle_pixel(
 	int x, int y, 
 	vect4_t point_a, vect4_t point_b, vect4_t point_c,
 	uint32_t color
 ) {
-
 	vect2_t p = { x, y };
 
 	vect2_t a = vect2_from_vect4(point_a);
@@ -144,20 +143,20 @@ void draw_depth_tested_pixel(
 	float beta = weights.y;
 	float gamma = weights.z;
 
-	float interpolated_reciprocal_w;
 
-	interpolated_reciprocal_w = (1 / point_a.w) * alpha + (1 / point_b.w) * beta + (1 / point_c.w) * gamma;
+	//interpolate the value of 1/w for the current pixel
+	float interpolated_reciprocal_w = (1 / point_a.w) * alpha + (1 / point_b.w) * beta + (1 / point_c.w) * gamma;
 
 	//adjust the value of 1/w so the pixels that are closer to the camera with smaller values
-	interpolated_reciprocal_w = 1 - interpolated_reciprocal_w;
+	interpolated_reciprocal_w = 1.0 - interpolated_reciprocal_w;
 
-	//only draw the pixel if the depth value is less than the one perviously stored in the z-buffer
+
+	// Only draw the pixel if the depth value is less than the one previously stored in the z-buffer
 	if (interpolated_reciprocal_w < z_buffer[(window_width * y) + x]) {
-		
-		//draw a solid color on a pixel at x,y position
+		// Draw a pixel at position (x,y) with a solid color
 		draw_pixel(x, y, color);
 
-		//update the z-buffer value with the 1/w value of this current pixel
+		// Update the z-buffer value with the 1/w of this current pixel
 		z_buffer[(window_width * y) + x] = interpolated_reciprocal_w;
 	}
 
@@ -168,7 +167,7 @@ void draw_depth_tested_pixel(
 // Function to draw the textured pixel at x,y position using interpolation
 ///////////////////////////////////////////////////////////////////////////////
 
-void draw_texel(
+void draw_triangle_texel(
 	int x, int y, uint32_t* texture, 
 	vect4_t point_a, vect4_t point_b, vect4_t point_c, 
 	tex2_t a_uv, tex2_t b_uv, tex2_t c_uv
@@ -202,11 +201,11 @@ void draw_texel(
 	interpolated_v /= interpolated_reciprocal_w;
 
 	//map the uv coordinates to the full texture width and height
-	int tex_x = abs((int)(interpolated_u * texture_width) % texture_width);
-	int tex_y = abs((int)(interpolated_v * texture_height) % texture_height);
+	int tex_x = abs((int)(interpolated_u * texture_width)) % texture_width;
+	int tex_y = abs((int)(interpolated_v * texture_height)) % texture_height;
 
 	//adjust the value of 1/w so the pixels that are closer to the camera with smaller values
-	interpolated_reciprocal_w = 1 - interpolated_reciprocal_w;
+	interpolated_reciprocal_w = 1.0 - interpolated_reciprocal_w;
 
 	//only draw the pixel if the depth value is less than the one perviously stored in the z-buffer
 	if (interpolated_reciprocal_w < z_buffer[(window_width * y) + x]) {
@@ -300,7 +299,7 @@ void draw_filled_triangle(
 			for (int x = x_start; x < x_end; x++)
 			{
 				//Draw our pixel with the color from left to right
-				draw_depth_tested_pixel(x,y,point_a,point_b,point_c,color);
+				draw_triangle_pixel(x,y,point_a,point_b,point_c,color);
 			}
 		}
 	}
@@ -331,7 +330,7 @@ void draw_filled_triangle(
 			for (int x = x_start; x < x_end; x++) {
 
 				//Draw our pixel with the solid color from left to right
-				draw_depth_tested_pixel(x, y, point_a, point_b, point_c, color);
+				draw_triangle_pixel(x, y, point_a, point_b, point_c, color);
 
 			}
 		}
@@ -442,7 +441,7 @@ void draw_textured_triangle(
 			for (int x = x_start; x < x_end; x++)
 			{
 				//Draw our pixel with the color that comes from the texture
-				draw_texel(x, y, texture, point_a, point_b, point_c, a_uv, b_uv, c_uv);
+				draw_triangle_texel(x, y, texture, point_a, point_b, point_c, a_uv, b_uv, c_uv);
 			}
 		}
 	}
@@ -473,7 +472,7 @@ void draw_textured_triangle(
 			for (int x = x_start; x < x_end; x++){
 		
 				//Draw our pixel with the color that comes from the texture
-				draw_texel(x, y, texture, point_a, point_b, point_c, a_uv, b_uv, c_uv);
+				draw_triangle_texel(x, y, texture, point_a, point_b, point_c, a_uv, b_uv, c_uv);
 
 			}
 		}

@@ -51,12 +51,10 @@ bool initialize_window(void){
 	return true;
 }
 
-
 void draw_pixel(int x, int y, uint32_t color){
 	if (x>=0 && x < window_width && y>= 0 && y < window_height){
 		color_buffer[(window_width * y) + x] = color;
-	}
-		
+	}	
 }
 
 // this draw line function use the algorithm of DDA
@@ -80,7 +78,6 @@ void draw_line(int x0, int y0, int x1, int y1, uint32_t color){
 		current_y += y_inc;
 	}
 }
-
 
 void draw_rect(int upper_left_pos_x, int upper_left_pos_y, int width, int height, uint32_t color){
 	for (int y = 0; y < height; y += 1)

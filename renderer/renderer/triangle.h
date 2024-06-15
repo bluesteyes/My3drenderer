@@ -39,13 +39,13 @@ void draw_textured_triangle(
 	int x2, int y2, float z2, float w2, float u2, float v2,
 	uint32_t* texture);
 
-void draw_depth_tested_pixel( 
+void draw_triangle_pixel( 
 	int x, int y, 
 	vect4_t point_a, vect4_t point_b, vect4_t point_c,
 	uint32_t color
 	);
 
-void draw_texel(int x, int y, uint32_t* texture,
+void draw_triangle_texel(int x, int y, uint32_t* texture,
 	vect4_t point_a, vect4_t point_b, vect4_t point_c,
 	tex2_t a_uv, tex2_t b_uv, tex2_t c_uv);
 
