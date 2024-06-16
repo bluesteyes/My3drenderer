@@ -1,9 +1,15 @@
 
 #include "light.h"
 
-light_t light = {
-	.direction = {0,0,1}
-};
+light_t light;
+
+void init_light(vect3_t direction) {
+	light.direction = direction;
+}
+
+vect3_t get_light_direction(void) {
+	return light.direction;
+}
 
 uint32_t light_apply_intensity(uint32_t original_color, float percentage_factor) {
 

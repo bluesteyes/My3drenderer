@@ -9,9 +9,9 @@ typedef struct {
 
 } light_t;
 
-extern light_t light;
-
 uint32_t light_apply_intensity(uint32_t original_color, float percentage_factor);
+void init_light(vect3_t direction);
+vect3_t get_light_direction(void);
 
 #endif // !LIGHT_H
 
