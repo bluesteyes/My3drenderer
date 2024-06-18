@@ -128,13 +128,11 @@ void clip_polygon_against_plane(polygon_t* polygon, int plane ){ // parameter po
 				.z = float_lerp(previous_vertex->z, current_vertex->z, interpolation_factor)
 			};
 
-
 			//use the lerp formula to get the interpolated texcoords
 			tex2_t interpolated_texcoord = {
 				.u = float_lerp(previous_texcoord->u, current_texcoord->u, interpolation_factor),
 				.v = float_lerp(previous_texcoord->v, current_texcoord->v, interpolation_factor)
 			};
-
 
 			//insert the intersection point to the list of "inside vertices"
 			inside_vertices[num_inside_vertices] = vect3_clone(&intersection_point);

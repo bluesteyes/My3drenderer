@@ -6,8 +6,7 @@
 #define MAX_NUM_POLY_VERTICES 10
 #define MAX_NUM_POLY_TRIANGLES 10
 
-enum
-{
+enum {
 	LEFT_FRUSTUM_PLANE,
 	RIGHT_FRUSTUM_PLANE,
 	TOP_FRUSTUM_PLANE,
@@ -17,18 +16,14 @@ enum
 };
 
 typedef struct {
-
 	vect3_t point;
 	vect3_t normal;
-
 }plane_t;
 
 typedef struct {
-
 	vect3_t vertices[MAX_NUM_POLY_VERTICES];
 	tex2_t texcoords[MAX_NUM_POLY_VERTICES];
 	int num_vertices;
-
 }polygon_t;
 
 

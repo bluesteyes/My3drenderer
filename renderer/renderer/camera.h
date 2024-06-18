@@ -19,6 +19,8 @@ vect3_t get_camera_fwd_velocity(void);
 float get_camera_yaw(void);
 float get_camera_pitch(void);
 
+vect3_t get_camera_look_at_target(void);
+
 void set_camera_direction(vect3_t direction);
 void set_camera_position(vect3_t position);
 void set_camera_position_x(float x);
