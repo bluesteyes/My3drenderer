@@ -95,7 +95,7 @@ bool initialize_window(void){
 
 	SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
 
-	// Allocate the required memory in bytes to hold the color buffer
+	// Allocate the required memory in bytes to hold the color buffer and z buffer
 	color_buffer = (uint32_t*)malloc(sizeof(uint32_t) * window_width * window_height);
 	z_buffer = (float*)malloc(sizeof(float) * window_width * window_height);
 
@@ -107,7 +107,6 @@ bool initialize_window(void){
 		window_width,
 		window_height
 	);
-
 
 
 	return true;
@@ -208,4 +207,26 @@ void destroy_window(void){
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
+}
+
+
+// Color packing function
+uint32_t pack_color(float r, float g, float b, float a) {
+	uint32_t color = 0;
+	color |= ((uint32_t)(a * 255) & 0xFF) << 24;
+	color |= ((uint32_t)(r * 255) & 0xFF) << 16;
+	color |= ((uint32_t)(g * 255) & 0xFF) << 8;
+	color |= ((uint32_t)(b * 255) & 0xFF);
+	
+	return color;
+}
+
+// Color unpacking function
+void unpack_color(uint32_t color, float* r, float* g, float* b, float* a) {
+
+	*a = ((color >> 24) & 0xFF) / 255.0;
+	*r = ((color >> 16) & 0xFF) / 255.0;
+	*g = ((color >> 8) & 0xFF) / 255.0;
+	*b = (color & 0xFF) / 255.0;
+	
 }

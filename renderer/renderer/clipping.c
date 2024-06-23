@@ -85,7 +85,7 @@ void triangles_from_polygon(polygon_t* polygon, triangle_t triangles[], int* num
 		triangles[i].texcoords[1] = polygon->texcoords[index1];
 		triangles[i].texcoords[2] = polygon->texcoords[index2];
 	}
-	
+
 	*num_triangles = polygon->num_vertices - 2;
 }
 
@@ -118,7 +118,7 @@ void clip_polygon_against_plane(polygon_t* polygon, int plane ){ // parameter po
 		//if we changed from inside to outside or outside to inside
 		if (current_dot * previous_dot < 0){
 			
-			//TODO: find the interpolation factor t
+			//find the interpolation factor t 
 			float interpolation_factor = previous_dot / (previous_dot - current_dot);
 
 			//find the intersection point I = Q1 + t(Q2 - Q1) ---> use the lerp fromula

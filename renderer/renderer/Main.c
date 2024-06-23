@@ -13,6 +13,7 @@
 #include "texture.h"
 #include "mesh.h"
 #include "light.h"
+#include "material.h"
 
 //////////////////////////////////////////////////////////////////////////////////
 // Global variables for excution status and game loop
@@ -26,7 +27,7 @@ float delta_time = 0;
 // Array of triangles that should be rendered frame by frame
 //////////////////////////////////////////////////////////////////////////////////
 
-#define MAX_TRIANGLES_PER_MESH 10000
+#define MAX_TRIANGLES_PER_MESH 100000
 triangle_t triangles_to_render[MAX_TRIANGLES_PER_MESH];
 int num_triangles_to_render = 0;
 
@@ -43,8 +44,11 @@ mat4_t proj_matrix;
 //////////////////////////////////////////////////////////////////////////////////
 void setup()
 {
-	//Initialize light direction
-	init_light(vect3_new(0, 0, 1));
+	//Initialize light direction and light color
+	init_light(vect3_new(0, 0, 1), vect3_new(1.0, 1.0, 1.0), 0.1);
+	
+	//Initialize material
+	init_material(0xFF00FF00, 32.0, 1.0);
 
 	//Initialize camera
 	vect3_t position = vect3_new(0, 0, 0);
@@ -73,11 +77,15 @@ void setup()
 	init_frustum_planes(fov_x, fov_y, z_near, z_far);
 
 	//Loads the vertex and faces values for the mesh data structure
-	load_mesh("./assets/runway.obj", "./assets/runway.png", vect3_new(1, 1, 1), vect3_new(0, -1.5, +23), vect3_new(0, 0, 0));
-	load_mesh("./assets/f22.obj", "./assets/f22.png", vect3_new(1, 1, 1), vect3_new(0, -1.3, +5), vect3_new(0, -M_PI/2, 0));
-	load_mesh("./assets/efa.obj", "./assets/efa.png", vect3_new(1, 1, 1), vect3_new(-2, -1.3, +9), vect3_new(0, -M_PI/2, 0));
-	load_mesh("./assets/f117.obj", "./assets/f117.png", vect3_new(1, 1, 1), vect3_new(+2, -1.3, +9), vect3_new(0, -M_PI/2, 0));
- 
+	//load_mesh("./assets/runway.obj", "./assets/runway.png", vect3_new(1, 1, 1), vect3_new(0, -1.5, +23), vect3_new(0, 0, 0));
+	//load_mesh("./assets/f22.obj", "./assets/f22.png", vect3_new(1, 1, 1), vect3_new(0, -1.3, +5), vect3_new(0, -M_PI/2, 0));
+	//load_mesh("./assets/efa.obj", "./assets/efa.png", vect3_new(1, 1, 1), vect3_new(-2, -1.3, +9), vect3_new(0, -M_PI/2, 0));
+	//load_mesh("./assets/f117.obj", "./assets/f117.png", vect3_new(1, 1, 1), vect3_new(+2, -1.3, +9), vect3_new(0, -M_PI/2, 0));
+	
+
+	//load_mesh("./assets/sphere.obj", "./assets/f22.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
+	load_mesh("./assets/samus.obj", "./assets/cube.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
+	//load_mesh("./assets/crab.obj", "./assets/crab.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -130,8 +138,7 @@ void process_input(void)
 			}
 			if (event.key.keysym.sym == SDLK_9) {
 				set_camera_position_y(get_camera_position().y + 3.0 * delta_time);
-				break;
-			
+				break;		
 			}
 			if (event.key.keysym.sym == SDLK_0) {
 				set_camera_position_y(get_camera_position().y - 3.0 * delta_time);
@@ -176,29 +183,28 @@ void process_input(void)
 	};
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////
-//  +-------------+
-//  | Model space | <-- original mesh vertices
-//  +-------------+	
-//  |   +-------------+
-//  `-> | World space | <-- multiply by world matrix
-//	    +-------------+
-//	    |   +-------------+
-//      `-> | View space  | <-- multiply by view matrix
-//	        +-------------+
-//	        |   +-------------+
-//          `-> |   Clipping  | <-- clip against six frustum planes 
-// 	            +-------------+    
-//			    |   +-------------+
-//              `-> | Projection  | <-- multply by projection matrix  
-//				    +-------------+		
-//                  |   +-------------+
-//                  `-> | Image Space | <-- apply perspective divide
-//				        +-------------+		
-//					    |	+-------------+
-//                      `-> | Screen Space| <-- ready to render
-//				            +-------------+				
+//  +--------------+
+//  |  Model space | <-- original mesh vertices
+//  +--------------+	
+//  |   +--------------+
+//  `-> |  World space | <-- multiply by world matrix
+//	    +--------------+
+//	    |   +--------------+
+//      `-> |  View space  | <-- multiply by view matrix
+//	        +--------------+
+//	        |   +--------------+
+//          `-> |    Clipping  | <-- clip against six frustum planes 
+// 	            +--------------+    
+//			    |   +--------------+
+//              `-> |  Projection  | <-- multiply by projection matrix  
+//				    +--------------+		
+//                  |   +--------------+
+//                  `-> |  Image Space | <-- apply perspective divide
+//				        +--------------+		
+//					    |	+--------------+
+//                      `-> | Screen Space | <-- ready to render
+//				            +--------------+				
 //////////////////////////////////////////////////////////////////////////////////
 
 void process_graphic_pipeline_stages(mesh_t* mesh){
@@ -209,7 +215,6 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 	mat4_t rotation_matrix_y = mat4_make_rotation_y(mesh->rotation.y);
 	mat4_t rotation_matrix_z = mat4_make_rotation_z(mesh->rotation.z);
 	mat4_t translation_matrix = mat4_make_translation(mesh->translation.x,mesh->translation.y, mesh->translation.z);
-
 
 	//Update camera look at target to create view matrix
 	vect3_t target = get_camera_look_at_target();
@@ -257,14 +262,16 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 		//Calculate the triangle normal
 		vect3_t face_normal = get_triangle_face_normal(transformed_vertices);
 
+		//Find the vector between vertex A in the triangle and the camera origin
+		vect3_t cam_ray = vect3_sub(vect3_new(0,0,0), vect3_from_vect4(transformed_vertices[0]));
+
+
+		//Calculate how align the camera ray is with the face normal (using dot product)
+		float dot_normal_cam = vect3_dot(face_normal, cam_ray);
+
 		//Backface culling test to see if the current face should be projected
 		if (is_cull_backface()) {
-			//Find the vector between a point in the triangle and the camera origin
-			vect3_t cam_ray = vect3_sub(vect3_new(0, 0, 0), vect3_from_vect4(transformed_vertices[0]));
-
-			//Calculate how align the camera ray is with the face normal (using dot product)
-			float dot_normal_cam = vect3_dot(face_normal, cam_ray);
-
+			
 			//Bypassing the triangles that looking away from the camera
 			if (dot_normal_cam < 0) {
 				continue;
@@ -307,7 +314,6 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 					projected_points[j].y /= projected_points[j].w;
 					projected_points[j].z /= projected_points[j].w;
 				}
-
 				//Invert the y value to account for flipped screen y coordinate
 				projected_points[j].y *= -1;
 
@@ -321,11 +327,56 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 
 			}
 
-			//Calculate how align the light direction is with the face normal (using dot product)
-			float light_intensity_factor = -vect3_dot(face_normal, get_light_direction());
+		
+			//Calculate how align the light direction is with the face normal (using dot product) -> shade frequency (flat shading)
+			vect3_t light_direction = get_light_direction();
+			vect3_normalize(&light_direction);
 
-			//Calculate the triangle color based on the light angle	
-			uint32_t  triangle_color = light_apply_intensity(mesh_face.color, light_intensity_factor);
+			float light_intensity_factor = fmax(-vect3_dot(face_normal, light_direction), 0.0); // need minus sign in front becouse of inverse light direction 
+			
+			//Ambient component
+			float ambient_strength = get_light_ambient_strgenth();
+
+			//Specular component
+			float shininess = get_material_shininess();
+			float specular_strength = get_material_specular_strength();
+
+			//Find the half vector between  light direction and view direction near the face normal
+			vect3_t view_direction = vect3_sub(get_camera_position(), vect3_from_vect4(transformed_vertices[0]));
+			vect3_normalize(&view_direction);
+
+			uint32_t triangle_color = blinn_phong_shading(face_normal, light_direction, view_direction,
+				&mesh_face, shininess, ambient_strength, specular_strength);
+
+
+			////Pack the type vect3 light color into type uint32
+			//uint32_t light_color = pack_color(get_light_color().x, get_light_color().y, get_light_color().z, 1.0);
+
+			////Calculate the triangle color based on the light angle	
+			//uint32_t diffuse_color = light_apply_intensity(light_color, diffuse_intensity_factor);
+			//uint32_t ambient_color = light_apply_intensity(light_color, ambient_intensity_factor);
+			//uint32_t specular_color = light_apply_intensity(light_color, specular_intensity_factor * specular_strength);
+			////uint32_t triangle_color = (diffuse_color + ambient_color + specular_color)/3.0; // super exciting effect
+
+			//vect4_t diffuse_light = { 0,0,0,0 };
+			//vect4_t ambient_light = { 0,0,0,0 };
+			//vect4_t specular_light = { 0,0,0,0 };
+
+			//unpack_color(diffuse_color, &diffuse_light.x, &diffuse_light.y, &diffuse_light.z, &diffuse_light.w);
+			//unpack_color(ambient_color, &ambient_light.x, &ambient_light.y, &ambient_light.z, &ambient_light.w);
+			//unpack_color(specular_color, &specular_light.x, &specular_light.y, &specular_light.z, &specular_light.w);
+			//
+			//vect3_t unpacked_color = vect3_add(vect3_from_vect4(ambient_light), 
+			//	vect3_add(vect3_from_vect4(diffuse_light), vect3_from_vect4(specular_light)));
+			//unpacked_color = vect3_div(unpacked_color, 3.0);
+
+			//unpacked_color.x *= mesh_color.x;
+			//unpacked_color.y *= mesh_color.y;
+			//unpacked_color.z *= mesh_color.z;
+
+			//Pack the final color into uint32_t
+			//uint32_t triangle_color = pack_color(unpacked_color.x, unpacked_color.y, unpacked_color.z, 1.0); //Assuming full opacity
+
 
 			//Save the projected 2d vertex in the array of projected triangle points
 			triangle_t triangle_to_render = {
@@ -341,8 +392,8 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 				},
 				.color = triangle_color,
 				.texture = mesh->textures,
+				.light_intensity_factor = light_intensity_factor,
 			};
-
 			//Save the projected triagnle in the array of triangles to render
 			if (num_triangles_to_render < MAX_TRIANGLES_PER_MESH) {
 				triangles_to_render[num_triangles_to_render] = triangle_to_render;
@@ -352,13 +403,10 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 	}
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////
 // Call update function every frame
 //////////////////////////////////////////////////////////////////////////////////
 void update(void){
-	//This while loop will use 100% of CPU
-	//while (!SDL_TICKS_PASSED(SDL_GetTicks(), previous_frame_time + FRAME_TARGET_TIME))
 	
 	//Wait some time until reaching the target frame time in miliseconds
 	int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - previous_frame_time);
@@ -380,14 +428,14 @@ void update(void){
 	for (int  mesh_index = 0; mesh_index < get_num_meshes(); mesh_index++){
 		mesh_t* mesh = get_mesh(mesh_index);
 
-		////Change the mesh scale/rotation values per animation frame
-		//mesh.rotation.x += 0.0 * delta_time;
-		//mesh.rotation.y += 0.0 * delta_time;
-		//mesh.rotation.z += 0.0 * delta_time;
-		//mesh.scale.x += 0;
-		//mesh.scale.y += 0;
-		//mesh.translation.x += 0.0;
-		//mesh.translation.z = 5;
+		//Change the mesh scale/rotation values per animation frame
+		//mesh->rotation.x += 0.5 * delta_time;
+		mesh->rotation.y += 0.5 * delta_time;
+		//mesh->rotation.z += 0.0 * delta_time;
+		//mesh->scale.x += 0;
+		//mesh->scale.y += 0;
+		//mesh->translation.x += 0.0;
+		//mesh->translation.z = 5;
 
 		//Process the graphic pipeline stages for every mesh in 3d scene
 		process_graphic_pipeline_stages(mesh);
@@ -404,7 +452,6 @@ void render(void){
 	clear_z_buffer();
 
 	draw_grid();
-
 
 	//Loop all projected triangles and render them
 	for (int i = 0; i < num_triangles_to_render; i++){
@@ -427,7 +474,8 @@ void render(void){
 				triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w, triangle.texcoords[0].u, triangle.texcoords[0].v, //VERTEX A
 				triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w, triangle.texcoords[1].u, triangle.texcoords[1].v, //VERTEX B
 				triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, triangle.texcoords[2].u, triangle.texcoords[2].v, //VERTEX C
-				triangle.texture
+				triangle.texture,
+				triangle.light_intensity_factor
 			);
 			
 		}
@@ -444,15 +492,14 @@ void render(void){
 		
 		//draw vertex of triangle
 		if (should_render_wire_vertex()){
-			draw_rect(triangle.points[0].x - 3, triangle.points[0].y - 3, 6, 6, 0xFFFF0000); //draw vertex a
-			draw_rect(triangle.points[1].x - 3, triangle.points[1].y - 3, 6, 6, 0xFFFF0000); //draw vertex b
-			draw_rect(triangle.points[2].x - 3, triangle.points[2].y - 3, 6, 6, 0xFFFF0000); //draw vertex c
+			draw_rect(triangle.points[0].x - 3, triangle.points[0].y - 3, 6, 6, 0xFF0000FF); //draw vertex a
+			draw_rect(triangle.points[1].x - 3, triangle.points[1].y - 3, 6, 6, 0xFF0000FF); //draw vertex b
+			draw_rect(triangle.points[2].x - 3, triangle.points[2].y - 3, 6, 6, 0xFF0000FF); //draw vertex c
 		}	
 	}
 
 	//finally draw the color buffer to the SDL window
 	render_color_buffer();
-	
 }
 
 //////////////////////////////////////////////////////////////////////////////////

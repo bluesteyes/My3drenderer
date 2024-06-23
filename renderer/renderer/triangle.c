@@ -1,6 +1,7 @@
 #include "triangle.h"
 #include "display.h"
 #include "swap.h"
+#include "light.h"
 
 //Create implementation for triangle.h functions
 vect3_t get_triangle_face_normal(vect4_t vertices[3]) {
@@ -19,7 +20,7 @@ vect3_t get_triangle_face_normal(vect4_t vertices[3]) {
 
 	//compute the face normal (using cross product to find perpendicular)
 	vect3_t normal_vect = vect3_cross(vector_ab, vector_ac);
-
+	
 	//normalize the face normal vector
 	vect3_normalize(&normal_vect);
 
@@ -191,7 +192,7 @@ void draw_triangle_pixel(
 void draw_triangle_texel(
 	int x, int y, upng_t* texture, 
 	vect4_t point_a, vect4_t point_b, vect4_t point_c, 
-	tex2_t a_uv, tex2_t b_uv, tex2_t c_uv
+	tex2_t a_uv, tex2_t b_uv, tex2_t c_uv, float light_intensity_factor
 ){
 
 	vect2_t p = {x, y};
@@ -206,13 +207,13 @@ void draw_triangle_texel(
 	float beta = weights.y;
 	float gamma = weights.z;
 
-	//variables to store the interpolated values of u,v and 1/w for the current pixel
+	//Variables to store the interpolated values of u,v and also 1/w for the current pixel
 	float interpolated_u;
 	float interpolated_v;
-	float interpolated_reciprocal_w;
+	float interpolated_reciprocal_w; // w is not linear only 1/w is linear
 
 
-	//perform interpolation of all u/w and v/w and 1/w using barycentric weights
+	//Perform interpolation of all u/w and v/w and 1/w using barycentric weights
 	interpolated_u = (a_uv.u / point_a.w) * alpha + (b_uv.u / point_b.w) * beta + (c_uv.u / point_c.w) * gamma;
 	interpolated_v = (a_uv.v / point_a.w) * alpha + (b_uv.v / point_b.w) * beta + (c_uv.v / point_c.w) * gamma;
 	interpolated_reciprocal_w = (1 / point_a.w) * alpha + (1 / point_b.w) * beta + (1 / point_c.w) * gamma;
@@ -228,14 +229,19 @@ void draw_triangle_texel(
 	int tex_x = abs((int)(interpolated_u * texture_width)) % texture_width;
 	int tex_y = abs((int)(interpolated_v * texture_height)) % texture_height;
 
-	//adjust the value of 1/w so the pixels that are closer to the camera with smaller values
+	//* adjust the value of 1/w so the pixels that are closer to the camera with smaller values
 	interpolated_reciprocal_w = 1.0 - interpolated_reciprocal_w;
 
 	//only draw the pixel if the depth value is less than the one perviously stored in the z-buffer
 	if (interpolated_reciprocal_w < get_z_buffer_at(x,y)) {
 		
-		uint32_t* texture_buffer = upng_get_buffer(texture);
-		draw_pixel(x, y, texture_buffer[(texture_width * tex_y) + tex_x]);
+		uint32_t* texture_buffer =(uint32_t*)upng_get_buffer(texture);
+
+		uint32_t texture_pixel = texture_buffer[(texture_width * tex_y) + tex_x];
+
+		uint32_t shaded_texture_pixel =  light_apply_intensity(texture_pixel, light_intensity_factor);
+
+		draw_pixel(x, y, shaded_texture_pixel);
 
 		//update the z-buffer value with the 1/w value of this current pixel
 		update_z_buffer_at(x,y,interpolated_reciprocal_w);
@@ -317,15 +323,13 @@ void draw_filled_triangle(
 			int x_start = x1 + (y - y1) * inverse_slope_1;
 			int x_end = x0 + (y - y0) * inverse_slope_2;
 
-			if (x_end < x_start)
-			{
+			if (x_end < x_start){
 				int_swap(&x_start, &x_end); //swap the position if x_end at the left of x_start
 			}
 
-			for (int x = x_start; x < x_end; x++)
-			{
+			for (int x = x_start; x < x_end; x++){
 				//Draw our pixel with the color from left to right
-				draw_triangle_pixel(x,y,point_a,point_b,point_c,color);
+				draw_triangle_pixel(x, y, point_a, point_b, point_c, color);
 			}
 		}
 	}
@@ -390,7 +394,7 @@ void draw_textured_triangle(
 	int x0, int y0, float z0, float w0, float u0, float v0,
 	int x1, int y1, float z1, float w1, float u1, float v1,
 	int x2, int y2, float z2, float w2, float u2, float v2,
-	upng_t* texture) {
+	upng_t* texture, float light_intensity_factor) {
 
 	//TODO:
 	//loop all the pixels of the triangle to render them based on the 
@@ -465,7 +469,7 @@ void draw_textured_triangle(
 			for (int x = x_start; x < x_end; x++)
 			{
 				//Draw our pixel with the color that comes from the texture
-				draw_triangle_texel(x, y, texture, point_a, point_b, point_c, a_uv, b_uv, c_uv);
+				draw_triangle_texel(x, y, texture, point_a, point_b, point_c, a_uv, b_uv, c_uv, light_intensity_factor);
 			}
 		}
 	}
@@ -496,7 +500,7 @@ void draw_textured_triangle(
 			for (int x = x_start; x < x_end; x++){
 		
 				//Draw our pixel with the color that comes from the texture
-				draw_triangle_texel(x, y, texture, point_a, point_b, point_c, a_uv, b_uv, c_uv);
+				draw_triangle_texel(x, y, texture, point_a, point_b, point_c, a_uv, b_uv, c_uv, light_intensity_factor);
 
 			}
 		}

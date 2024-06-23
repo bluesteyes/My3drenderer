@@ -139,6 +139,7 @@
     <ClCompile Include="display.c" />
     <ClCompile Include="light.c" />
     <ClCompile Include="Main.c" />
+    <ClCompile Include="material.c" />
     <ClCompile Include="matrix.c" />
     <ClCompile Include="mesh.c" />
     <ClCompile Include="swap.c" />
@@ -153,6 +154,7 @@
     <ClInclude Include="clipping.h" />
     <ClInclude Include="display.h" />
     <ClInclude Include="light.h" />
+    <ClInclude Include="material.h" />
     <ClInclude Include="matrix.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="swap.h" />

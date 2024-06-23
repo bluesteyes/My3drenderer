@@ -27,13 +27,6 @@ enum render_method
 
 }render_method;
 
-//extern SDL_Window* window;
-//extern SDL_Renderer* renderer;
-//extern uint32_t* color_buffer;
-//extern float* z_buffer;
-//extern SDL_Texture* color_buffer_texture;
-//extern int window_width;
-//extern int window_height;
 
 bool initialize_window(void);
 int get_window_width(void);
@@ -60,6 +53,9 @@ void render_color_buffer(void);
 
 float get_z_buffer_at(int x, int y);
 void update_z_buffer_at(int x, int y, float value);
+
+uint32_t pack_color(float r, float g, float b, float a);
+void unpack_color(uint32_t color, float* r, float* g, float* b, float* a);
 
 #endif // !DISPLAY_H
 

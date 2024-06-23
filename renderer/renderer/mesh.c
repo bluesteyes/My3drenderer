@@ -2,6 +2,7 @@
 #include <string.h>
 #include "array.h"
 #include "mesh.h"
+#include "material.h"
 
 #define MAX_NUM_MESHES 10
 static mesh_t meshes[MAX_NUM_MESHES];
@@ -61,7 +62,7 @@ void load_mesh_obj_data(mesh_t* mesh, char* obj_filename){
 				.a_uv = texcoords[texture_indices[0] - 1],
 				.b_uv = texcoords[texture_indices[1] - 1],
 				.c_uv = texcoords[texture_indices[2] - 1],
-				.color = 0xFFFFFFFF
+				.color = get_material_color()
 			};
 
 			array_push(mesh->faces, face);
@@ -69,13 +70,11 @@ void load_mesh_obj_data(mesh_t* mesh, char* obj_filename){
 		}
 	}
 }
-void load_mesh_png_data(mesh_t* mesh, char* png_filename) {
+void load_mesh_png_data(mesh_t* mesh, char* png_filename){
 	upng_t* png_image = upng_new_from_file(png_filename);
-	if (png_image != NULL)
-	{
+	if (png_image != NULL){
 		upng_decode(png_image);
-		if (upng_get_error(png_image) == UPNG_EOK)
-		{
+		if (upng_get_error(png_image) == UPNG_EOK){
 			mesh->textures = png_image;
 
 		}
@@ -86,7 +85,7 @@ int get_num_meshes(void){
 	return mesh_count;
 }
 
-mesh_t* get_mesh(int mesh_index) {
+mesh_t* get_mesh(int mesh_index){
 	return &meshes[mesh_index];
 }
 
