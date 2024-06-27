@@ -20,8 +20,7 @@ float get_light_ambient_strgenth(void);
 
 uint32_t light_apply_intensity(uint32_t original_color, float percentage_factor);
 
-uint32_t blinn_phong_shading(vect3_t normal, vect3_t light_direction, vect3_t view_direction,
-	face_t* mesh_face, float shininess, float ambient_strength, float specular_strength);
+uint32_t blinn_phong_shading(vect3_t normal, vect3_t light_direction, vect3_t view_direction, uint32_t material_color, float shininess, float ambient_strength, float specular_strength);
 
 #endif 
 

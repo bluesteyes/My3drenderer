@@ -2,6 +2,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <sdl.h>
+#include "mesh.h"
+#include "material.h"
 #include "array.h"
 #include "upng.h"
 #include "camera.h"
@@ -11,9 +13,8 @@
 #include "vector.h"
 #include "triangle.h"
 #include "texture.h"
-#include "mesh.h"
 #include "light.h"
-#include "material.h"
+
 
 //////////////////////////////////////////////////////////////////////////////////
 // Global variables for excution status and game loop
@@ -38,6 +39,9 @@ int num_triangles_to_render = 0;
 mat4_t world_matrix;
 mat4_t view_matrix;
 mat4_t proj_matrix;
+mat4_t model_matrix;
+mat4_t normal_matrix;
+
 
 //////////////////////////////////////////////////////////////////////////////////
 // setup functions to initialize variables and objects
@@ -45,10 +49,10 @@ mat4_t proj_matrix;
 void setup()
 {
 	//Initialize light direction and light color
-	init_light(vect3_new(0, 0, 1), vect3_new(1.0, 1.0, 1.0), 0.1);
+	init_light(vect3_new(0, 0, 1), vect3_new(1.0, 1.0, 1.0), 0.2);
 	
 	//Initialize material
-	init_material(0xFF00FF00, 32.0, 1.0);
+	init_material(0xFFFFFFFF, 128.0, 1.0);
 
 	//Initialize camera
 	vect3_t position = vect3_new(0, 0, 0);
@@ -83,9 +87,25 @@ void setup()
 	//load_mesh("./assets/f117.obj", "./assets/f117.png", vect3_new(1, 1, 1), vect3_new(+2, -1.3, +9), vect3_new(0, -M_PI/2, 0));
 	
 
-	//load_mesh("./assets/sphere.obj", "./assets/f22.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
-	load_mesh("./assets/samus.obj", "./assets/cube.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
-	//load_mesh("./assets/crab.obj", "./assets/crab.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
+	//load_mesh("./assets/f22.obj", "./assets/f22.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
+	//load_mesh("./assets/samus.obj", "./assets/cube.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
+	load_mesh("./assets/crab.obj", "./assets/crab.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
+	//load_mesh("./assets/drone.obj", "./assets/drone.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
+
+	//load multiply mesh
+	for (int mesh_index = 0; mesh_index < get_num_meshes(); mesh_index++){
+
+		mesh_t* mesh = get_mesh(mesh_index);
+
+		//load mesh vertex normal to mesh normal array
+		calculate_vertex_normal(mesh);
+
+		/*for (int i = 0; i <mesh->num_vertices ; i++) {
+			printf("Mesh Normal %d: (%f, %f, %f)\n", i, mesh->normals[i].x, mesh->normals[i].y, mesh->normals[i].z);
+			printf("Mesh Vertices %d:(%f, %f, %f)\n", i, mesh->vertices[i].x, mesh->vertices[i].y, mesh->vertices[i].z);
+		}*/
+
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -222,9 +242,7 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 	view_matrix = mat4_look_at(get_camera_position(), target, up_direction);
 
 	//Loop all triangle faces of object mesh
-	int num_faces = array_length(mesh->faces);
-
-	for (int i = 0; i < num_faces; i++) {
+	for (int i = 0; i < mesh->num_faces; i++) {
 		face_t mesh_face = mesh->faces[i];
 
 		vect3_t face_vertices[3];
@@ -234,12 +252,36 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 
 		vect4_t transformed_vertices[3];
 
+		
+		//Calculated vertex normal from face normal use vertex indices
+		vect3_t vertex_normals[3];
+		vertex_normals[0] = mesh->normals[mesh_face.a];
+		vertex_normals[1] = mesh->normals[mesh_face.b];
+		vertex_normals[2] = mesh->normals[mesh_face.c];
+
+		////Loaded model normal from obj file
+		//vertex_normals[0] = mesh->model_normals[mesh_face.n0];
+		//vertex_normals[1] = mesh->model_normals[mesh_face.n1];
+		//vertex_normals[2] = mesh->model_normals[mesh_face.n2];
+
+		vect3_t transformed_vertex_normals[3];
+
+
+		vect4_t vertex_colors[3];
+		vertex_colors[0] = vect4_new(0.0, 0.0, 0.0, 0.0);
+		vertex_colors[1] = vect4_new(0.0, 0.0, 0.0, 0.0);
+		vertex_colors[2] = vect4_new(0.0, 0.0, 0.0, 0.0);
+
 		//Loop through all three vertices of this current face and apply transformation
 		for (int j = 0; j < 3; j++) {
+
 			vect4_t transformed_vertex = vect4_from_vect3(face_vertices[j]);
+			vect3_t transformed_vertex_normal = vertex_normals[j];
 
 			//Create a world matrix combining scale, rotation and translation
 			world_matrix = mat4_identity();
+			model_matrix = mat4_identity();
+			
 
 			//Multiply all matrices and load the world matrix
 			//*order matters: first scale, next rotate, then translate >>> [T]*[R]*[S]*v
@@ -249,18 +291,32 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 			world_matrix = mat4_mul_mat4(rotation_matrix_x, world_matrix);
 			world_matrix = mat4_mul_mat4(translation_matrix, world_matrix);
 
-			//Multiply the world matrix with the original vector
+			////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			//TODO: Calculate the normal matrix -> transpose of inverse of world matrix (model matrix) >>> [Tranpose]*[Inverse]*[World]
+			//This transformation ensures that the normals remain perpendicular to the surface after non-uniform scaling transformations.
+			////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			normal_matrix = mat4_make_invert(world_matrix);
+			normal_matrix = mat4_make_transpose(normal_matrix);
+			
+
+			//Multiply the world matrix with the original vertex vector
 			transformed_vertex = mat4_mul_vect4(world_matrix, transformed_vertex);
 
 			//Multiply the view matrix with the world matrix transformed vector to transform the scene to camera space
 			transformed_vertex = mat4_mul_vect4(view_matrix, transformed_vertex);
 
+			//Multiply the normal matrix with the original normal vector
+			transformed_vertex_normal = mat4_mul_vect3_no_translation(normal_matrix, transformed_vertex_normal);
+
 			//Save transformed vertex in the array of transformed vertices
 			transformed_vertices[j] = transformed_vertex;
+
+			//Save transformed vertex normal in the array of transfored normals
+			transformed_vertex_normals[j] = transformed_vertex_normal;
 		}
 
 		//Calculate the triangle normal
-		vect3_t face_normal = get_triangle_face_normal(transformed_vertices);
+		vect3_t face_normal = get_face_normal(transformed_vertices);
 
 		//Find the vector between vertex A in the triangle and the camera origin
 		vect3_t cam_ray = vect3_sub(vect3_new(0,0,0), vect3_from_vect4(transformed_vertices[0]));
@@ -271,7 +327,6 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 
 		//Backface culling test to see if the current face should be projected
 		if (is_cull_backface()) {
-			
 			//Bypassing the triangles that looking away from the camera
 			if (dot_normal_cam < 0) {
 				continue;
@@ -324,29 +379,55 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 				//Translate the projected points to the middle of the screen
 				projected_points[j].x += (get_window_width() / 2.0);
 				projected_points[j].y += (get_window_height() / 2.0);
-
 			}
-
 		
 			//Calculate how align the light direction is with the face normal (using dot product) -> shade frequency (flat shading)
 			vect3_t light_direction = get_light_direction();
 			vect3_normalize(&light_direction);
 
-			float light_intensity_factor = fmax(-vect3_dot(face_normal, light_direction), 0.0); // need minus sign in front becouse of inverse light direction 
+			float diffuse_intensity_factor = fmax(-vect3_dot(face_normal, light_direction), 0.0); // need minus sign in front becouse of inverse light direction 
 			
-			//Ambient component
-			float ambient_strength = get_light_ambient_strgenth();
+			//Specular component 
+			//Find the half vector between light direction and view direction near the face normal
+			vect3_t halfway_direction = vect3_add(cam_ray, vect3_mul(light_direction, -1.0)); //inverse the light direction
+			vect3_normalize(&halfway_direction);
 
-			//Specular component
-			float shininess = get_material_shininess();
-			float specular_strength = get_material_specular_strength();
+			float specular_intensity_factor = pow(fmax(vect3_dot(face_normal, halfway_direction), 0.0), get_material_shininess());
+			vect3_t specular = vect3_mul(get_light_color(), specular_intensity_factor * get_material_specular_strength());
 
-			//Find the half vector between  light direction and view direction near the face normal
-			vect3_t view_direction = vect3_sub(get_camera_position(), vect3_from_vect4(transformed_vertices[0]));
-			vect3_normalize(&view_direction);
+			
+			//calculate the view direction
+			vect3_t view_direction_a = vect3_sub(get_camera_position(), vect3_from_vect4(transformed_vertices[0]));
+			vect3_normalize(&view_direction_a);
 
-			uint32_t triangle_color = blinn_phong_shading(face_normal, light_direction, view_direction,
-				&mesh_face, shininess, ambient_strength, specular_strength);
+			vect3_t view_direction_b = vect3_sub(get_camera_position(), vect3_from_vect4(transformed_vertices[1]));
+			vect3_normalize(&view_direction_a);
+
+			vect3_t view_direction_c = vect3_sub(get_camera_position(), vect3_from_vect4(transformed_vertices[2]));
+			vect3_normalize(&view_direction_a);
+
+			//get flat shading triangle face color
+			uint32_t triangle_color = blinn_phong_shading(face_normal, get_light_direction(), view_direction_a,
+				get_material_color(), get_material_shininess(), get_light_ambient_strgenth(), get_material_specular_strength());
+			
+			//printf("Transformed Vertex Normals: (%f, %f, %f)\n", transformed_vertex_normals[0].x, transformed_vertex_normals[0].y, transformed_vertex_normals[0].z);
+
+			//get gouraud shading triangle vertex color 
+			uint32_t vertex_color_a = blinn_phong_shading(transformed_vertex_normals[0], get_light_direction(), view_direction_a,
+				get_material_color(), get_material_shininess(), get_light_ambient_strgenth(), get_material_specular_strength());
+	
+
+			uint32_t vertex_color_b = blinn_phong_shading(transformed_vertex_normals[1], get_light_direction(), view_direction_b,
+				get_material_color(), get_material_shininess(), get_light_ambient_strgenth(), get_material_specular_strength());
+
+			uint32_t vertex_color_c = blinn_phong_shading(transformed_vertex_normals[2], get_light_direction(), view_direction_c,
+				get_material_color(), get_material_shininess(), get_light_ambient_strgenth(), get_material_specular_strength());
+
+
+			//unpack the vertex color to vertex color array
+			unpack_color(vertex_color_a, &vertex_colors[0].x, &vertex_colors[0].y, &vertex_colors[0].z, &vertex_colors[0].w);
+			unpack_color(vertex_color_b, &vertex_colors[1].x, &vertex_colors[1].y, &vertex_colors[1].z, &vertex_colors[1].w);
+			unpack_color(vertex_color_c, &vertex_colors[2].x, &vertex_colors[2].y, &vertex_colors[2].z, &vertex_colors[2].w);
 
 
 			////Pack the type vect3 light color into type uint32
@@ -354,9 +435,8 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 
 			////Calculate the triangle color based on the light angle	
 			//uint32_t diffuse_color = light_apply_intensity(light_color, diffuse_intensity_factor);
-			//uint32_t ambient_color = light_apply_intensity(light_color, ambient_intensity_factor);
-			//uint32_t specular_color = light_apply_intensity(light_color, specular_intensity_factor * specular_strength);
-			////uint32_t triangle_color = (diffuse_color + ambient_color + specular_color)/3.0; // super exciting effect
+			//uint32_t ambient_color = light_apply_intensity(light_color, get_light_ambient_strgenth());
+			//uint32_t specular_color = light_apply_intensity(light_color, specular_intensity_factor * get_material_specular_strength());
 
 			//vect4_t diffuse_light = { 0,0,0,0 };
 			//vect4_t ambient_light = { 0,0,0,0 };
@@ -390,9 +470,20 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 					{triangle_after_clipping.texcoords[1].u, triangle_after_clipping.texcoords[1].v},
 					{triangle_after_clipping.texcoords[2].u, triangle_after_clipping.texcoords[2].v}
 				},
+				.normals = {
+					{transformed_vertex_normals[0].x, transformed_vertex_normals[0].y, transformed_vertex_normals[0].z},
+					{transformed_vertex_normals[1].x, transformed_vertex_normals[1].y, transformed_vertex_normals[1].z},
+					{transformed_vertex_normals[2].x, transformed_vertex_normals[2].y, transformed_vertex_normals[2].z},
+				},
+				.vertex_colors = {
+					{vertex_colors[0].x, vertex_colors[0].y, vertex_colors[0].z},
+					{vertex_colors[1].x, vertex_colors[1].y, vertex_colors[1].z},
+					{vertex_colors[2].x, vertex_colors[2].y, vertex_colors[2].z}
+				},
 				.color = triangle_color,
 				.texture = mesh->textures,
-				.light_intensity_factor = light_intensity_factor,
+				
+				.light_intensity_factor = diffuse_intensity_factor,
 			};
 			//Save the projected triagnle in the array of triangles to render
 			if (num_triangles_to_render < MAX_TRIANGLES_PER_MESH) {
@@ -465,6 +556,9 @@ void render(void){
 				triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w, //VERTEX B
 				triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, //VERTEX C
 
+				triangle.normals[0], triangle.normals[1], triangle.normals[2], //VERTEX NORMAL A,B,C
+				triangle.vertex_colors[0], triangle.vertex_colors[1], triangle.vertex_colors[2], // VERTEX COLOR C0,C1,C2
+
 				triangle.color
 			);
 		}
@@ -476,6 +570,7 @@ void render(void){
 				triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, triangle.texcoords[2].u, triangle.texcoords[2].v, //VERTEX C
 				triangle.texture,
 				triangle.light_intensity_factor
+
 			);
 			
 		}

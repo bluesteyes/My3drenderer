@@ -38,6 +38,8 @@ float vect2_dot(vect2_t a, vect2_t b);
 // vector 3 functions
 //////////////////////////////////////////////////////////////////////////////////
 vect3_t vect3_new(float x, float y, float z);
+vect4_t vect4_new(float x, float y, float z, float w);
+
 vect3_t vect3_clone(vect3_t* v);
 float vect3_length(vect3_t v);
 

@@ -20,6 +20,12 @@ vect4_t mat4_mul_vect4(mat4_t m, vect4_t v);
 vect4_t mat4_mul_vect4_project(mat4_t mat_proj, vect4_t v);
 mat4_t mat4_look_at(vect3_t eye, vect3_t target, vect3_t up);
 
+mat4_t mat4_make_transpose(mat4_t m);
+vect3_t mat4_mul_vect3_no_translation(mat4_t m, vect3_t v);
+mat4_t mat4_make_invert(mat4_t m);
+
+
+
 #endif 
 
 

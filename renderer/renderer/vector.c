@@ -79,6 +79,16 @@ vect3_t vect3_new(float x, float y, float z){
 	return result;
 }
 
+vect4_t vect4_new(float x, float y, float z, float w) {
+	vect4_t result = {
+		.x = x,
+		.y = y,
+		.z = z,
+		.w = w
+	};
+	return result;
+}
+
 vect3_t vect3_clone(vect3_t* v){
 	vect3_t result = {v->x, v->y, v->z};
 	return result;

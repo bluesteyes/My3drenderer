@@ -1,10 +1,12 @@
 #include "triangle.h"
 #include "display.h"
 #include "swap.h"
+#include "camera.h"
 #include "light.h"
+#include "material.h"
 
 //Create implementation for triangle.h functions
-vect3_t get_triangle_face_normal(vect4_t vertices[3]) {
+vect3_t get_face_normal(vect4_t vertices[3]) {
 
 	//backface culling to see if the current face should be projected	
 	vect3_t vector_a = vect3_from_vect4(vertices[0]); /*  A  */
@@ -152,8 +154,10 @@ void draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t colo
 void draw_triangle_pixel(
 	int x, int y, 
 	vect4_t point_a, vect4_t point_b, vect4_t point_c,
-	uint32_t color
-) {
+	vect3_t n0, vect3_t n1, vect3_t n2,
+	vect3_t c0, vect3_t c1, vect3_t c2,
+	uint32_t color ) {
+
 	vect2_t p = { x, y };
 
 	vect2_t a = vect2_from_vect4(point_a);
@@ -173,12 +177,33 @@ void draw_triangle_pixel(
 	//adjust the value of 1/w so the pixels that are closer to the camera with smaller values
 	interpolated_reciprocal_w = 1.0 - interpolated_reciprocal_w;
 
+	//interpolate accumulated vertex normals
+	vect3_t interpolated_normal = vect3_add(vect3_mul(n0, alpha), vect3_add(vect3_mul(n1, beta), vect3_mul(n2, gamma)));
+	//vect3_normalize(&interpolated_normal);
+
+	//TODO: interpolate vertex colors
+	vect3_t interpolated_color = vect3_add(vect3_mul(c0, alpha), vect3_add(vect3_mul(c1, beta), vect3_mul(c2, gamma)));
+	
+	//Pack the final color into uint32_t
+	uint32_t gouraud_color = pack_color(interpolated_color.x, interpolated_color.y, interpolated_color.z, 1.0); //Assuming full opacity;
+
+
+	//printf("Interpolated Normal: (%f, %f, %f)\n", interpolated_normal.x, interpolated_normal.y, interpolated_normal.z);
+
+	vect3_t target_position = vect3_new(x, y, 0.0);
+
+	vect3_t view_direction = vect3_sub(get_camera_position(), vect3_from_vect4(point_a));
+
+	//Phong shading
+	uint32_t phong_color = blinn_phong_shading(interpolated_normal, get_light_direction(), view_direction,
+		get_material_color(), get_material_shininess(), get_light_ambient_strgenth(), get_material_specular_strength());
+
 
 	// Only draw the pixel if the depth value is less than the one previously stored in the z-buffer
 	if (interpolated_reciprocal_w < get_z_buffer_at(x ,y)) {
 
 		// Draw a pixel at position (x,y) with a solid color
-		draw_pixel(x, y, color);
+		draw_pixel(x, y, phong_color);
 
 		// Update the z-buffer value with the 1/w of this current pixel
 		update_z_buffer_at(x,y,interpolated_reciprocal_w);
@@ -192,7 +217,8 @@ void draw_triangle_pixel(
 void draw_triangle_texel(
 	int x, int y, upng_t* texture, 
 	vect4_t point_a, vect4_t point_b, vect4_t point_c, 
-	tex2_t a_uv, tex2_t b_uv, tex2_t c_uv, float light_intensity_factor
+	tex2_t a_uv, tex2_t b_uv, tex2_t c_uv,
+	float light_intensity_factor
 ){
 
 	vect2_t p = {x, y};
@@ -239,7 +265,33 @@ void draw_triangle_texel(
 
 		uint32_t texture_pixel = texture_buffer[(texture_width * tex_y) + tex_x];
 
+
+		////unpack the texture pixel to pixel color 
+		//vect4_t pixel_color = vect4_new(0.0, 0.0, 0.0, 0.0);
+		//unpack_color(texture_pixel, &pixel_color.x, &pixel_color.y, &pixel_color.z, &pixel_color.w);
+
+		//vect4_t diffuse_light = vect4_new(0.0, 0.0, 0.0, 0.0); 
+		//vect4_t ambient_light = vect4_new(0.0, 0.0, 0.0, 0.0);
+		//vect4_t specular_light = vect4_new(0.0, 0.0, 0.0, 0.0);
+
+		//unpack_color(diffuse, &diffuse_light.x, &diffuse_light.y, &diffuse_light.z, &diffuse_light.w);
+		//unpack_color(ambient, &ambient_light.x, &ambient_light.y, &ambient_light.z, &ambient_light.w);
+		//unpack_color(specular, &specular_light.x, &specular_light.y, &specular_light.z, &specular_light.w);
+		//
+		//vect3_t unpacked_color = vect3_add(vect3_from_vect4(ambient_light), 
+		//	vect3_add(vect3_from_vect4(diffuse_light), vect3_from_vect4(specular_light)));
+		//unpacked_color = vect3_div(unpacked_color, 3.0);
+
+		//unpacked_color.x *= pixel_color.x;
+		//unpacked_color.y *= pixel_color.y;
+		//unpacked_color.z *= pixel_color.z;
+
+		////Pack the final color into uint32_t
+		//uint32_t shaded_texture_pixel = pack_color(unpacked_color.x, unpacked_color.y, unpacked_color.z, 1.0); //Assuming full opacity
+
+
 		uint32_t shaded_texture_pixel =  light_apply_intensity(texture_pixel, light_intensity_factor);
+	
 
 		draw_pixel(x, y, shaded_texture_pixel);
 
@@ -276,6 +328,8 @@ void draw_filled_triangle(
 	int x0, int y0, float z0, float w0, 
 	int x1, int y1, float z1, float w1, 
 	int x2, int y2, float z2, float w2, 
+	vect3_t n0, vect3_t n1, vect3_t n2,
+	vect3_t c0, vect3_t c1, vect3_t c2,
 	uint32_t color
 ){
 	
@@ -329,7 +383,7 @@ void draw_filled_triangle(
 
 			for (int x = x_start; x < x_end; x++){
 				//Draw our pixel with the color from left to right
-				draw_triangle_pixel(x, y, point_a, point_b, point_c, color);
+				draw_triangle_pixel(x, y, point_a, point_b, point_c, n0, n1, n2, c0, c1, c2, color);
 			}
 		}
 	}
@@ -360,7 +414,7 @@ void draw_filled_triangle(
 			for (int x = x_start; x < x_end; x++) {
 
 				//Draw our pixel with the solid color from left to right
-				draw_triangle_pixel(x, y, point_a, point_b, point_c, color);
+				draw_triangle_pixel(x, y, point_a, point_b, point_c, n0, n1, n2, c0, c1, c2, color);
 
 			}
 		}
@@ -500,7 +554,7 @@ void draw_textured_triangle(
 			for (int x = x_start; x < x_end; x++){
 		
 				//Draw our pixel with the color that comes from the texture
-				draw_triangle_texel(x, y, texture, point_a, point_b, point_c, a_uv, b_uv, c_uv, light_intensity_factor);
+				draw_triangle_texel(x, y, texture, point_a, point_b, point_c, a_uv, b_uv, c_uv,light_intensity_factor);
 
 			}
 		}
