@@ -5,6 +5,9 @@
 #include "light.h"
 #include "material.h"
 
+#define MIN(a,b)(((a) < (b)) ? (a):(b))
+#define MAX(a,b)(((a) > (b)) ? (a):(b))
+
 //Create implementation for triangle.h functions
 vect3_t get_face_normal(vect4_t vertices[3]) {
 
@@ -69,7 +72,6 @@ vect3_t barycentric_weights(vect2_t a, vect2_t b, vect2_t c, vect2_t p) {
 	vect3_t weights = {alpha, beta, gamma};
 	return weights;
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // Draw a filled a triangle with a flat bottom
@@ -146,7 +148,6 @@ void draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t colo
 }
 
 
-
 ///////////////////////////////////////////////////////////////////////////////
 // Function to draw the z-tested pixel at x,y position 
 ///////////////////////////////////////////////////////////////////////////////
@@ -156,7 +157,7 @@ void draw_triangle_pixel(
 	vect4_t point_a, vect4_t point_b, vect4_t point_c,
 	vect3_t n0, vect3_t n1, vect3_t n2,
 	vect3_t c0, vect3_t c1, vect3_t c2,
-	uint32_t color ) {
+	uint32_t flat_color ) {
 
 	vect2_t p = { x, y };
 
@@ -171,39 +172,28 @@ void draw_triangle_pixel(
 	float gamma = weights.z;
 
 
-	//interpolate the value of 1/w for the current pixel
 	float interpolated_reciprocal_w = (1 / point_a.w) * alpha + (1 / point_b.w) * beta + (1 / point_c.w) * gamma;
-
-	//adjust the value of 1/w so the pixels that are closer to the camera with smaller values
-	interpolated_reciprocal_w = 1.0 - interpolated_reciprocal_w;
 
 	//interpolate accumulated vertex normals
 	vect3_t interpolated_normal = vect3_add(vect3_mul(n0, alpha), vect3_add(vect3_mul(n1, beta), vect3_mul(n2, gamma)));
-	//vect3_normalize(&interpolated_normal);
-
-	//TODO: interpolate vertex colors
-	vect3_t interpolated_color = vect3_add(vect3_mul(c0, alpha), vect3_add(vect3_mul(c1, beta), vect3_mul(c2, gamma)));
-	
-	//Pack the final color into uint32_t
-	uint32_t gouraud_color = pack_color(interpolated_color.x, interpolated_color.y, interpolated_color.z, 1.0); //Assuming full opacity;
+	vect3_normalize(&interpolated_normal);
 
 
 	//printf("Interpolated Normal: (%f, %f, %f)\n", interpolated_normal.x, interpolated_normal.y, interpolated_normal.z);
 
-	vect3_t target_position = vect3_new(x, y, 0.0);
+	vect3_t target_position = vect3_new(x, y, interpolated_reciprocal_w);
 
-	vect3_t view_direction = vect3_sub(get_camera_position(), vect3_from_vect4(point_a));
+	vect3_t view_direction = vect3_sub(get_camera_position(), target_position);
 
-	//Phong shading
-	uint32_t phong_color = blinn_phong_shading(interpolated_normal, get_light_direction(), view_direction,
-		get_material_color(), get_material_shininess(), get_light_ambient_strgenth(), get_material_specular_strength());
 
+	//adjust the value of 1/w so the pixels that are closer to the camera with smaller values
+	interpolated_reciprocal_w = 1.0 - interpolated_reciprocal_w;
 
 	// Only draw the pixel if the depth value is less than the one previously stored in the z-buffer
 	if (interpolated_reciprocal_w < get_z_buffer_at(x ,y)) {
 
 		// Draw a pixel at position (x,y) with a solid color
-		draw_pixel(x, y, phong_color);
+		draw_pixel(x, y, flat_color);
 
 		// Update the z-buffer value with the 1/w of this current pixel
 		update_z_buffer_at(x,y,interpolated_reciprocal_w);
@@ -218,6 +208,7 @@ void draw_triangle_texel(
 	int x, int y, upng_t* texture, 
 	vect4_t point_a, vect4_t point_b, vect4_t point_c, 
 	tex2_t a_uv, tex2_t b_uv, tex2_t c_uv,
+	vect3_t n0, vect3_t n1, vect3_t n2,
 	float light_intensity_factor
 ){
 
@@ -265,7 +256,6 @@ void draw_triangle_texel(
 
 		uint32_t texture_pixel = texture_buffer[(texture_width * tex_y) + tex_x];
 
-
 		////unpack the texture pixel to pixel color 
 		//vect4_t pixel_color = vect4_new(0.0, 0.0, 0.0, 0.0);
 		//unpack_color(texture_pixel, &pixel_color.x, &pixel_color.y, &pixel_color.z, &pixel_color.w);
@@ -289,10 +279,8 @@ void draw_triangle_texel(
 		////Pack the final color into uint32_t
 		//uint32_t shaded_texture_pixel = pack_color(unpacked_color.x, unpacked_color.y, unpacked_color.z, 1.0); //Assuming full opacity
 
-
 		uint32_t shaded_texture_pixel =  light_apply_intensity(texture_pixel, light_intensity_factor);
 	
-
 		draw_pixel(x, y, shaded_texture_pixel);
 
 		//update the z-buffer value with the 1/w value of this current pixel
@@ -323,6 +311,7 @@ void draw_triangle_texel(
 //                               -- \
 //                                   \    
 //                                 (x2,y2)
+// 
 //////////////////////////////////////////////////////////////////////////////////
 void draw_filled_triangle(
 	int x0, int y0, float z0, float w0, 
@@ -356,7 +345,6 @@ void draw_filled_triangle(
 	vect4_t point_a = { x0, y0, z0, w0 };
 	vect4_t point_b = { x1, y1, z1, w1 };
 	vect4_t point_c = { x2, y2, z2, w2 };
-
 
 
 	////////////////////////////////////////////////////////////////////////////
@@ -448,6 +436,7 @@ void draw_textured_triangle(
 	int x0, int y0, float z0, float w0, float u0, float v0,
 	int x1, int y1, float z1, float w1, float u1, float v1,
 	int x2, int y2, float z2, float w2, float u2, float v2,
+	vect3_t n0, vect3_t n1, vect3_t n2,
 	upng_t* texture, float light_intensity_factor) {
 
 	//TODO:
@@ -523,7 +512,7 @@ void draw_textured_triangle(
 			for (int x = x_start; x < x_end; x++)
 			{
 				//Draw our pixel with the color that comes from the texture
-				draw_triangle_texel(x, y, texture, point_a, point_b, point_c, a_uv, b_uv, c_uv, light_intensity_factor);
+				draw_triangle_texel(x, y, texture, point_a, point_b, point_c, a_uv, b_uv, c_uv, n0, n1, n2, light_intensity_factor);
 			}
 		}
 	}
@@ -554,12 +543,125 @@ void draw_textured_triangle(
 			for (int x = x_start; x < x_end; x++){
 		
 				//Draw our pixel with the color that comes from the texture
-				draw_triangle_texel(x, y, texture, point_a, point_b, point_c, a_uv, b_uv, c_uv,light_intensity_factor);
+				draw_triangle_texel(x, y, texture, point_a, point_b, point_c, a_uv, b_uv, c_uv, n0, n1, n2, light_intensity_factor);
 
 			}
 		}
 	}
 
+}
 
+bool is_top_left(vect2_t* start, vect2_t* end) {
+	
+	vect2_t edge = {end->x - start->x, end->y - start->y};
+
+	bool is_top_edge = edge.y == 0 && edge.x > 0;
+	bool is_left_edge = edge.y < 0;                  //clock wise triangle left edge point up, then end.y is neg 
+	return is_top_edge || is_left_edge;
+}
+
+int edge_cross(vect2_t* a, vect2_t* b, vect2_t* p) {
+		
+	vect2_t ab = {b->x - a->x, b->y - a->y };
+	vect2_t ap = {p->x - a->x, p->y - a->y};
+	return ab.x * ap.y - ab.y * ap.x;
+}
+
+void draw_aabb_triangle(
+	int x0, int y0, float z0, float w0,
+	int x1, int y1, float z1, float w1,
+	int x2, int y2, float z2, float w2,
+	vect3_t n0, vect3_t n1, vect3_t n2,
+	vect3_t c0, vect3_t c1, vect3_t c2) {
+	
+	vect4_t point_a = { x0, y0, z0, w0 };
+	vect4_t point_b = { x1, y1, z1, w1 };
+	vect4_t point_c = { x2, y2, z2, w2 };
+
+	vect2_t v0 = vect2_from_vect4(point_a);
+	vect2_t v1 = vect2_from_vect4(point_b);
+	vect2_t v2 = vect2_from_vect4(point_c);
+
+	//Finds the bounding box with all candidate pixels
+	int x_min = MIN(MIN(v0.x, v1.x), v2.x);
+	int y_min = MIN(MIN(v0.y, v1.y), v2.y);
+	int x_max = MAX(MAX(v0.x, v1.x), v2.x);
+	int y_max = MAX(MAX(v0.y, v1.y), v2.y);
+
+	int bias0 = is_top_left(&v1, &v2) ? 0 : -1;
+	int bias1 = is_top_left(&v2, &v0) ? 0 : -1;
+	int bias2 = is_top_left(&v0, &v1) ? 0 : -1;
+
+	//Finds the areas of entire triangle / paralellogram
+	int area = edge_cross(&v0, &v1, &v2);
+
+	//Loop all candidate pixels inside the bounding box
+	for (int y = y_min; y <= y_max; y++){
+		for (int x = x_min; x <= x_max; x++){
+			vect2_t p = {x, y};
+
+			float w0 = edge_cross(&v1, &v2, &p) + bias0;
+			float w1 = edge_cross(&v2, &v0, &p) + bias1;
+			float w2 = edge_cross(&v0, &v1, &p) + bias2;
+
+			bool is_inside = w0 >= 0 && w1 >= 0 & w2 >= 0;
+
+			if(is_inside){
+
+				//Finds the barycentric weights of triangle 
+				float alpha = w0 / area;
+				float beta = w1 / area;
+				float gamma = w2 / area;
+
+				//interpolate the value of 1/w for the current pixel
+				float interpolated_reciprocal_w = (1 / point_a.w) * alpha + (1 / point_b.w) * beta + (1 / point_c.w) * gamma;
+
+				//interpolate accumulated vertex normals
+				vect3_t interpolated_normal = vect3_add(vect3_mul(n0, alpha), vect3_add(vect3_mul(n1, beta), vect3_mul(n2, gamma)));
+				vect3_normalize(&interpolated_normal);
+
+				//adjust the value of 1/w so the pixels that are closer to the camera with smaller values
+				interpolated_reciprocal_w = 1.0 - interpolated_reciprocal_w;
+
+				vect3_t target_position = vect3_new(x, y, interpolated_reciprocal_w);
+
+				vect3_t view_direction = vect3_sub(get_camera_position(), target_position);
+
+				//Phong shading
+				uint32_t phong_color = blinn_phong_shading(interpolated_normal, get_light_direction(), view_direction,
+					get_material_color(), get_material_shininess(), get_light_ambient_strgenth(), get_material_specular_strength());
+
+				////Interpolate gouraud color component
+				//int a = 0xFF;
+				//int r = (alpha)*c0.r + (beta)*c1.r + (gamma)*c2.r;
+				//int g = (alpha)*c0.g + (beta)*c1.g + (gamma)*c2.g;
+				//int b = (alpha)*c0.b + (beta)*c1.b + (gamma)*c2.b;
+
+				//uint32_t gouraud_color = 0x00000000;
+				//gouraud_color = (gouraud_color | a) << 8;
+				//gouraud_color = (gouraud_color | b) << 8;
+				//gouraud_color = (gouraud_color | g) << 8;
+				//gouraud_color = (gouraud_color | r) ;
+
+				//Interpolate vertex colors
+				vect3_t interpolated_color = vect3_add(vect3_mul(c0, alpha), vect3_add(vect3_mul(c1, beta), vect3_mul(c2, gamma)));
+
+				//Pack the final color into uint32_t
+				uint32_t gouraud_color = pack_color(interpolated_color.x, interpolated_color.y, interpolated_color.z, 1.0); //Assuming full opacity;
+
+				// Only draw the pixel if the depth value is less than the one previously stored in the z-buffer
+				if (interpolated_reciprocal_w < get_z_buffer_at(x, y)) {
+
+					// Draw a pixel at position (x,y) with a color
+					draw_pixel(x, y, phong_color);
+
+					// Update the z-buffer value with the 1/w of this current pixel
+					update_z_buffer_at(x, y, interpolated_reciprocal_w);
+				}	
+
+			}
+		}
+
+	}
 
 }

@@ -24,6 +24,19 @@ bool is_running = false;
 int previous_frame_time = 0;
 float delta_time = 0;
 
+vect2_t vertices[5] = {
+	{.x = 40, .y = 40},
+	{.x = 80, .y = 40},
+	{.x = 40, .y = 80},
+	{.x = 90, .y = 90},
+};
+
+color_t colors[3] = {
+	{.r = 0xFF, .g = 0x00, .b = 0x00},
+	{.r = 0x00, .g = 0xFF, .b = 0x00},
+	{.r = 0x00, .g = 0x00, .b = 0xFF}
+};
+
 //////////////////////////////////////////////////////////////////////////////////
 // Array of triangles that should be rendered frame by frame
 //////////////////////////////////////////////////////////////////////////////////
@@ -52,7 +65,7 @@ void setup()
 	init_light(vect3_new(0, 0, 1), vect3_new(1.0, 1.0, 1.0), 0.2);
 	
 	//Initialize material
-	init_material(0xFFFFFFFF, 128.0, 1.0);
+	init_material(0xFF22FF22, 128.0, 1.0);
 
 	//Initialize camera
 	vect3_t position = vect3_new(0, 0, 0);
@@ -88,9 +101,10 @@ void setup()
 	
 
 	//load_mesh("./assets/f22.obj", "./assets/f22.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
-	//load_mesh("./assets/samus.obj", "./assets/cube.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
+	//load_mesh("./assets/samus.obj", "./assets/cube.png", vect3_new(1, 1, 1), vect3_new(0, -4, +12), vect3_new(0, 0, 0));
 	load_mesh("./assets/crab.obj", "./assets/crab.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
 	//load_mesh("./assets/drone.obj", "./assets/drone.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
+	//load_mesh("./assets/sphere.obj", "./assets/cube.png", vect3_new(1, 1, 1), vect3_new(0, 0, +8), vect3_new(0, 0, 0));
 
 	//load multiply mesh
 	for (int mesh_index = 0; mesh_index < get_num_meshes(); mesh_index++){
@@ -136,6 +150,11 @@ void process_input(void)
 			if (event.key.keysym.sym == SDLK_3){
 				set_render_method(RENDER_FILL_TRIANGLE);
 			}
+
+			if (event.key.keysym.sym == SDLK_F11) {
+				set_render_method(RENDER_AABB_TRIANGLE);
+			}
+
 			if (event.key.keysym.sym == SDLK_4){
 				set_render_method(RENDER_FILL_TRIANGLE_WIRE);
 				break;
@@ -148,6 +167,7 @@ void process_input(void)
 				set_render_method(RENDER_TEXTURED_WIRE);
 				break;
 			}
+
 			if (event.key.keysym.sym == SDLK_7){
 				set_cull_method(CULL_BACKFACE);
 				break;
@@ -253,16 +273,16 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 		vect4_t transformed_vertices[3];
 
 		
-		//Calculated vertex normal from face normal use vertex indices
+		////Calculated vertex normal from face normal use vertex indices
 		vect3_t vertex_normals[3];
 		vertex_normals[0] = mesh->normals[mesh_face.a];
 		vertex_normals[1] = mesh->normals[mesh_face.b];
 		vertex_normals[2] = mesh->normals[mesh_face.c];
 
-		////Loaded model normal from obj file
-		//vertex_normals[0] = mesh->model_normals[mesh_face.n0];
-		//vertex_normals[1] = mesh->model_normals[mesh_face.n1];
-		//vertex_normals[2] = mesh->model_normals[mesh_face.n2];
+		//Loaded model normal from obj file
+		/*vertex_normals[0] = mesh->model_normals[mesh_face.n0];
+		vertex_normals[1] = mesh->model_normals[mesh_face.n1];
+		vertex_normals[2] = mesh->model_normals[mesh_face.n2];*/
 
 		vect3_t transformed_vertex_normals[3];
 
@@ -307,6 +327,9 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 
 			//Multiply the normal matrix with the original normal vector
 			transformed_vertex_normal = mat4_mul_vect3_no_translation(normal_matrix, transformed_vertex_normal);
+
+			//Multiply the view matrix with the normal matrix transformed vector to transform the normals to camera space
+			//transformed_vertex_normal = mat4_mul_vect3_no_translation(view_matrix, transformed_vertex_normal);
 
 			//Save transformed vertex in the array of transformed vertices
 			transformed_vertices[j] = transformed_vertex;
@@ -561,6 +584,38 @@ void render(void){
 
 				triangle.color
 			);
+			
+		}
+		//draw aabb triangle
+		if (should_render_aabb_triangle()){
+			// a parallel rasterization algorithm ->AABB
+			//clear_color_buffer(0xFF000000);
+
+			/*vect2_t v0 = { triangle.points[0].x,triangle.points[0].y };
+			vect2_t v1 = { triangle.points[1].x,triangle.points[1].y };
+			vect2_t v2 = { triangle.points[2].x,triangle.points[2].y };*/
+
+			/*vect2_t v0 = vertices[0];
+			vect2_t v1 = vertices[1];
+			vect2_t v2 = vertices[2];
+			vect2_t v3 = vertices[3];*/
+
+
+			color_t c0 = colors[0];
+			color_t c1 = colors[1];
+			color_t c2 = colors[2];
+			
+			/*draw_aabb_triangle(v0, v1, v2, c0, c1, c2);
+			draw_aabb_triangle(v3, v2, v1, c0, c1, c2);	*/
+
+			draw_aabb_triangle(
+				triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w, //VERTEX A
+				triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w, //VERTEX B
+				triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, //VERTEX C
+				triangle.normals[0], triangle.normals[1], triangle.normals[2], //VERTEX NORMAL A,B,C
+				triangle.vertex_colors[0], triangle.vertex_colors[1], triangle.vertex_colors[2] // VERTEX COLOR C0,C1,C2
+				);
+
 		}
 		//draw textureed triangle
 		if (should_render_texture_triangle()){
@@ -568,11 +623,10 @@ void render(void){
 				triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w, triangle.texcoords[0].u, triangle.texcoords[0].v, //VERTEX A
 				triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w, triangle.texcoords[1].u, triangle.texcoords[1].v, //VERTEX B
 				triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, triangle.texcoords[2].u, triangle.texcoords[2].v, //VERTEX C
+				triangle.normals[0], triangle.normals[1], triangle.normals[2], //VERTEX NORMAL A,B,C
 				triangle.texture,
 				triangle.light_intensity_factor
-
 			);
-			
 		}
 
 		//draw triangle wireframe

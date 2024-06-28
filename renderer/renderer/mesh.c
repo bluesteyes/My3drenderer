@@ -73,7 +73,7 @@ void load_mesh_obj_data(mesh_t* mesh, char* obj_filename){
 				.c = vertex_indices[2] - 1,
 				.n0 = normal_indices[0] - 1,
 				.n1 = normal_indices[1] - 1,
-				.n2 = normal_indices[2] - 2,
+				.n2 = normal_indices[2] - 1,
 				.a_uv = texcoords[texture_indices[0] - 1],
 				.b_uv = texcoords[texture_indices[1] - 1],
 				.c_uv = texcoords[texture_indices[2] - 1],
@@ -89,12 +89,10 @@ void load_mesh_obj_data(mesh_t* mesh, char* obj_filename){
 	//Allocate memory
 	mesh->normals = (vect3_t*)calloc(mesh->num_faces, sizeof(vect3_t));
 
-	/*for (size_t i = 0; i < mesh->num_model_normals; i++)
+	/*for (size_t i = 0; i < mesh->num_vertices; i++)
 	{
-		printf("Model Normal %d: (%f, %f, %f)\n", i, mesh->model_normals[i].x, mesh->model_normals[i].y, mesh->model_normals[i].z);
+		printf("Model Vertices %d: (%f, %f, %f)\n", i, mesh->vertices[i].x, mesh->vertices[i].y, mesh->vertices[i].z);
 	}*/
-
-	
 }
 
 void load_mesh_png_data(mesh_t* mesh, char* png_filename){
@@ -116,8 +114,13 @@ mesh_t* get_mesh(int mesh_index){
 }
 
 void calculate_vertex_normal(mesh_t* mesh) {
+
+	for (int i = 0; i < mesh->num_vertices; ++i) {
+		mesh->normals[i] = vect3_new(0.0f, 0.0f, 0.0f);
+	}
+
 	//loop all triangle faces of mesh object
-	for (int i = 0; i < mesh->num_faces; i++){
+	for (int i = 0; i < mesh->num_faces; ++i){
 		face_t mesh_face = mesh->faces[i];
 
 		//Get each face vertices->3
@@ -145,14 +148,24 @@ void calculate_vertex_normal(mesh_t* mesh) {
 
 		mesh->normals[mesh_face.c].x += face_normal.x;
 		mesh->normals[mesh_face.c].y += face_normal.y;
-		mesh->normals[mesh_face.c].z += face_normal.z;
-		
+		mesh->normals[mesh_face.c].z += face_normal.z;	
 	}
+
+
 	//Loop all vertices and normalize vertex normal
-	for (int i = 0; i < mesh->num_vertices; i++){
+	for (int i = 0; i < mesh->num_vertices; ++i){
 		vect3_normalize(&mesh->normals[i]);
 	}
+
+	//for (size_t i = 0; i < mesh->num_vertices; ++i)
+	//{
+	//	printf("calculated vertex Normal %d: (%f, %f, %f)\n", i, mesh->normals[i].x, mesh->normals[i].y, mesh->normals[i].z);
+	//}
+
 }
+
+
+
 
 void free_meshes(void) {
 	for (int i = 0; i < mesh_count; i++){

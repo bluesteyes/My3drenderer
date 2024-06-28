@@ -21,11 +21,19 @@ enum render_method
 	RENDER_WIRE,
 	RENDER_WIRE_VERTEX,
 	RENDER_FILL_TRIANGLE,
+	RENDER_AABB_TRIANGLE,
 	RENDER_FILL_TRIANGLE_WIRE,
 	RENDER_TEXTURED,
 	RENDER_TEXTURED_WIRE
 
 }render_method;
+
+typedef struct {
+	uint8_t r;
+	uint8_t g;
+	uint8_t b;
+	uint8_t a;
+}color_t;
 
 
 bool initialize_window(void);
@@ -37,6 +45,7 @@ void set_render_method(int method);
 bool is_cull_backface(void);
 
 bool should_render_fill_triangle(void);
+bool should_render_aabb_triangle(void);
 bool should_render_texture_triangle(void);
 bool should_render_wireframe(void);
 bool should_render_wire_vertex(void);

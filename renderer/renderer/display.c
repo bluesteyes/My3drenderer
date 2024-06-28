@@ -37,6 +37,12 @@
 		 );
  }
 
+ bool should_render_aabb_triangle(void) {
+	 return (
+		 render_method == RENDER_AABB_TRIANGLE 
+		 );
+ }
+
  bool should_render_texture_triangle(void) {
 	 return(
 		 render_method == RENDER_TEXTURED || 
@@ -107,7 +113,6 @@ bool initialize_window(void){
 		window_width,
 		window_height
 	);
-
 
 	return true;
 }
@@ -217,7 +222,7 @@ uint32_t pack_color(float r, float g, float b, float a) {
 	color |= ((uint32_t)(r * 255) & 0xFF) << 16;
 	color |= ((uint32_t)(g * 255) & 0xFF) << 8;
 	color |= ((uint32_t)(b * 255) & 0xFF);
-	
+
 	return color;
 }
 
