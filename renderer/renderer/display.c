@@ -1,6 +1,10 @@
 
 #include "display.h"
 
+#define GAMMA 1.0
+#define INV_GAMMA (1.0 / GAMMA)
+#define CLAMP(x, lower, upper) ((x) < (lower) ? (lower) : ((x) > (upper) ? (upper) : (x)))
+
  static SDL_Window* window = NULL;
  static SDL_Renderer* renderer = NULL;
  static float* z_buffer = NULL;
@@ -9,6 +13,65 @@
 
  static int window_width = 800;
  static int window_height = 600;
+
+
+ float gamma_correct(float value, float gamma) {
+	 return pow(value, gamma);
+ }
+
+ vect4_t gamma_correct_color(vect4_t color, float gamma) {
+	 vect4_t corrected;
+	 corrected.x = gamma_correct(color.x, gamma);
+	 corrected.y = gamma_correct(color.y, gamma);
+	 corrected.z = gamma_correct(color.z, gamma);
+	 corrected.w = color.w;  // Alpha is usually not gamma-corrected
+	 return corrected;
+ }
+
+
+
+vect4_t mul_colors(vect4_t c1, vect4_t  c2) {
+
+	vect4_t corrected_c1 = gamma_correct_color(c1, INV_GAMMA);
+	vect4_t corrected_c2 = gamma_correct_color(c2, INV_GAMMA);
+
+	vect4_t  result;
+	 result.x = corrected_c1.x * corrected_c2.x;
+	 result.y = corrected_c1.y * corrected_c2.y;
+	 result.z = corrected_c1.z * corrected_c2.z;
+	 result.w = corrected_c1.w * corrected_c2.w;
+
+	 // Clamp the results to [0, 1]
+	 result.x = CLAMP(result.x, 0.0f, 1.0f);
+	 result.y = CLAMP(result.y, 0.0f, 1.0f);
+	 result.z = CLAMP(result.z, 0.0f, 1.0f);
+	 result.w = CLAMP(result.w, 0.0f, 1.0f);
+
+	 return result;
+ }
+
+
+ // Color packing function
+ uint32_t pack_color(float r, float g, float b, float a) {
+	 uint32_t color = 0;
+	 color |= ((uint32_t)(a * 255) & 0xFF) << 24;
+	 color |= ((uint32_t)(r * 255) & 0xFF) << 16;
+	 color |= ((uint32_t)(g * 255) & 0xFF) << 8;
+	 color |= ((uint32_t)(b * 255) & 0xFF);
+
+	 return color;
+ }
+
+ // Color unpacking function
+ void unpack_color(uint32_t color, float* r, float* g, float* b, float* a) {
+
+	 *a = ((color >> 24) & 0xFF) / 255.0;
+	 *r = ((color >> 16) & 0xFF) / 255.0;
+	 *g = ((color >> 8) & 0xFF) / 255.0;
+	 *b = (color & 0xFF) / 255.0;
+
+ }
+
 
  int get_window_width(void) {
 	 return window_width;
@@ -49,6 +112,12 @@
 		 render_method == RENDER_TEXTURED_WIRE
 		 );
  }
+ bool should_render_aabb_texture_triangle(void) {
+	 return(
+		 render_method == RENDER_AABB_TEXTURED_TRIANGLE
+		 );
+ }
+
  bool should_render_wireframe(void) {
 	 return(
 		 render_method == RENDER_WIRE ||
@@ -215,23 +284,3 @@ void destroy_window(void){
 }
 
 
-// Color packing function
-uint32_t pack_color(float r, float g, float b, float a) {
-	uint32_t color = 0;
-	color |= ((uint32_t)(a * 255) & 0xFF) << 24;
-	color |= ((uint32_t)(r * 255) & 0xFF) << 16;
-	color |= ((uint32_t)(g * 255) & 0xFF) << 8;
-	color |= ((uint32_t)(b * 255) & 0xFF);
-
-	return color;
-}
-
-// Color unpacking function
-void unpack_color(uint32_t color, float* r, float* g, float* b, float* a) {
-
-	*a = ((color >> 24) & 0xFF) / 255.0;
-	*r = ((color >> 16) & 0xFF) / 255.0;
-	*g = ((color >> 8) & 0xFF) / 255.0;
-	*b = (color & 0xFF) / 255.0;
-	
-}

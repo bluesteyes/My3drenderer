@@ -165,8 +165,6 @@ void calculate_vertex_normal(mesh_t* mesh) {
 }
 
 
-
-
 void free_meshes(void) {
 	for (int i = 0; i < mesh_count; i++){
 

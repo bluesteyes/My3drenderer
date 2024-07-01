@@ -61,11 +61,15 @@ void init_frustum_planes(float fov_x, float fov_y, float z_near, float z_far) {
 
 } 
 
-polygon_t polygon_from_triangle(vect3_t v0, vect3_t v1, vect3_t v2, tex2_t t0, tex2_t t1, tex2_t t2){
+polygon_t polygon_from_triangle(
+	vect3_t v0, vect3_t v1, vect3_t v2, 
+	tex2_t t0, tex2_t t1, tex2_t t2,
+	vect3_t n0, vect3_t n1, vect3_t n2){
 
 	polygon_t polygon = {
 		.vertices = {v0, v1, v2},
 		.texcoords = {t0, t1, t2},
+		.normals = {n0, n1, n2},
 		.num_vertices = 3,
 	};
 	return polygon;
@@ -84,6 +88,10 @@ void triangles_from_polygon(polygon_t* polygon, triangle_t triangles[], int* num
 		triangles[i].texcoords[0] = polygon->texcoords[index0];
 		triangles[i].texcoords[1] = polygon->texcoords[index1];
 		triangles[i].texcoords[2] = polygon->texcoords[index2];
+
+		triangles[i].normals[0] = polygon->normals[index0];
+		triangles[i].normals[1] = polygon->normals[index1];
+		triangles[i].normals[2] = polygon->normals[index2];
 	}
 
 	*num_triangles = polygon->num_vertices - 2;
@@ -97,14 +105,17 @@ void clip_polygon_against_plane(polygon_t* polygon, int plane ){ // parameter po
 	//declare a static array of inside vertices that will be part of the final polygon returned via parameter
 	vect3_t inside_vertices[MAX_NUM_POLY_VERTICES];
 	tex2_t inside_texcoords[MAX_NUM_POLY_VERTICES];
+	vect3_t inside_normals[MAX_NUM_POLY_VERTICES];
 	int num_inside_vertices = 0;
 
 	//start the current vertex with the first polygon vertex and previous vertex with the last polygon vertex
 	vect3_t* current_vertex = &polygon->vertices[0];
 	tex2_t* current_texcoord = &polygon->texcoords[0];
+	vect3_t* current_normal = &polygon->normals[0];
 
 	vect3_t* previous_vertex = &polygon->vertices[polygon->num_vertices - 1];
 	tex2_t* previous_texcoord = &polygon->texcoords[polygon->num_vertices - 1];
+	vect3_t* previous_normal = &polygon->normals[polygon->num_vertices - 1];
 
 	//calculate the dot product of the current and previous polygon vertex
 	float current_dot = 0;
@@ -134,9 +145,17 @@ void clip_polygon_against_plane(polygon_t* polygon, int plane ){ // parameter po
 				.v = float_lerp(previous_texcoord->v, current_texcoord->v, interpolation_factor)
 			};
 
+			//use the lerp formula to get the interpolated normals
+			vect3_t interpolated_normal = {
+				.x = float_lerp(previous_normal->x, current_normal->x, interpolation_factor),
+				.y = float_lerp(previous_normal->y, current_normal->y, interpolation_factor),
+				.z = float_lerp(previous_normal->z, current_normal->z, interpolation_factor)
+			};
+
 			//insert the intersection point to the list of "inside vertices"
 			inside_vertices[num_inside_vertices] = vect3_clone(&intersection_point);
 			inside_texcoords[num_inside_vertices] = tex2_clone(&interpolated_texcoord);
+			inside_normals[num_inside_vertices] = vect3_clone(&interpolated_normal);
 			num_inside_vertices++;
 		}
 
@@ -148,6 +167,9 @@ void clip_polygon_against_plane(polygon_t* polygon, int plane ){ // parameter po
 			//insert the current texcoord to the list of "inside texcoords"
 			inside_texcoords[num_inside_vertices] = tex2_clone(current_texcoord);
 
+			//insert the current vertex to the list of "inside vertices"
+			inside_normals[num_inside_vertices] = vect3_clone(current_normal);
+
 			num_inside_vertices++;
 		}
 
@@ -155,8 +177,10 @@ void clip_polygon_against_plane(polygon_t* polygon, int plane ){ // parameter po
 		previous_dot = current_dot;
 		previous_vertex = current_vertex;
 		previous_texcoord = current_texcoord;
+		previous_normal = current_normal;
 		current_vertex++; //pointer move to next address
 		current_texcoord++;
+		current_normal++;
 
 	}
 
@@ -164,6 +188,7 @@ void clip_polygon_against_plane(polygon_t* polygon, int plane ){ // parameter po
 	for (int i = 0; i < num_inside_vertices; i++){
 		polygon->vertices[i] = vect3_clone(&inside_vertices[i]);
 		polygon->texcoords[i] = tex2_clone(&inside_texcoords[i]);
+		polygon->normals[i] = vect3_clone(&inside_normals[i]);
 	}
 	polygon->num_vertices = num_inside_vertices;
 }

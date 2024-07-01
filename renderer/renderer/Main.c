@@ -24,18 +24,6 @@ bool is_running = false;
 int previous_frame_time = 0;
 float delta_time = 0;
 
-vect2_t vertices[5] = {
-	{.x = 40, .y = 40},
-	{.x = 80, .y = 40},
-	{.x = 40, .y = 80},
-	{.x = 90, .y = 90},
-};
-
-color_t colors[3] = {
-	{.r = 0xFF, .g = 0x00, .b = 0x00},
-	{.r = 0x00, .g = 0xFF, .b = 0x00},
-	{.r = 0x00, .g = 0x00, .b = 0xFF}
-};
 
 //////////////////////////////////////////////////////////////////////////////////
 // Array of triangles that should be rendered frame by frame
@@ -52,7 +40,6 @@ int num_triangles_to_render = 0;
 mat4_t world_matrix;
 mat4_t view_matrix;
 mat4_t proj_matrix;
-mat4_t model_matrix;
 mat4_t normal_matrix;
 
 
@@ -62,10 +49,10 @@ mat4_t normal_matrix;
 void setup()
 {
 	//Initialize light direction and light color
-	init_light(vect3_new(0, 0, 1), vect3_new(1.0, 1.0, 1.0), 0.2);
+	init_light(vect3_new(0, 0, 1), vect3_new(1.0f, 1.0f, 1.0f), 0.2);
 	
 	//Initialize material
-	init_material(0xFF22FF22, 128.0, 1.0);
+	init_material(0xFFFFFFFF, 256.0f, 1.0f);
 
 	//Initialize camera
 	vect3_t position = vect3_new(0, 0, 0);
@@ -82,11 +69,11 @@ void setup()
 	//Initialize the perspective projection matrix
 	float aspect_y = (float)(get_window_height()) / (float)(get_window_width());
 	float aspect_x = (float)(get_window_width()) / (float)(get_window_height());
-	float fov_y = 3.1415926 / 3.0; //the same as 60 degree
-	float fov_x = atan(tan(fov_y/2) * aspect_x) * 2.0;
+	float fov_y = 3.1415926f / 3.0f; //the same as 60 degree
+	float fov_x = atan(tan(fov_y/2) * aspect_x) * 2.0f;
 
-	float z_near = 1.0;
-	float z_far = 20;
+	float z_near = 1.0f;
+	float z_far = 20.0f;
 
 	proj_matrix = mat4_make_perspective(fov_y, aspect_y, z_near, z_far);
 
@@ -101,10 +88,14 @@ void setup()
 	
 
 	//load_mesh("./assets/f22.obj", "./assets/f22.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
+	//load_mesh("./assets/f117.obj", "./assets/f117.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
+	//load_mesh("./assets/efa.obj", "./assets/efa.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
 	//load_mesh("./assets/samus.obj", "./assets/cube.png", vect3_new(1, 1, 1), vect3_new(0, -4, +12), vect3_new(0, 0, 0));
 	load_mesh("./assets/crab.obj", "./assets/crab.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
 	//load_mesh("./assets/drone.obj", "./assets/drone.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
+	//load_mesh("./assets/cube.obj", "./assets/cube.png", vect3_new(1, 1, 1), vect3_new(0, 0, +8), vect3_new(0, 0, 0));
 	//load_mesh("./assets/sphere.obj", "./assets/cube.png", vect3_new(1, 1, 1), vect3_new(0, 0, +8), vect3_new(0, 0, 0));
+
 
 	//load multiply mesh
 	for (int mesh_index = 0; mesh_index < get_num_meshes(); mesh_index++){
@@ -150,11 +141,7 @@ void process_input(void)
 			if (event.key.keysym.sym == SDLK_3){
 				set_render_method(RENDER_FILL_TRIANGLE);
 			}
-
-			if (event.key.keysym.sym == SDLK_F11) {
-				set_render_method(RENDER_AABB_TRIANGLE);
-			}
-
+			
 			if (event.key.keysym.sym == SDLK_4){
 				set_render_method(RENDER_FILL_TRIANGLE_WIRE);
 				break;
@@ -163,6 +150,8 @@ void process_input(void)
 				set_render_method(RENDER_TEXTURED);
 				break;
 			}
+
+
 			if (event.key.keysym.sym == SDLK_6){
 				set_render_method(RENDER_TEXTURED_WIRE);
 				break;
@@ -176,11 +165,22 @@ void process_input(void)
 				set_cull_method(CULL_NONE);
 				break;
 			}
+
 			if (event.key.keysym.sym == SDLK_9) {
+				set_render_method(RENDER_AABB_TRIANGLE);
+			}
+
+
+			if (event.key.keysym.sym == SDLK_0) {
+				set_render_method(RENDER_AABB_TEXTURED_TRIANGLE);
+			}
+
+
+			if (event.key.keysym.sym == SDLK_F11) {
 				set_camera_position_y(get_camera_position().y + 3.0 * delta_time);
 				break;		
 			}
-			if (event.key.keysym.sym == SDLK_0) {
+			if (event.key.keysym.sym == SDLK_F12) {
 				set_camera_position_y(get_camera_position().y - 3.0 * delta_time);
 				break;
 			}
@@ -300,8 +300,6 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 
 			//Create a world matrix combining scale, rotation and translation
 			world_matrix = mat4_identity();
-			model_matrix = mat4_identity();
-			
 
 			//Multiply all matrices and load the world matrix
 			//*order matters: first scale, next rotate, then translate >>> [T]*[R]*[S]*v
@@ -329,7 +327,7 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 			transformed_vertex_normal = mat4_mul_vect3_no_translation(normal_matrix, transformed_vertex_normal);
 
 			//Multiply the view matrix with the normal matrix transformed vector to transform the normals to camera space
-			//transformed_vertex_normal = mat4_mul_vect3_no_translation(view_matrix, transformed_vertex_normal);
+			transformed_vertex_normal = mat4_mul_vect3_no_translation(view_matrix, transformed_vertex_normal);
 
 			//Save transformed vertex in the array of transformed vertices
 			transformed_vertices[j] = transformed_vertex;
@@ -363,7 +361,10 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 			vect3_from_vect4(transformed_vertices[2]),
 			mesh_face.a_uv,
 			mesh_face.b_uv,
-			mesh_face.c_uv
+			mesh_face.c_uv,
+			transformed_vertex_normals[0],
+			transformed_vertex_normals[1],
+			transformed_vertex_normals[2]
 		);
 
 		//Clip the polygon and returns a new polygon with potential new vertices
@@ -430,20 +431,21 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 			vect3_normalize(&view_direction_a);
 
 			//get flat shading triangle face color
-			uint32_t triangle_color = blinn_phong_shading(face_normal, get_light_direction(), view_direction_a,
+			uint32_t triangle_color = blinn_phong_reflection(face_normal, get_light_direction(), view_direction_a,
 				get_material_color(), get_material_shininess(), get_light_ambient_strgenth(), get_material_specular_strength());
-			
+
+
 			//printf("Transformed Vertex Normals: (%f, %f, %f)\n", transformed_vertex_normals[0].x, transformed_vertex_normals[0].y, transformed_vertex_normals[0].z);
 
 			//get gouraud shading triangle vertex color 
-			uint32_t vertex_color_a = blinn_phong_shading(transformed_vertex_normals[0], get_light_direction(), view_direction_a,
+			uint32_t vertex_color_a = blinn_phong_reflection(triangles_after_clipping->normals[0], get_light_direction(), view_direction_a,
 				get_material_color(), get_material_shininess(), get_light_ambient_strgenth(), get_material_specular_strength());
 	
 
-			uint32_t vertex_color_b = blinn_phong_shading(transformed_vertex_normals[1], get_light_direction(), view_direction_b,
+			uint32_t vertex_color_b = blinn_phong_reflection(triangles_after_clipping->normals[1], get_light_direction(), view_direction_b,
 				get_material_color(), get_material_shininess(), get_light_ambient_strgenth(), get_material_specular_strength());
 
-			uint32_t vertex_color_c = blinn_phong_shading(transformed_vertex_normals[2], get_light_direction(), view_direction_c,
+			uint32_t vertex_color_c = blinn_phong_reflection(triangles_after_clipping->normals[2], get_light_direction(), view_direction_c,
 				get_material_color(), get_material_shininess(), get_light_ambient_strgenth(), get_material_specular_strength());
 
 
@@ -494,9 +496,12 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 					{triangle_after_clipping.texcoords[2].u, triangle_after_clipping.texcoords[2].v}
 				},
 				.normals = {
-					{transformed_vertex_normals[0].x, transformed_vertex_normals[0].y, transformed_vertex_normals[0].z},
+					/*{transformed_vertex_normals[0].x, transformed_vertex_normals[0].y, transformed_vertex_normals[0].z},
 					{transformed_vertex_normals[1].x, transformed_vertex_normals[1].y, transformed_vertex_normals[1].z},
-					{transformed_vertex_normals[2].x, transformed_vertex_normals[2].y, transformed_vertex_normals[2].z},
+					{transformed_vertex_normals[2].x, transformed_vertex_normals[2].y, transformed_vertex_normals[2].z},*/
+					{triangle_after_clipping.normals[0].x, triangle_after_clipping.normals[0].y, triangle_after_clipping.normals[0].z},
+					{triangle_after_clipping.normals[1].x, triangle_after_clipping.normals[1].y, triangle_after_clipping.normals[1].z},
+					{triangle_after_clipping.normals[2].x, triangle_after_clipping.normals[2].y, triangle_after_clipping.normals[2].z},
 				},
 				.vertex_colors = {
 					{vertex_colors[0].x, vertex_colors[0].y, vertex_colors[0].z},
@@ -505,7 +510,6 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 				},
 				.color = triangle_color,
 				.texture = mesh->textures,
-				
 				.light_intensity_factor = diffuse_intensity_factor,
 			};
 			//Save the projected triagnle in the array of triangles to render
@@ -543,8 +547,8 @@ void update(void){
 		mesh_t* mesh = get_mesh(mesh_index);
 
 		//Change the mesh scale/rotation values per animation frame
-		//mesh->rotation.x += 0.5 * delta_time;
-		mesh->rotation.y += 0.5 * delta_time;
+		mesh->rotation.x += 0.5 * delta_time;
+		mesh->rotation.y += 0.2 * delta_time;
 		//mesh->rotation.z += 0.0 * delta_time;
 		//mesh->scale.x += 0;
 		//mesh->scale.y += 0;
@@ -562,7 +566,7 @@ void update(void){
 void render(void){
 
 	//Clear all the arrays to get ready for the next frame
-	clear_color_buffer(0xFF000000);
+	clear_color_buffer(0x01010101);
 	clear_z_buffer();
 
 	draw_grid();
@@ -588,36 +592,17 @@ void render(void){
 		}
 		//draw aabb triangle
 		if (should_render_aabb_triangle()){
-			// a parallel rasterization algorithm ->AABB
-			//clear_color_buffer(0xFF000000);
-
-			/*vect2_t v0 = { triangle.points[0].x,triangle.points[0].y };
-			vect2_t v1 = { triangle.points[1].x,triangle.points[1].y };
-			vect2_t v2 = { triangle.points[2].x,triangle.points[2].y };*/
-
-			/*vect2_t v0 = vertices[0];
-			vect2_t v1 = vertices[1];
-			vect2_t v2 = vertices[2];
-			vect2_t v3 = vertices[3];*/
-
-
-			color_t c0 = colors[0];
-			color_t c1 = colors[1];
-			color_t c2 = colors[2];
-			
-			/*draw_aabb_triangle(v0, v1, v2, c0, c1, c2);
-			draw_aabb_triangle(v3, v2, v1, c0, c1, c2);	*/
-
 			draw_aabb_triangle(
 				triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w, //VERTEX A
 				triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w, //VERTEX B
 				triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, //VERTEX C
 				triangle.normals[0], triangle.normals[1], triangle.normals[2], //VERTEX NORMAL A,B,C
-				triangle.vertex_colors[0], triangle.vertex_colors[1], triangle.vertex_colors[2] // VERTEX COLOR C0,C1,C2
+				triangle.vertex_colors[0], triangle.vertex_colors[1], triangle.vertex_colors[2], // VERTEX COLOR C0,C1,C2
+				triangle.color
 				);
 
 		}
-		//draw textureed triangle
+		//draw textured triangle
 		if (should_render_texture_triangle()){
 			draw_textured_triangle(
 				triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w, triangle.texcoords[0].u, triangle.texcoords[0].v, //VERTEX A
@@ -625,8 +610,22 @@ void render(void){
 				triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, triangle.texcoords[2].u, triangle.texcoords[2].v, //VERTEX C
 				triangle.normals[0], triangle.normals[1], triangle.normals[2], //VERTEX NORMAL A,B,C
 				triangle.texture,
-				triangle.light_intensity_factor
+				triangle.light_intensity_factor,
+				triangle.color
 			);
+		}
+		//daw aabb textured triangle
+		if (should_render_aabb_texture_triangle()){
+			draw_aabb_textured_triangle(
+				triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w, triangle.texcoords[0].u, triangle.texcoords[0].v, //VERTEX A
+				triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w, triangle.texcoords[1].u, triangle.texcoords[1].v, //VERTEX B
+				triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, triangle.texcoords[2].u, triangle.texcoords[2].v, //VERTEX C
+				triangle.normals[0], triangle.normals[1], triangle.normals[2], //VERTEX NORMAL A,B,C
+				triangle.vertex_colors[0], triangle.vertex_colors[1], triangle.vertex_colors[2], // VERTEX COLOR C0,C1,C2
+				triangle.texture,
+				triangle.color
+			);
+
 		}
 
 		//draw triangle wireframe

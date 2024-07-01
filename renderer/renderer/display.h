@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <sdl.h>
+#include"vector.h"
 
 #define FPS 60
 #define FRAME_TARGET_TIME (1000 / FPS) // this is delta time in miliseconds
@@ -22,6 +23,7 @@ enum render_method
 	RENDER_WIRE_VERTEX,
 	RENDER_FILL_TRIANGLE,
 	RENDER_AABB_TRIANGLE,
+	RENDER_AABB_TEXTURED_TRIANGLE,
 	RENDER_FILL_TRIANGLE_WIRE,
 	RENDER_TEXTURED,
 	RENDER_TEXTURED_WIRE
@@ -47,6 +49,7 @@ bool is_cull_backface(void);
 bool should_render_fill_triangle(void);
 bool should_render_aabb_triangle(void);
 bool should_render_texture_triangle(void);
+bool should_render_aabb_texture_triangle(void);
 bool should_render_wireframe(void);
 bool should_render_wire_vertex(void);
 
@@ -63,6 +66,7 @@ void render_color_buffer(void);
 float get_z_buffer_at(int x, int y);
 void update_z_buffer_at(int x, int y, float value);
 
+vect4_t mul_colors(vect4_t c1, vect4_t  c2);
 uint32_t pack_color(float r, float g, float b, float a);
 void unpack_color(uint32_t color, float* r, float* g, float* b, float* a);
 

@@ -1,60 +1,15 @@
-﻿  Main.c
-F:\My3drenderer\renderer\renderer\Main.c(65,59): warning C4305: 'function': truncation from 'double' to 'float'
-F:\My3drenderer\renderer\renderer\Main.c(85,26): warning C4305: 'initializing': truncation from 'double' to 'float'
-F:\My3drenderer\renderer\renderer\Main.c(86,46): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(180,51): warning C4244: 'function': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(184,51): warning C4244: 'function': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(188,51): warning C4244: 'function': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(192,51): warning C4244: 'function': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(196,41): warning C4244: 'function': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(200,41): warning C4244: 'function': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(204,37): warning C4244: 'function': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(208,37): warning C4244: 'function': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(212,68): warning C4244: 'function': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(217,67): warning C4244: 'function': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(399,30): warning C4244: '*=': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(400,30): warning C4244: '*=': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(403,30): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(404,30): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(411,37): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(418,38): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(419,12): warning C4101: 'specular': unreferenced local variable
-F:\My3drenderer\renderer\renderer\Main.c(534,54): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(547,27): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(578,23): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(578,45): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(579,23): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(579,45): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(580,23): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(580,45): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(612,23): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(612,45): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(613,23): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(613,45): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(614,23): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(614,45): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(623,23): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(623,45): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(624,23): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(624,45): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(625,23): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(625,45): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(635,23): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(635,45): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(636,23): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(636,45): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(637,23): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(637,45): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(644,35): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(644,61): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(645,35): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(645,61): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(646,35): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(646,61): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\Main.c(605,12): warning C4101: 'c1': unreferenced local variable
-F:\My3drenderer\renderer\renderer\Main.c(604,12): warning C4101: 'c0': unreferenced local variable
-F:\My3drenderer\renderer\renderer\Main.c(606,12): warning C4101: 'c2': unreferenced local variable
-F:\My3drenderer\renderer\renderer\Main.c(659,2): warning C4013: 'destroy_window' undefined; assuming extern returning int
+﻿  display.c
+F:\My3drenderer\renderer\renderer\display.c(19,10): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\display.c(35,49): warning C4305: 'function': truncation from 'double' to 'float'
+F:\My3drenderer\renderer\renderer\display.c(36,49): warning C4305: 'function': truncation from 'double' to 'float'
+F:\My3drenderer\renderer\renderer\display.c(68,31): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\display.c(69,31): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\display.c(70,30): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\display.c(71,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\display.c(211,14): warning C4244: 'function': conversion from 'double' to 'int', possible loss of data
+F:\My3drenderer\renderer\renderer\display.c(211,31): warning C4244: 'function': conversion from 'double' to 'int', possible loss of data
+F:\My3drenderer\renderer\renderer\display.c(203,20): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\display.c(204,20): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
   triangle.c
 F:\My3drenderer\renderer\renderer\triangle.c(101,13): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
 F:\My3drenderer\renderer\renderer\triangle.c(101,25): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
@@ -64,58 +19,88 @@ F:\My3drenderer\renderer\renderer\triangle.c(133,13): warning C4244: 'function':
 F:\My3drenderer\renderer\renderer\triangle.c(133,25): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
 F:\My3drenderer\renderer\renderer\triangle.c(127,18): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
 F:\My3drenderer\renderer\renderer\triangle.c(128,16): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(184,38): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(184,41): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(190,34): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(162,16): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(162,19): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(186,10): warning C4101: 'view_direction': unreferenced local variable
-F:\My3drenderer\renderer\renderer\triangle.c(250,34): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(215,15): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(215,18): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(345,22): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(345,26): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(346,22): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(346,26): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(347,22): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(347,26): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(365,21): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(366,19): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(395,21): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(396,19): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(476,11): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(477,11): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(478,11): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(481,22): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(481,26): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(482,22): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(482,26): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(483,22): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(483,26): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(504,21): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(505,19): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(536,21): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(537,19): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(567,21): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(607,40): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
-F:\My3drenderer\renderer\renderer\triangle.c(624,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(626,41): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(626,44): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(577,22): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(577,26): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(578,22): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(578,26): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(579,22): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(579,26): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(586,14): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(587,14): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(588,14): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(589,14): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(601,17): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(601,20): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(603,40): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(604,40): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(605,40): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\triangle.c(628,13): warning C4101: 'view_direction': unreferenced local variable
+F:\My3drenderer\renderer\renderer\triangle.c(183,38): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(183,41): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(189,34): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(161,16): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(161,19): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(185,10): warning C4101: 'view_direction': unreferenced local variable
+F:\My3drenderer\renderer\renderer\triangle.c(248,34): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(254,38): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(254,41): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(213,15): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(213,18): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(256,10): warning C4101: 'view_direction': unreferenced local variable
+F:\My3drenderer\renderer\renderer\triangle.c(381,22): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(381,26): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(382,22): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(382,26): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(383,22): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(383,26): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(401,21): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(402,19): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(431,21): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(432,19): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(512,11): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(513,11): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(514,11): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(517,22): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(517,26): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(518,22): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(518,26): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(519,22): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(519,26): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(540,21): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(541,19): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(571,21): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(572,19): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(598,21): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(642,40): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
+F:\My3drenderer\renderer\renderer\triangle.c(659,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(661,41): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(661,44): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(610,22): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(610,26): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(611,22): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(611,26): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(612,22): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(612,26): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(619,14): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(620,14): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(621,14): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(622,14): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(636,17): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(636,20): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(638,40): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(639,40): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(640,40): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(700,11): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(701,11): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(702,11): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(740,40): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
+F:\My3drenderer\renderer\renderer\triangle.c(773,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(781,41): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(781,44): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(705,22): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(705,26): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(706,22): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(706,26): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(707,22): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(707,26): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(713,17): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(713,21): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(714,17): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(714,21): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(715,17): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(715,21): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(719,14): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(720,14): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(721,14): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(722,14): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(734,18): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(734,21): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(736,40): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(737,40): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\triangle.c(738,40): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
   Generating Code...
   renderer.vcxproj -> F:\My3drenderer\renderer\x64\Debug\renderer.exe
