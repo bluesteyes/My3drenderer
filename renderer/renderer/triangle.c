@@ -691,7 +691,7 @@ void draw_aabb_textured_triangle(
 	vect3_t t0, vect3_t t1, vect3_t t2,
 	vect3_t b0, vect3_t b1, vect3_t b2,
 	vect3_t c0, vect3_t c1, vect3_t c2,
-	upng_t* texture, upng_t* normalmap,upng_t* glowmap,
+	upng_t* texture, upng_t* normalmap, upng_t* glowmap, upng_t* roughmap,
 	uint32_t flat_color 
 
 ) {
@@ -822,13 +822,17 @@ void draw_aabb_textured_triangle(
 					uint32_t* glowmap_buffer = (uint32_t*)upng_get_buffer(glowmap);
 					uint32_t glowmap_pixel = glowmap_buffer[(texture_width * tex_y) + tex_x];
 
+					//get metal texture
+					uint32_t* roughmap_buffer = (uint32_t*)upng_get_buffer(roughmap);
+					uint32_t roughmap_pixel = roughmap_buffer[(texture_width * tex_y) + tex_x];
+
 					///******************** Normal Mapping ***********************///
 					//Get the normal from the normal map
 					
 
 
 					uint32_t phong_color = phong_reflection(interpolated_normal, interpolated_tangent, interpolated_bitangent, 
-						get_light_direction(), view_direction,texture_pixel, glowmap_pixel, tangent_normal, get_material_shininess());
+						get_light_direction(), view_direction,texture_pixel, glowmap_pixel, roughmap_pixel, tangent_normal, get_material_shininess());
 
 					//Blinn-Phong shading
 					uint32_t blinn_phong_color = blinn_phong_reflection(interpolated_normal, get_light_direction(), view_direction,

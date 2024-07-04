@@ -19,13 +19,15 @@ void load_mesh(char* obj_filename, char* png_filename, vect3_t scale, vect3_t tr
 	mesh_count++;
 }
 
-void load_mesh_with_normalmap(char* obj_filename, char* png_filename, char* normalmap_filename, char* glowmap_filename,
+void load_mesh_with_normalmap(char* obj_filename, char* png_filename, char* normalmap_filename, 
+	char* glowmap_filename, char* metalmap_filename,
 	vect3_t scale, vect3_t translation, vect3_t rotation) {
 
 	load_mesh_obj_data(&meshes[mesh_count], obj_filename);
 	load_mesh_png_data(&meshes[mesh_count], png_filename);
 	load_mesh_normalmap_data(&meshes[mesh_count], normalmap_filename);
 	load_mesh_glowmap_data(&meshes[mesh_count], glowmap_filename);
+	load_mesh_roughmap_data(&meshes[mesh_count], metalmap_filename);
 	meshes[mesh_count].scale = scale;
 	meshes[mesh_count].rotation = rotation;
 	meshes[mesh_count].translation = translation;
@@ -141,6 +143,16 @@ void load_mesh_glowmap_data(mesh_t* mesh, char* glowmap_filename) {
 	}
 }
 
+void load_mesh_roughmap_data(mesh_t* mesh, char* roughmap_filename) {
+	upng_t* roughmap_image = upng_new_from_file(roughmap_filename);
+	if (roughmap_image != NULL) {
+		upng_decode(roughmap_image);
+		if (upng_get_error(roughmap_image) == UPNG_EOK) {
+			mesh->roughmaps = roughmap_image;
+		}
+	}
+}
+
 int get_num_meshes(void){
 	return mesh_count;
 }
@@ -199,7 +211,6 @@ void calculate_vertex_normal(mesh_t* mesh) {
 	//	printf("calculated vertex Normal %d: (%f, %f, %f)\n", i, mesh->normals[i].x, mesh->normals[i].y, mesh->normals[i].z);
 	//}
 }
-
 
 // Calculate each vertex tangents and bitangents for a mesh
 void calculate_tangents_and_bitangents(mesh_t* mesh) {
@@ -261,12 +272,12 @@ void calculate_tangents_and_bitangents(mesh_t* mesh) {
 		vect3_normalize(&mesh->bitangents[i]);
 	}
 
-	for (size_t i = 0; i < mesh->num_vertices; ++i)
+	/*for (size_t i = 0; i < mesh->num_vertices; ++i)
 	{
 		printf("vertex tangents %d: (%f, %f, %f)\n", i, mesh->tangents[i].x, mesh->tangents[i].y, mesh->tangents[i].z);
 		printf("vertex bitangents %d: (%f, %f, %f)\n", i, mesh->bitangents[i].x, mesh->bitangents[i].y, mesh->bitangents[i].z);
 		printf("vertex normals %d: (%f, %f, %f)\n", i, mesh->normals[i].x, mesh->normals[i].y, mesh->normals[i].z);
-	}
+	}*/
 }
 
 
@@ -287,6 +298,10 @@ void free_meshes(void) {
 
 		if (meshes[i].glowmaps != NULL) {
 			upng_free(meshes[i].glowmaps);
+		}
+
+		if (meshes[i].roughmaps != NULL) {
+			upng_free(meshes[i].roughmaps);
 		}
 
 		array_free(meshes[i].vertices);

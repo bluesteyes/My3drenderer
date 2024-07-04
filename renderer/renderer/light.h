@@ -24,7 +24,7 @@ uint32_t blinn_phong_reflection(vect3_t normal, vect3_t light_direction, vect3_t
 	uint32_t material_color, float shininess, float ambient_strength, float specular_strength);
 
 uint32_t phong_reflection(vect3_t normal, vect3_t tangent, vect3_t bitangent, vect3_t light_direction, vect3_t view_direction,
-	uint32_t color, uint32_t glowmap, uint32_t tangent_normal, float shininess);
+	uint32_t color, uint32_t glowmap, uint32_t roughmap, uint32_t tangent_normal, float shininess);
 
 #endif 
 

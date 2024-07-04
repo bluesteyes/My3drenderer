@@ -34,6 +34,7 @@ typedef struct {
 	upng_t* texture;
 	upng_t* normalmap;
 	upng_t* glowmap;
+	upng_t* roughmap;
 	float light_intensity_factor;
 
 } triangle_t ; // stores actual vec2 points of the triangle in the screen
@@ -65,7 +66,8 @@ void draw_aabb_textured_triangle(
 	vect3_t t0, vect3_t t1, vect3_t t2,
 	vect3_t b0, vect3_t b1, vect3_t b2,
 	vect3_t c0, vect3_t c1, vect3_t c2,
-	upng_t* texture, upng_t* normalmap, upng_t* glowmap, uint32_t flat_color);
+	upng_t* texture, upng_t* normalmap, upng_t* glowmap, upng_t* roughmap,
+	uint32_t flat_color);
 
 
 void draw_textured_triangle(

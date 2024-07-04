@@ -8,6 +8,10 @@
 
 light_t light;
 
+float mix(float x, float y, float a) {
+	return x * (1.0f - a) + y * a;
+}
+
 void init_light(vect3_t direction, vect3_t color, float ambient) {
 	light.direction = direction;
 	light.color = color;
@@ -127,7 +131,7 @@ uint32_t blinn_phong_reflection(vect3_t normal, vect3_t light_direction, vect3_t
 /// <param name="shininess"></param>
 /// <returns></returns>
 uint32_t phong_reflection(vect3_t normal, vect3_t tangent, vect3_t bitangent, vect3_t light_direction, 
-	vect3_t view_direction, uint32_t color, uint32_t glowmap, uint32_t tangent_normal_data, float shininess ) {
+	vect3_t view_direction, uint32_t color, uint32_t glowmap, uint32_t roughmap, uint32_t tangent_normal_data, float shininess ) {
 
 	//Normalize the input vector
 	vect3_normalize(&light_direction);
@@ -158,6 +162,9 @@ uint32_t phong_reflection(vect3_t normal, vect3_t tangent, vect3_t bitangent, ve
 	vect4_t glow_color = vect4_new(0.0f, 0.0f, 0.0f, 0.0f);
 	unpack_color(glowmap, &glow_color.x, &glow_color.y, &glow_color.z, &glow_color.w);
 
+	vect4_t rough_color = vect4_new(0.0f, 0.0f, 0.0f, 0.0f);
+	unpack_color(roughmap, &rough_color.x, &rough_color.y, &rough_color.z, &rough_color.w);
+
 
 	///Ambient component
 	vect3_t ambient = {
@@ -165,6 +172,10 @@ uint32_t phong_reflection(vect3_t normal, vect3_t tangent, vect3_t bitangent, ve
 		ambient_color.y * diffuse_color.y,
 		ambient_color.z * diffuse_color.z
 	};
+
+	///Roughness component
+	float roughness = 1.0f - rough_color.x;    // assume roughness value stored in r channel
+	float shiny = mix(1.0f, 256.0f, 1.0f - roughness);   //interpolating shininess based on roughness
 
 	///Diffuse component
 	float diff = fmaxf(vect3_dot(normal, vect3_mul(light_direction, -1.0f)), 0.0f);
@@ -177,7 +188,7 @@ uint32_t phong_reflection(vect3_t normal, vect3_t tangent, vect3_t bitangent, ve
 	};
 
 	//Note: the color is pretty dark after applying world normal
-	float bump_factor = 2.0f;
+	float bump_factor = 3.0f;
 	float diff_normal = fmaxf(vect3_dot(world_normal, vect3_mul(light_direction, -1.0f)), 0.0f) * bump_factor;
 
 	vect3_t diffuse_normal = {
@@ -204,7 +215,7 @@ uint32_t phong_reflection(vect3_t normal, vect3_t tangent, vect3_t bitangent, ve
 	//specular factor
 	//float spec = powf(fmaxf(vect3_dot(view_direction, reflect_direction), 0.0f), 32.0f);
 
-	float spec = powf(fmaxf(vect3_dot(normal, halfway_direction), 0.0f), shininess);
+	float spec = powf(fmaxf(vect3_dot(normal, halfway_direction), 0.0f), shiny);
 	//float spec = 0.0f;
 	vect3_t specular = {
 		spec * specular_color.x * light_color.x,
@@ -212,15 +223,14 @@ uint32_t phong_reflection(vect3_t normal, vect3_t tangent, vect3_t bitangent, ve
 		spec * specular_color.z * light_color.z,
 	};
 
-	float spec_normal = powf(fmaxf(vect3_dot(world_normal, halfway_direction), 0.0f), shininess);
-	//float spec_normal = 0.0f;
+	/*float spec_normal = powf(fmaxf(vect3_dot(world_normal, halfway_direction), 0.0f), shininess);
 	vect3_t specular_normal = {
 		spec_normal * specular_color.x * light_color.x,
 		spec_normal * specular_color.y * light_color.y,
 		spec_normal * specular_color.z * light_color.z,
-	};
+	};*/
 
-	//glow factor
+	//Glow component
 	float glow_intensity =2.0f;
 	vect3_t glow = {
 		glow_color.x * glow_intensity,
@@ -228,11 +238,14 @@ uint32_t phong_reflection(vect3_t normal, vect3_t tangent, vect3_t bitangent, ve
 		glow_color.z * glow_intensity,
 	};
 
+
 	vect3_t result = {
-		ambient.x + diffuse.x + diffuse_normal.x + specular.x + glow.x,
-		ambient.y + diffuse.y + diffuse_normal.y + specular.y + glow.y,
-		ambient.z + diffuse.z + diffuse_normal.z + specular.z + glow.z,
+		ambient.x + diffuse.x + diffuse_normal.x + specular.x + glow.x ,
+		ambient.y + diffuse.y + diffuse_normal.y + specular.y + glow.y ,
+		ambient.z + diffuse.z + diffuse_normal.z + specular.z + glow.z ,
 	};
+
+	
 
 
 	// Clamp the results to [0, 1]

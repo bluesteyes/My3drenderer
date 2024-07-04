@@ -1,8 +1,8 @@
 ﻿  light.c
-F:\My3drenderer\renderer\renderer\light.c(32,45): warning C4244: 'initializing': conversion from 'float' to 'uint32_t', possible loss of data
-F:\My3drenderer\renderer\renderer\light.c(33,45): warning C4244: 'initializing': conversion from 'float' to 'uint32_t', possible loss of data
-F:\My3drenderer\renderer\renderer\light.c(34,45): warning C4244: 'initializing': conversion from 'float' to 'uint32_t', possible loss of data
-F:\My3drenderer\renderer\renderer\light.c(69,15): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\light.c(83,15): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-F:\My3drenderer\renderer\renderer\light.c(142,120): warning C4020: 'vect3_new': too many actual parameters
+F:\My3drenderer\renderer\renderer\light.c(36,45): warning C4244: 'initializing': conversion from 'float' to 'uint32_t', possible loss of data
+F:\My3drenderer\renderer\renderer\light.c(37,45): warning C4244: 'initializing': conversion from 'float' to 'uint32_t', possible loss of data
+F:\My3drenderer\renderer\renderer\light.c(38,45): warning C4244: 'initializing': conversion from 'float' to 'uint32_t', possible loss of data
+F:\My3drenderer\renderer\renderer\light.c(73,15): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\light.c(87,15): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+F:\My3drenderer\renderer\renderer\light.c(146,120): warning C4020: 'vect3_new': too many actual parameters
   renderer.vcxproj -> F:\My3drenderer\renderer\x64\Debug\renderer.exe

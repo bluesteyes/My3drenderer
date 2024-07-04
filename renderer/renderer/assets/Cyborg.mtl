@@ -1,0 +1,13 @@
+# Blender 3.3.0 MTL File: 'None'
+# www.blender.org
+
+newmtl CyborgFighter_KX4
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd C:/CyborgFighter_KX4_Diffuse1.jpg
+map_Ks C:/CyborgFighter_KX4_Metallic.jpg
+map_Ns C:/CyborgFighter_KX4_Roughness.jpg
+map_Bump -bm 0.700000 C:/CyborgFighter_KX4_Normal.jpg

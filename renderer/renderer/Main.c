@@ -93,17 +93,29 @@ void setup()
 	//load_mesh("./assets/ak47.obj", "./assets/cube.png", vect3_new(2, 2, 2), vect3_new(0, 0, +3), vect3_new(0, 0, 0));
 	//load_mesh("./assets/crab.obj", "./assets/crab.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
 	//load_mesh("./assets/drone.obj", "./assets/drone.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
-	//load_mesh("./assets/cube.obj", "./assets/cube.png", vect3_new(1, 1, 1), vect3_new(0, 0, +8), vect3_new(0, 0, 0));
-	
+	//load_mesh("./assets/shiba.obj", "./assets/shiba_diffuse.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0,0));
+	//load_mesh("./assets/shiba.obj", "./assets/shiba_diffuse.png", vect3_new(1, 1, 1), vect3_new(0, 0, +3), vect3_new(0, 3,0));
 	load_mesh_with_normalmap(
 		"./assets/Dolphin.obj",					
 		"./assets/Dolphin_Diffuse@1.png", 
 		"./assets/Dolphin_Normal@1.png", 
 		"./assets/Dolphin_Glow@1.png",
+		"./assets/Dolphin_Roughness@1.png",
 		vect3_new(1, 1, 1),		
 		vect3_new(0, 0, +2.5), 
-		vect3_new(-1, 0, 0)
+		vect3_new(0, -2.5, 1)
 	);
+
+	/*load_mesh_with_normalmap(
+		"./assets/gun.obj",
+		"./assets/gun_diffuse.png",
+		"./assets/gun_normal.png",
+		"./assets/gun_metallic.png",
+		"./assets/gun_roughness.png",
+		vect3_new(1, 1, 1),
+		vect3_new(0, 0, +8),
+		vect3_new(0, -0.5,0.5 )
+	);*/
 	
 
 	//load multiply mesh
@@ -563,6 +575,8 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 				.texture = mesh->textures,
 				.normalmap = mesh->normalmaps,
 				.glowmap = mesh->glowmaps,
+				.roughmap = mesh->roughmaps, 
+
 				.light_intensity_factor = diffuse_intensity_factor,
 			};
 			//Save the projected triagnle in the array of triangles to render
@@ -680,6 +694,7 @@ void render(void){
 				triangle.texture,
 				triangle.normalmap,
 				triangle.glowmap,
+				triangle.roughmap,
 				triangle.color
 			);
 
