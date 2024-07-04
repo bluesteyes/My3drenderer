@@ -11,7 +11,6 @@
 //Create implementation for triangle.h functions
 vect3_t get_face_normal(vect4_t vertices[3]) {
 
-	//backface culling to see if the current face should be projected	
 	vect3_t vector_a = vect3_from_vect4(vertices[0]); /*  A  */
 	vect3_t vector_b = vect3_from_vect4(vertices[1]); /* / \ */
 	vect3_t vector_c = vect3_from_vect4(vertices[2]); /*C---B*/
@@ -31,6 +30,8 @@ vect3_t get_face_normal(vect4_t vertices[3]) {
 
 	return normal_vect;
 }
+
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Return barycentric weights alpha, beta and gamma for point p inside a triangle
@@ -687,8 +688,11 @@ void draw_aabb_textured_triangle(
 	int x1, int y1, float z1, float w1, float u1, float v1,
 	int x2, int y2, float z2, float w2, float u2, float v2,
 	vect3_t n0, vect3_t n1, vect3_t n2,
+	vect3_t t0, vect3_t t1, vect3_t t2,
+	vect3_t b0, vect3_t b1, vect3_t b2,
 	vect3_t c0, vect3_t c1, vect3_t c2,
-	upng_t* texture, uint32_t flat_color 
+	upng_t* texture, upng_t* normalmap,upng_t* glowmap,
+	uint32_t flat_color 
 
 ) {
 
@@ -760,13 +764,28 @@ void draw_aabb_textured_triangle(
 
 				int texture_width = upng_get_width(texture);
 				int texture_height = upng_get_height(texture);
+				int normalmap_width = upng_get_width(normalmap);
+				int normalmap_height = upng_get_height(normalmap);
+	
 
-				//map the uv coordinates to the full texture width and height
+				//map the uv coordinates to the full texture & normalmap width and height
 				int tex_x = abs((int)(interpolated_u * texture_width)) % texture_width;
 				int tex_y = abs((int)(interpolated_v * texture_height)) % texture_height;
 
+				int normalmap_x = abs((int)(interpolated_u * normalmap_width)) % normalmap_width;
+				int normalmap_y = abs((int)(interpolated_v * normalmap_height)) % normalmap_height;
+
 				//* adjust the value of 1/w so the pixels that are closer to the camera with smaller values
 				interpolated_reciprocal_w = 1.0 - interpolated_reciprocal_w;
+
+
+				///******************** Normal Mapping ************************///
+				//interpolate vertex tangent
+				vect3_t interpolated_tangent = vect3_add(vect3_mul(t0, alpha), vect3_add(vect3_mul(t1, beta), vect3_mul(t2, gamma)));
+				vect3_normalize(&interpolated_tangent);
+				//interpolate vertex bitangent
+				vect3_t interpolated_bitangent = vect3_add(vect3_mul(b0, alpha), vect3_add(vect3_mul(b1, beta), vect3_mul(b2, gamma)));
+				vect3_normalize(&interpolated_bitangent);
 
 
 				///******************** Phong Shading ************************///
@@ -791,12 +810,25 @@ void draw_aabb_textured_triangle(
 				// Only draw the pixel if the depth value is less than the one previously stored in the z-buffer
 				if (interpolated_reciprocal_w < get_z_buffer_at(x, y)) {
 
+					//get diffuse texture
 					uint32_t* texture_buffer = (uint32_t*)upng_get_buffer(texture);
-
 					uint32_t texture_pixel = texture_buffer[(texture_width * tex_y) + tex_x];
 
-					uint32_t phong_color = phong_reflection(interpolated_normal,get_light_direction(), view_direction,
-						texture_pixel, get_material_shininess());
+					//get tangent normal from the normal map texture
+					uint32_t* normalmap_buffer = (uint32_t*)upng_get_buffer(normalmap);
+					uint32_t tangent_normal = normalmap_buffer[(normalmap_width) * normalmap_y + normalmap_x];
+					
+					//get glow texture
+					uint32_t* glowmap_buffer = (uint32_t*)upng_get_buffer(glowmap);
+					uint32_t glowmap_pixel = glowmap_buffer[(texture_width * tex_y) + tex_x];
+
+					///******************** Normal Mapping ***********************///
+					//Get the normal from the normal map
+					
+
+
+					uint32_t phong_color = phong_reflection(interpolated_normal, interpolated_tangent, interpolated_bitangent, 
+						get_light_direction(), view_direction,texture_pixel, glowmap_pixel, tangent_normal, get_material_shininess());
 
 					//Blinn-Phong shading
 					uint32_t blinn_phong_color = blinn_phong_reflection(interpolated_normal, get_light_direction(), view_direction,

@@ -26,10 +26,14 @@ typedef struct {
 
 	vect4_t points[3];
 	vect3_t normals[3];
+	vect3_t tangents[3];
+	vect3_t bitangents[3];
 	tex2_t texcoords[3];
 	vect3_t vertex_colors[3];
 	uint32_t color;
 	upng_t* texture;
+	upng_t* normalmap;
+	upng_t* glowmap;
 	float light_intensity_factor;
 
 } triangle_t ; // stores actual vec2 points of the triangle in the screen
@@ -58,8 +62,10 @@ void draw_aabb_textured_triangle(
 	int x1, int y1, float z1, float w1, float u1, float v1,
 	int x2, int y2, float z2, float w2, float u2, float v2,
 	vect3_t n0, vect3_t n1, vect3_t n2,
+	vect3_t t0, vect3_t t1, vect3_t t2,
+	vect3_t b0, vect3_t b1, vect3_t b2,
 	vect3_t c0, vect3_t c1, vect3_t c2,
-	upng_t* texture, uint32_t flat_color);
+	upng_t* texture, upng_t* normalmap, upng_t* glowmap, uint32_t flat_color);
 
 
 void draw_textured_triangle(
@@ -84,6 +90,7 @@ void draw_triangle_texel(int x, int y, upng_t* texture,
 	float light_intensity_factor, uint32_t color);
 
 vect3_t get_face_normal(vect4_t vertices[3]);
+
 
 
 #endif 

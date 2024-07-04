@@ -29,7 +29,7 @@ float delta_time = 0;
 // Array of triangles that should be rendered frame by frame
 //////////////////////////////////////////////////////////////////////////////////
 
-#define MAX_TRIANGLES_PER_MESH 100000
+#define MAX_TRIANGLES_PER_MESH 500000
 triangle_t triangles_to_render[MAX_TRIANGLES_PER_MESH];
 int num_triangles_to_render = 0;
 
@@ -49,10 +49,10 @@ mat4_t normal_matrix;
 void setup()
 {
 	//Initialize light direction and light color
-	init_light(vect3_new(0, 0, 1), vect3_new(1.0f, 1.0f, 1.0f), 0.2);
+	init_light(vect3_new(0.0f, 0.0f, 1.0f), vect3_new(1.0f, 1.0f, 1.0f), 0.2);
 	
 	//Initialize material
-	init_material(0xFFFFFFFF, 256.0f, 1.0f);
+	init_material(0xFFFFFFFF, 128.0f, 0.3f);
 
 	//Initialize camera
 	vect3_t position = vect3_new(0, 0, 0);
@@ -90,12 +90,21 @@ void setup()
 	//load_mesh("./assets/f22.obj", "./assets/f22.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
 	//load_mesh("./assets/f117.obj", "./assets/f117.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
 	//load_mesh("./assets/efa.obj", "./assets/efa.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
-	//load_mesh("./assets/samus.obj", "./assets/cube.png", vect3_new(1, 1, 1), vect3_new(0, -4, +12), vect3_new(0, 0, 0));
-	load_mesh("./assets/crab.obj", "./assets/crab.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
+	//load_mesh("./assets/ak47.obj", "./assets/cube.png", vect3_new(2, 2, 2), vect3_new(0, 0, +3), vect3_new(0, 0, 0));
+	//load_mesh("./assets/crab.obj", "./assets/crab.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
 	//load_mesh("./assets/drone.obj", "./assets/drone.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
 	//load_mesh("./assets/cube.obj", "./assets/cube.png", vect3_new(1, 1, 1), vect3_new(0, 0, +8), vect3_new(0, 0, 0));
-	//load_mesh("./assets/sphere.obj", "./assets/cube.png", vect3_new(1, 1, 1), vect3_new(0, 0, +8), vect3_new(0, 0, 0));
-
+	
+	load_mesh_with_normalmap(
+		"./assets/Dolphin.obj",					
+		"./assets/Dolphin_Diffuse@1.png", 
+		"./assets/Dolphin_Normal@1.png", 
+		"./assets/Dolphin_Glow@1.png",
+		vect3_new(1, 1, 1),		
+		vect3_new(0, 0, +2.5), 
+		vect3_new(-1, 0, 0)
+	);
+	
 
 	//load multiply mesh
 	for (int mesh_index = 0; mesh_index < get_num_meshes(); mesh_index++){
@@ -104,11 +113,13 @@ void setup()
 
 		//load mesh vertex normal to mesh normal array
 		calculate_vertex_normal(mesh);
-
+	
 		/*for (int i = 0; i <mesh->num_vertices ; i++) {
 			printf("Mesh Normal %d: (%f, %f, %f)\n", i, mesh->normals[i].x, mesh->normals[i].y, mesh->normals[i].z);
 			printf("Mesh Vertices %d:(%f, %f, %f)\n", i, mesh->vertices[i].x, mesh->vertices[i].y, mesh->vertices[i].z);
 		}*/
+		calculate_tangents_and_bitangents(mesh);
+	
 
 	}
 }
@@ -273,7 +284,7 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 		vect4_t transformed_vertices[3];
 
 		
-		////Calculated vertex normal from face normal use vertex indices
+		///Calculated vertex normal from face normal use vertex indices
 		vect3_t vertex_normals[3];
 		vertex_normals[0] = mesh->normals[mesh_face.a];
 		vertex_normals[1] = mesh->normals[mesh_face.b];
@@ -286,7 +297,24 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 
 		vect3_t transformed_vertex_normals[3];
 
+		///load vertex tangents 
+		vect3_t vertex_tangents[3];
+		vertex_tangents[0] = mesh->tangents[mesh_face.a];
+		vertex_tangents[1] = mesh->tangents[mesh_face.b];
+		vertex_tangents[2] = mesh->tangents[mesh_face.c];
 
+		vect4_t transformed_vertex_tangents[3];
+
+		///load vertex bitangents
+		vect3_t vertex_bitangents[3];
+		vertex_bitangents[0] = mesh->bitangents[mesh_face.a];
+		vertex_bitangents[1] = mesh->bitangents[mesh_face.b];
+		vertex_bitangents[2] = mesh->bitangents[mesh_face.c];
+
+		vect4_t transformed_vertex_bitangents[3];
+
+	
+		//initialize vertex colors
 		vect4_t vertex_colors[3];
 		vertex_colors[0] = vect4_new(0.0, 0.0, 0.0, 0.0);
 		vertex_colors[1] = vect4_new(0.0, 0.0, 0.0, 0.0);
@@ -295,8 +323,11 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 		//Loop through all three vertices of this current face and apply transformation
 		for (int j = 0; j < 3; j++) {
 
+			//load each vertex of triangle of position, normal, tangent and bitangent values
 			vect4_t transformed_vertex = vect4_from_vect3(face_vertices[j]);
 			vect3_t transformed_vertex_normal = vertex_normals[j];
+			vect4_t transformed_vertex_tangent = vect4_from_vect3(vertex_tangents[j]);
+			vect4_t transformed_vertex_bitangent = vect4_from_vect3(vertex_bitangents[j]);
 
 			//Create a world matrix combining scale, rotation and translation
 			world_matrix = mat4_identity();
@@ -310,18 +341,24 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 			world_matrix = mat4_mul_mat4(translation_matrix, world_matrix);
 
 			////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			//TODO: Calculate the normal matrix -> transpose of inverse of world matrix (model matrix) >>> [Tranpose]*[Inverse]*[World]
+			///Calculate the normal matrix -> transpose of inverse of world matrix (model matrix) >>> [Tranpose]*[Inverse]*[World]
 			//This transformation ensures that the normals remain perpendicular to the surface after non-uniform scaling transformations.
 			////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			normal_matrix = mat4_make_invert(world_matrix);
+			normal_matrix = mat4_make_inverse(world_matrix);
 			normal_matrix = mat4_make_transpose(normal_matrix);
 			
 
 			//Multiply the world matrix with the original vertex vector
 			transformed_vertex = mat4_mul_vect4(world_matrix, transformed_vertex);
+			
+			transformed_vertex_tangent = mat4_mul_vect4(world_matrix, transformed_vertex_tangent);
+			transformed_vertex_bitangent = mat4_mul_vect4(world_matrix, transformed_vertex_bitangent);
 
 			//Multiply the view matrix with the world matrix transformed vector to transform the scene to camera space
 			transformed_vertex = mat4_mul_vect4(view_matrix, transformed_vertex);
+			
+			transformed_vertex_tangent = mat4_mul_vect4(view_matrix, transformed_vertex_tangent);
+			transformed_vertex_bitangent = mat4_mul_vect4(view_matrix, transformed_vertex_bitangent);
 
 			//Multiply the normal matrix with the original normal vector
 			transformed_vertex_normal = mat4_mul_vect3_no_translation(normal_matrix, transformed_vertex_normal);
@@ -334,6 +371,9 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 
 			//Save transformed vertex normal in the array of transfored normals
 			transformed_vertex_normals[j] = transformed_vertex_normal;
+
+			transformed_vertex_tangents[j] = transformed_vertex_tangent;
+			transformed_vertex_bitangents[j] = transformed_vertex_bitangent;
 		}
 
 		//Calculate the triangle normal
@@ -503,6 +543,17 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 					{triangle_after_clipping.normals[1].x, triangle_after_clipping.normals[1].y, triangle_after_clipping.normals[1].z},
 					{triangle_after_clipping.normals[2].x, triangle_after_clipping.normals[2].y, triangle_after_clipping.normals[2].z},
 				},
+				.tangents = {
+					{transformed_vertex_tangents[0].x, transformed_vertex_tangents[0].y, transformed_vertex_tangents[0].z},
+					{transformed_vertex_tangents[1].x, transformed_vertex_tangents[1].y, transformed_vertex_tangents[1].z},
+					{transformed_vertex_tangents[2].x, transformed_vertex_tangents[2].y, transformed_vertex_tangents[2].z}
+				},
+
+				.bitangents = {
+					{transformed_vertex_bitangents[0].x, transformed_vertex_bitangents[0].y, transformed_vertex_bitangents[0].z},
+					{transformed_vertex_bitangents[1].x, transformed_vertex_bitangents[1].y, transformed_vertex_bitangents[1].z},
+					{transformed_vertex_bitangents[2].x, transformed_vertex_bitangents[2].y, transformed_vertex_bitangents[2].z}
+				},
 				.vertex_colors = {
 					{vertex_colors[0].x, vertex_colors[0].y, vertex_colors[0].z},
 					{vertex_colors[1].x, vertex_colors[1].y, vertex_colors[1].z},
@@ -510,6 +561,8 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 				},
 				.color = triangle_color,
 				.texture = mesh->textures,
+				.normalmap = mesh->normalmaps,
+				.glowmap = mesh->glowmaps,
 				.light_intensity_factor = diffuse_intensity_factor,
 			};
 			//Save the projected triagnle in the array of triangles to render
@@ -547,8 +600,8 @@ void update(void){
 		mesh_t* mesh = get_mesh(mesh_index);
 
 		//Change the mesh scale/rotation values per animation frame
-		mesh->rotation.x += 0.5 * delta_time;
-		mesh->rotation.y += 0.2 * delta_time;
+		//mesh->rotation.x += 0.5 * delta_time;
+		//mesh->rotation.y += 0.2 * delta_time;
 		//mesh->rotation.z += 0.0 * delta_time;
 		//mesh->scale.x += 0;
 		//mesh->scale.y += 0;
@@ -621,8 +674,12 @@ void render(void){
 				triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w, triangle.texcoords[1].u, triangle.texcoords[1].v, //VERTEX B
 				triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, triangle.texcoords[2].u, triangle.texcoords[2].v, //VERTEX C
 				triangle.normals[0], triangle.normals[1], triangle.normals[2], //VERTEX NORMAL A,B,C
+				triangle.tangents[0], triangle.tangents[1], triangle.tangents[2], 
+				triangle.bitangents[0], triangle.bitangents[1], triangle.bitangents[2],
 				triangle.vertex_colors[0], triangle.vertex_colors[1], triangle.vertex_colors[2], // VERTEX COLOR C0,C1,C2
 				triangle.texture,
+				triangle.normalmap,
+				triangle.glowmap,
 				triangle.color
 			);
 

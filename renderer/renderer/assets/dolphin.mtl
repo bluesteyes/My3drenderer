@@ -1,0 +1,13 @@
+# Blender 3.3.0 MTL File: 'None'
+# www.blender.org
+
+newmtl SF_Fighter-RK2
+Ns 56.568546
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd F:/FringeWars_PVE_Rep/FringeWars_PVE/Assets/MainProject/CGPitbull/2015_Assets/Turbosquid_Upload/SF_Fighter-RK2/SF_Fighter-RK2_Diffuse1.jpg
+map_Ks F:/FringeWars_PVE_Rep/FringeWars_PVE/Assets/MainProject/CGPitbull/2015_Assets/Turbosquid_Upload/SF_Fighter-RK2/SF_Fighter-RK2_Diffuse1.jpg
+map_Bump F:/FringeWars_PVE_Rep/FringeWars_PVE/Assets/MainProject/CGPitbull/2015_Assets/Turbosquid_Upload/SF_Fighter-RK2/SF_Fighter-RK2_bump.jpg

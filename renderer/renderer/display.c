@@ -72,7 +72,6 @@ vect4_t mul_colors(vect4_t c1, vect4_t  c2) {
 
  }
 
-
  int get_window_width(void) {
 	 return window_width;
  }
@@ -143,8 +142,8 @@ bool initialize_window(void){
 	SDL_GetCurrentDisplayMode(0, &display_mode);
 	int fullscreen_width = display_mode.w;
 	int fullscreen_height = display_mode.h;
-	window_width = fullscreen_width / 3;
-	window_height = fullscreen_height / 3;
+	window_width = fullscreen_width / 1;
+	window_height = fullscreen_height / 1;
 
 	// Create a SDL window		
 	window = SDL_CreateWindow(

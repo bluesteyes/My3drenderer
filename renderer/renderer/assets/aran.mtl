@@ -1,0 +1,71 @@
+# Blender MTL File: 'None'
+# Material Count: 6
+
+newmtl Material.001
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 3.000000 3.000000 3.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump C:\\Users\\zyxci\\Downloads\\samus-aran\\source\\Samus\\Texturas\\Samus\\Material_Normal.png
+map_Kd C:\\Users\\zyxci\\Downloads\\samus-aran\\source\\Samus\\Texturas\\Samus\\Material_BaseColor.png
+map_Ke C:\\Users\\zyxci\\Downloads\\samus-aran\\source\\Samus\\Texturas\\Samus\\Material_Emission.png
+map_Ns C:\\Users\\zyxci\\Downloads\\samus-aran\\source\\Samus\\Texturas\\Samus\\Material_Roughness.png
+refl C:\\Users\\zyxci\\Downloads\\samus-aran\\source\\Samus\\Texturas\\Samus\\Material_Metallic.png
+
+newmtl Material.002
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 0.696071 0.081714
+Ks 0.500000 0.500000 0.500000
+Ke 50.000000 40.970737 7.288060
+Ni 1.450000
+d 1.000000
+illum 2
+
+newmtl Material.003
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800007 0.562713 0.120590
+Ks 0.500000 0.500000 0.500000
+Ke 50.000000 27.786130 7.466444
+Ni 1.450000
+d 1.000000
+illum 2
+
+newmtl Material.004
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.015460 0.015460 0.015460
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+
+newmtl Material.008
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump C:\\Users\\zyxci\\Downloads\\samus-aran\\source\\Samus\\Texturas\\Base\\DefaultMaterial_Normal.png
+map_Kd C:\\Users\\zyxci\\Downloads\\samus-aran\\source\\Samus\\Texturas\\Base\\DefaultMaterial_BaseColor.png
+map_Ns C:\\Users\\zyxci\\Downloads\\samus-aran\\source\\Samus\\Texturas\\Base\\DefaultMaterial_Roughness.png
+refl C:\\Users\\zyxci\\Downloads\\samus-aran\\source\\Samus\\Texturas\\Base\\DefaultMaterial_Metallic.png
+
+newmtl Material.009
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800007 0.562713 0.120590
+Ks 0.500000 0.500000 0.500000
+Ke 50.000000 27.786130 7.466444
+Ni 1.450000
+d 1.000000
+illum 2

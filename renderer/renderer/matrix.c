@@ -214,7 +214,7 @@ vect3_t mat4_mul_vect3_no_translation(mat4_t m, vect3_t v) {
 }
 
 // Function to invert a 4x4 matrix (used in normal matrix calculation)
-mat4_t mat4_make_invert(mat4_t m) {
+mat4_t mat4_make_inverse(mat4_t m) {
 	mat4_t inv;
 	float det;
 	int i;
@@ -361,4 +361,19 @@ mat4_t mat4_make_invert(mat4_t m) {
 	return inv;
 }
 
+
+// Convert tangent normal from tangent space to world space
+vect3_t transform_tangent_to_world(vect3_t tangent, vect3_t bitangent, vect3_t normal, vect3_t tangent_normal ) {
+
+	vect3_t result = {
+		tangent_normal.x * tangent.x + tangent_normal.y * bitangent.x + tangent_normal.z * normal.x,
+		tangent_normal.x * tangent.y + tangent_normal.y * bitangent.y + tangent_normal.z * normal.y,
+		tangent_normal.x * tangent.z + tangent_normal.y * bitangent.z + tangent_normal.z * normal.z
+	};
+
+	vect3_normalize(&result);
+	
+	return result;
+
+}
 
