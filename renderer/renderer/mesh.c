@@ -165,12 +165,12 @@ mesh_t* get_mesh(int mesh_index){
 //calculate each average vertex normal of a mesh
 void calculate_vertex_normal(mesh_t* mesh) {
 
-	for (int i = 0; i < mesh->num_vertices; ++i) {
+	for (int i = 0; i < mesh->num_vertices; i++) {
 		mesh->normals[i] = vect3_new(0.0f, 0.0f, 0.0f);
 	}
 
 	//loop all triangle faces of mesh object
-	for (int i = 0; i < mesh->num_faces; ++i){
+	for (int i = 0; i < mesh->num_faces; i++){
 		face_t mesh_face = mesh->faces[i];
 
 		//Get each face vertices->3
@@ -182,6 +182,7 @@ void calculate_vertex_normal(mesh_t* mesh) {
 
 		//Calculate the triangle face normal
 		vect3_t face_normal = get_face_normal(face_vertices);
+		
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Accumulate triangle face normal to triangle vertex normal <-- a very cool method to calculate
@@ -202,28 +203,28 @@ void calculate_vertex_normal(mesh_t* mesh) {
 	}
 
 	//Loop all vertices and normalize vertex normal
-	for (int i = 0; i < mesh->num_vertices; ++i){
+	for (int i = 0; i < mesh->num_vertices; i++){
 		vect3_normalize(&mesh->normals[i]);
 	}
 
-	//for (size_t i = 0; i < mesh->num_vertices; ++i)
-	//{
-	//	printf("calculated vertex Normal %d: (%f, %f, %f)\n", i, mesh->normals[i].x, mesh->normals[i].y, mesh->normals[i].z);
-	//}
+	/*for (size_t i = 0; i < mesh->num_vertices; ++i)
+	{
+		printf("calculated vertex Normal %d: (%f, %f, %f)\n", i, mesh->normals[i].x, mesh->normals[i].y, mesh->normals[i].z);
+	}*/
 }
 
-// Calculate each vertex tangents and bitangents for a mesh
+/// Calculate each vertex tangents and bitangents for a mesh
 void calculate_tangents_and_bitangents(mesh_t* mesh) {
 
 	//Initialize tangents and bitangents to zero
-	for (int i = 0; i < mesh->num_vertices; ++i){
+	for (int i = 0; i < mesh->num_vertices; i++){
 		mesh->tangents[i] = vect3_new(0.0f, 0.0f, 0.0f);
 		mesh->bitangents[i] = vect3_new(0.0f, 0.0f, 0.0f);
 	}
 
 	///calculate tangents and bitangents for each triangle
 	//loop all triangle faces
-	for (int i = 0; i < mesh->num_faces; ++i){
+	for (int i = 0; i < mesh->num_faces; i++){
 		face_t mesh_face = mesh->faces[i];
 
 		//Get each face vertices
@@ -248,36 +249,67 @@ void calculate_tangents_and_bitangents(mesh_t* mesh) {
 		};
 
 		vect3_t bitangent = {
-			f * (delta_u2 * edge1.x - delta_u1 * edge2.x),
-			f * (delta_u2 * edge1.y - delta_u1 * edge2.y),
-			f * (delta_u2 * edge1.z - delta_u1 * edge2.z)
+			f * (-delta_u2 * edge1.x + delta_u1 * edge2.x),
+			f * (-delta_u2 * edge1.y + delta_u1 * edge2.y),
+			f * (-delta_u2 * edge1.z + delta_u1 * edge2.z)
 		};
 
 		vect3_normalize(&tangent);
 		vect3_normalize(&bitangent);
 
-		mesh->tangents[mesh_face.a] = tangent;
-		mesh->tangents[mesh_face.b] = tangent;
-		mesh->tangents[mesh_face.c] = tangent;
 
-		mesh->bitangents[mesh_face.a] = bitangent;
-		mesh->bitangents[mesh_face.b] = bitangent;
-		mesh->bitangents[mesh_face.c] = bitangent;
+		//Accumulates tangents and bitangents for each vertex
+		mesh->tangents[mesh_face.a].x += tangent.x;
+		mesh->tangents[mesh_face.a].y += tangent.y;
+		mesh->tangents[mesh_face.a].z += tangent.z;
+
+		mesh->tangents[mesh_face.b].x += tangent.x;
+		mesh->tangents[mesh_face.b].y += tangent.y;
+		mesh->tangents[mesh_face.b].z += tangent.z;
+		
+		mesh->tangents[mesh_face.c].x += tangent.x;
+		mesh->tangents[mesh_face.c].y += tangent.y;
+		mesh->tangents[mesh_face.c].z += tangent.z;
+
+		mesh->bitangents[mesh_face.a].x += bitangent.x;
+		mesh->bitangents[mesh_face.a].y += bitangent.y;
+		mesh->bitangents[mesh_face.a].z += bitangent.z;
+
+		mesh->bitangents[mesh_face.b].x += bitangent.x;
+		mesh->bitangents[mesh_face.b].y += bitangent.y;
+		mesh->bitangents[mesh_face.b].z += bitangent.z;
+
+		mesh->bitangents[mesh_face.c].x += bitangent.x;
+		mesh->bitangents[mesh_face.c].y += bitangent.y;
+		mesh->bitangents[mesh_face.c].z += bitangent.z;
 
 	}
 
-	//Normalize tangents and bitangents
-	for (int i = 0; i < mesh->num_vertices; ++i) {
+	// Orthogonalize and normalize tangents and bitangents
+	for (int i = 0; i < mesh->num_vertices; i++) {
+
+		//mesh->bitangents[i] = vect3_cross(mesh->normals[i], mesh->tangents[i]);
+		//mesh->tangents[i] = vect3_cross(mesh->normals[i], mesh->bitangents[i]);
+
+		//Orthogonalize tangent
+		float dot_NT = vect3_dot(mesh->normals[i], mesh->tangents[i]);
+		mesh->tangents[i].x -= mesh->normals[i].x * dot_NT;
+		mesh->tangents[i].y -= mesh->normals[i].y * dot_NT;
+		mesh->tangents[i].z -= mesh->normals[i].z * dot_NT;
+		
 		vect3_normalize(&mesh->tangents[i]);
+
+		//Recompute bitanget
+		mesh->bitangents[i] = vect3_cross(mesh->normals[i], mesh->tangents[i]);
 		vect3_normalize(&mesh->bitangents[i]);
 	}
 
-	/*for (size_t i = 0; i < mesh->num_vertices; ++i)
+	for (size_t i = 0; i < mesh->num_vertices; i++)
 	{
 		printf("vertex tangents %d: (%f, %f, %f)\n", i, mesh->tangents[i].x, mesh->tangents[i].y, mesh->tangents[i].z);
 		printf("vertex bitangents %d: (%f, %f, %f)\n", i, mesh->bitangents[i].x, mesh->bitangents[i].y, mesh->bitangents[i].z);
 		printf("vertex normals %d: (%f, %f, %f)\n", i, mesh->normals[i].x, mesh->normals[i].y, mesh->normals[i].z);
-	}*/
+	}
 }
 
 

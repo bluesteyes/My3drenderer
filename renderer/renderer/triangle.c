@@ -766,6 +766,8 @@ void draw_aabb_textured_triangle(
 				int texture_height = upng_get_height(texture);
 				int normalmap_width = upng_get_width(normalmap);
 				int normalmap_height = upng_get_height(normalmap);
+				int roughmap_width = upng_get_width(roughmap);
+				int roughmap_height = upng_get_height(roughmap);
 	
 
 				//map the uv coordinates to the full texture & normalmap width and height
@@ -774,6 +776,9 @@ void draw_aabb_textured_triangle(
 
 				int normalmap_x = abs((int)(interpolated_u * normalmap_width)) % normalmap_width;
 				int normalmap_y = abs((int)(interpolated_v * normalmap_height)) % normalmap_height;
+
+				int roughmap_x = abs((int)(interpolated_u * roughmap_width)) % roughmap_width;
+				int roughmap_y = abs((int)(interpolated_v * roughmap_height)) % roughmap_height;
 
 				//* adjust the value of 1/w so the pixels that are closer to the camera with smaller values
 				interpolated_reciprocal_w = 1.0 - interpolated_reciprocal_w;
@@ -824,7 +829,7 @@ void draw_aabb_textured_triangle(
 
 					//get metal texture
 					uint32_t* roughmap_buffer = (uint32_t*)upng_get_buffer(roughmap);
-					uint32_t roughmap_pixel = roughmap_buffer[(texture_width * tex_y) + tex_x];
+					uint32_t roughmap_pixel = roughmap_buffer[(roughmap_width * roughmap_y) + roughmap_x];
 
 					///******************** Normal Mapping ***********************///
 					//Get the normal from the normal map
@@ -856,6 +861,7 @@ void draw_aabb_textured_triangle(
 
 					uint32_t interpolated_normal_color = pack_color(interpolated_normal.x, interpolated_normal.y, interpolated_normal.z, 1.0f);
 
+				
 
 					// Draw a pixel at position (x,y) with a color
 					draw_pixel(x, y, phong_color);

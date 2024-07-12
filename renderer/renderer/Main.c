@@ -86,8 +86,7 @@ void setup()
 	//load_mesh("./assets/efa.obj", "./assets/efa.png", vect3_new(1, 1, 1), vect3_new(-2, -1.3, +9), vect3_new(0, -M_PI/2, 0));
 	//load_mesh("./assets/f117.obj", "./assets/f117.png", vect3_new(1, 1, 1), vect3_new(+2, -1.3, +9), vect3_new(0, -M_PI/2, 0));
 	
-
-	//load_mesh("./assets/f22.obj", "./assets/f22.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
+	//load_mesh("./assets/helmet.obj", "./assets/helmet_D.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 2.5, 0));
 	//load_mesh("./assets/f117.obj", "./assets/f117.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
 	//load_mesh("./assets/efa.obj", "./assets/efa.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
 	//load_mesh("./assets/ak47.obj", "./assets/cube.png", vect3_new(2, 2, 2), vect3_new(0, 0, +3), vect3_new(0, 0, 0));
@@ -95,7 +94,9 @@ void setup()
 	//load_mesh("./assets/drone.obj", "./assets/drone.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
 	//load_mesh("./assets/shiba.obj", "./assets/shiba_diffuse.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0,0));
 	//load_mesh("./assets/shiba.obj", "./assets/shiba_diffuse.png", vect3_new(1, 1, 1), vect3_new(0, 0, +3), vect3_new(0, 3,0));
-	load_mesh_with_normalmap(
+	//
+
+	/*load_mesh_with_normalmap(
 		"./assets/Dolphin.obj",					
 		"./assets/Dolphin_Diffuse@1.png", 
 		"./assets/Dolphin_Normal@1.png", 
@@ -103,8 +104,8 @@ void setup()
 		"./assets/Dolphin_Roughness@1.png",
 		vect3_new(1, 1, 1),		
 		vect3_new(0, 0, +2.5), 
-		vect3_new(0, -2.5, 1)
-	);
+		vect3_new(-1, 0, 0)
+	);*/
 
 	/*load_mesh_with_normalmap(
 		"./assets/gun.obj",
@@ -112,10 +113,33 @@ void setup()
 		"./assets/gun_normal.png",
 		"./assets/gun_metallic.png",
 		"./assets/gun_roughness.png",
-		vect3_new(1, 1, 1),
-		vect3_new(0, 0, +8),
-		vect3_new(0, -0.5,0.5 )
+		vect3_new(1, 1,   1),
+		vect3_new(0, 0,  +6),
+		vect3_new(0, 0,   0)
 	);*/
+
+	//load_mesh_with_normalmap(
+	//"./assets/snowman.obj",
+	//"./assets/snowman_diffuse.png",
+	//"./assets/snowman_normal.png",
+	//"./assets/snowman_metallic.png",
+	//"./assets/snowman_metallic.png",
+	//vect3_new(1, 1, 1),
+	//vect3_new(0, 0, +3.2),
+	//vect3_new(0, 0, 0)
+	//);
+
+
+	load_mesh_with_normalmap(
+	"./assets/helmet.obj",
+	"./assets/helmet_D.png",
+	"./assets/helmet_N.png",
+	"./assets/helmet_M.png",
+	"./assets/helmet_R.png",
+	vect3_new(1, 1, 1),
+	vect3_new(0, 0, +5),
+	vect3_new(0, -6, 0)
+	);
 	
 
 	//load multiply mesh
@@ -125,14 +149,11 @@ void setup()
 
 		//load mesh vertex normal to mesh normal array
 		calculate_vertex_normal(mesh);
-	
 		/*for (int i = 0; i <mesh->num_vertices ; i++) {
 			printf("Mesh Normal %d: (%f, %f, %f)\n", i, mesh->normals[i].x, mesh->normals[i].y, mesh->normals[i].z);
 			printf("Mesh Vertices %d:(%f, %f, %f)\n", i, mesh->vertices[i].x, mesh->vertices[i].y, mesh->vertices[i].z);
 		}*/
 		calculate_tangents_and_bitangents(mesh);
-	
-
 	}
 }
 
@@ -315,7 +336,7 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 		vertex_tangents[1] = mesh->tangents[mesh_face.b];
 		vertex_tangents[2] = mesh->tangents[mesh_face.c];
 
-		vect4_t transformed_vertex_tangents[3];
+		vect3_t transformed_vertex_tangents[3];
 
 		///load vertex bitangents
 		vect3_t vertex_bitangents[3];
@@ -323,7 +344,7 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 		vertex_bitangents[1] = mesh->bitangents[mesh_face.b];
 		vertex_bitangents[2] = mesh->bitangents[mesh_face.c];
 
-		vect4_t transformed_vertex_bitangents[3];
+		vect3_t transformed_vertex_bitangents[3];
 
 	
 		//initialize vertex colors
@@ -338,8 +359,8 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 			//load each vertex of triangle of position, normal, tangent and bitangent values
 			vect4_t transformed_vertex = vect4_from_vect3(face_vertices[j]);
 			vect3_t transformed_vertex_normal = vertex_normals[j];
-			vect4_t transformed_vertex_tangent = vect4_from_vect3(vertex_tangents[j]);
-			vect4_t transformed_vertex_bitangent = vect4_from_vect3(vertex_bitangents[j]);
+			vect3_t transformed_vertex_tangent = vertex_tangents[j];
+			vect3_t transformed_vertex_bitangent = vertex_bitangents[j];
 
 			//Create a world matrix combining scale, rotation and translation
 			world_matrix = mat4_identity();
@@ -363,20 +384,19 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 			//Multiply the world matrix with the original vertex vector
 			transformed_vertex = mat4_mul_vect4(world_matrix, transformed_vertex);
 			
-			transformed_vertex_tangent = mat4_mul_vect4(world_matrix, transformed_vertex_tangent);
-			transformed_vertex_bitangent = mat4_mul_vect4(world_matrix, transformed_vertex_bitangent);
-
 			//Multiply the view matrix with the world matrix transformed vector to transform the scene to camera space
 			transformed_vertex = mat4_mul_vect4(view_matrix, transformed_vertex);
 			
-			transformed_vertex_tangent = mat4_mul_vect4(view_matrix, transformed_vertex_tangent);
-			transformed_vertex_bitangent = mat4_mul_vect4(view_matrix, transformed_vertex_bitangent);
 
 			//Multiply the normal matrix with the original normal vector
 			transformed_vertex_normal = mat4_mul_vect3_no_translation(normal_matrix, transformed_vertex_normal);
+			transformed_vertex_tangent = mat4_mul_vect3_no_translation(normal_matrix,  transformed_vertex_tangent);
+			transformed_vertex_bitangent = mat4_mul_vect3_no_translation(normal_matrix, transformed_vertex_bitangent);
 
 			//Multiply the view matrix with the normal matrix transformed vector to transform the normals to camera space
 			transformed_vertex_normal = mat4_mul_vect3_no_translation(view_matrix, transformed_vertex_normal);
+			transformed_vertex_tangent = mat4_mul_vect3_no_translation(view_matrix, transformed_vertex_tangent);
+			transformed_vertex_bitangent = mat4_mul_vect3_no_translation(view_matrix, transformed_vertex_bitangent);
 
 			//Save transformed vertex in the array of transformed vertices
 			transformed_vertices[j] = transformed_vertex;

@@ -1,0 +1,13 @@
+# Blender 3.3.0 MTL File: 'None'
+# www.blender.org
+
+newmtl Material.002
+Ka 0.231818 0.231818 0.231818
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd F:/LearnUnity/3D Model/Assets/SubstanceAssets/Snowmen/Models/TexturesB/DefaultMaterial_Base_colorB.png
+map_Ks F:/LearnUnity/3D Model/Assets/SubstanceAssets/Snowmen/Models/TexturesA/DefaultMaterial_Height.png
+map_Ns F:/LearnUnity/3D Model/Assets/SubstanceAssets/Snowmen/Models/TexturesA/DefaultMaterial_Roughness.png
+map_Bump -bm 1.200000 F:/LearnUnity/3D Model/Assets/SubstanceAssets/Snowmen/Models/TexturesA/DefaultMaterial_Normal_OpenGL.png

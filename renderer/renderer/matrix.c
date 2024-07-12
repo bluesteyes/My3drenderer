@@ -362,13 +362,29 @@ mat4_t mat4_make_inverse(mat4_t m) {
 }
 
 
-// Convert tangent normal from tangent space to world space
+//transform tangent normal from tangent space to world space
 vect3_t transform_tangent_to_world(vect3_t tangent, vect3_t bitangent, vect3_t normal, vect3_t tangent_normal ) {
 
+	/// TBN matrix and its not working, really cost me a night to find this problem
+	// | tangent.x     bitangent.x     normal.x   | | tangent_normal.x |
+	// | tangent.y     bitangent.y     normal.y   | | tangent_normal.y |
+	// | tangent.z     bitangent.z     normal.z   | | tangent_normal.z |
+
+	/// the matrix is NBT nor TBN, because R channel and G channel switched.
+	// | normal.x     bitangent.x     tangent.x   | | tangent_normal.x |
+	// | normal.y     bitangent.y     tangent.y   | | tangent_normal.y |
+	// | normal.z     bitangent.z     tangent.z   | | tangent_normal.z |
+
+
+	/// very useful test code tell me R and G channel switched, tangent should be red and normal should be blue
+	/*tangent = vect3_mul(tangent, 1.0f);
+	bitangent = vect3_mul(bitangent, 1.0f);
+	normal = vect3_mul(normal, 1.0f);*/
+
 	vect3_t result = {
-		tangent_normal.x * tangent.x + tangent_normal.y * bitangent.x + tangent_normal.z * normal.x,
-		tangent_normal.x * tangent.y + tangent_normal.y * bitangent.y + tangent_normal.z * normal.y,
-		tangent_normal.x * tangent.z + tangent_normal.y * bitangent.z + tangent_normal.z * normal.z
+		tangent_normal.x * normal.x + tangent_normal.y * bitangent.x + tangent_normal.z * tangent.x,
+		tangent_normal.x * normal.y + tangent_normal.y * bitangent.y + tangent_normal.z * tangent.y,
+		tangent_normal.x * normal.z + tangent_normal.y * bitangent.z + tangent_normal.z * tangent.z,
 	};
 
 	vect3_normalize(&result);
