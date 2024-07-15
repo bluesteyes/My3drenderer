@@ -35,6 +35,26 @@ void load_mesh_with_normalmap(char* obj_filename, char* png_filename, char* norm
 
 }
 
+
+void load_mesh_with_pbr(char* obj_filename, char* png_filename, char* normalmap_filename,
+	char* glowmap_filename, char* roughmap_filename, char* metalmap_filename, char* aomap_filename,
+	vect3_t scale, vect3_t translation, vect3_t rotation) {
+
+	load_mesh_obj_data(&meshes[mesh_count], obj_filename);
+	load_mesh_png_data(&meshes[mesh_count], png_filename);
+	load_mesh_normalmap_data(&meshes[mesh_count], normalmap_filename);
+	load_mesh_glowmap_data(&meshes[mesh_count], glowmap_filename);
+	load_mesh_metalmap_data(&meshes[mesh_count], metalmap_filename);
+	load_mesh_roughmap_data(&meshes[mesh_count], roughmap_filename);
+	load_mesh_aomap_data(&meshes[mesh_count], aomap_filename);
+	meshes[mesh_count].scale = scale;
+	meshes[mesh_count].rotation = rotation;
+	meshes[mesh_count].translation = translation;
+	mesh_count++;
+
+}
+
+
 void load_mesh_obj_data(mesh_t* mesh, char* obj_filename){
 	FILE* file;
 	file = fopen(obj_filename, "r");
@@ -152,6 +172,31 @@ void load_mesh_roughmap_data(mesh_t* mesh, char* roughmap_filename) {
 		}
 	}
 }
+
+
+void load_mesh_metalmap_data(mesh_t* mesh, char* metalmap_filename) {
+	upng_t* metalmap_image = upng_new_from_file(metalmap_filename);
+	if (metalmap_image != NULL) {
+		upng_decode(metalmap_image);
+		if (upng_get_error(metalmap_image) == UPNG_EOK) {
+			mesh->metallic = metalmap_image;
+		}
+	}
+}
+
+
+void load_mesh_aomap_data(mesh_t* mesh, char* aomap_filename) {
+	upng_t* aomap_image = upng_new_from_file(aomap_filename);
+	if (aomap_image != NULL) {
+		upng_decode(aomap_image);
+		if (upng_get_error(aomap_image) == UPNG_EOK) {
+			mesh->ao = aomap_image;
+		}
+	}
+}
+
+
+
 
 int get_num_meshes(void){
 	return mesh_count;
@@ -304,12 +349,12 @@ void calculate_tangents_and_bitangents(mesh_t* mesh) {
 		vect3_normalize(&mesh->bitangents[i]);
 	}
 
-	for (size_t i = 0; i < mesh->num_vertices; i++)
-	{
-		printf("vertex tangents %d: (%f, %f, %f)\n", i, mesh->tangents[i].x, mesh->tangents[i].y, mesh->tangents[i].z);
-		printf("vertex bitangents %d: (%f, %f, %f)\n", i, mesh->bitangents[i].x, mesh->bitangents[i].y, mesh->bitangents[i].z);
-		printf("vertex normals %d: (%f, %f, %f)\n", i, mesh->normals[i].x, mesh->normals[i].y, mesh->normals[i].z);
-	}
+	//for (size_t i = 0; i < mesh->num_vertices; i++)
+	//{
+	//	printf("vertex tangents %d: (%f, %f, %f)\n", i, mesh->tangents[i].x, mesh->tangents[i].y, mesh->tangents[i].z);
+	//	printf("vertex bitangents %d: (%f, %f, %f)\n", i, mesh->bitangents[i].x, mesh->bitangents[i].y, mesh->bitangents[i].z);
+	//	printf("vertex normals %d: (%f, %f, %f)\n", i, mesh->normals[i].x, mesh->normals[i].y, mesh->normals[i].z);
+	//}
 }
 
 
@@ -334,6 +379,14 @@ void free_meshes(void) {
 
 		if (meshes[i].roughmaps != NULL) {
 			upng_free(meshes[i].roughmaps);
+		}
+
+		if (meshes[i].metallic != NULL) {
+			upng_free(meshes[i].metallic);
+		}
+
+		if (meshes[i].ao != NULL) {
+			upng_free(meshes[i].ao);
 		}
 
 		array_free(meshes[i].vertices);

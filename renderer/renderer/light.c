@@ -112,7 +112,6 @@ uint32_t blinn_phong_reflection(vect3_t normal, vect3_t light_direction, vect3_t
 
 	//Pack the final color into uint32_t
 	uint32_t shaded_color = pack_color(result.x, result.y, result.z, result.w); //Assuming full opacity;
-
 	return shaded_color;
 }
 
@@ -128,24 +127,20 @@ uint32_t phong_reflection(vect3_t normal, vect3_t tangent, vect3_t bitangent, ve
 	vect3_normalize(&view_direction);
 
 	//unpack the tangent normal data from normalmap to temp variable of range [0, 1]
-	vect4_t tangent_temp = vect4_new(0.0f, 0.0f, 0.0f, 0.0f);
-	unpack_color(tangent_normal_data, &tangent_temp.x, &tangent_temp.y, &tangent_temp.z, &tangent_temp.w);
-	vect3_normalize(&tangent_temp);
-
+	vect4_t normal_temp = vect4_new(0.0f, 0.0f, 0.0f, 0.0f);
+	unpack_color(tangent_normal_data, &normal_temp.x, &normal_temp.y, &normal_temp.z, &normal_temp.w);
 
 	//transform tangent normal vector from [0, 1] to range [-1, 1] 
-	vect3_t tangent_space_normal = vect3_sub(vect3_mul(vect3_from_vect4(tangent_temp), 2.0f), vect3_new(1.0f, 1.0f, 1.0f, 1.0f));
+	vect3_t tangent_space_normal = vect3_sub(vect3_mul(vect3_from_vect4(normal_temp), 2.0f), vect3_new(1.0f, 1.0f, 1.0f, 1.0f));
 	vect3_normalize(&tangent_space_normal);
 
-
 	///Transform the tangent space normal to worldspace and became perterbed normal
-	vect3_t perturbed_normal = transform_tangent_to_world(tangent, bitangent, normal, tangent_space_normal);
+	vect3_t perturbed_normal = transform_NBT_to_world(tangent, bitangent, normal, tangent_space_normal);
 
 	///Initialize light colors
 	vect3_t light_color = get_light_color();
 	vect3_t ambient_color = { 0.2f, 0.2f, 0.2f };
 	vect3_t specular_color = { 0.5f, 0.5f, 0.5f };
-
 
 	//unpack the material color and assign r,g,b,a to diffuse color
 	vect4_t diffuse_color = vect4_new(0.0f, 0.0f, 0.0f, 0.0f);
@@ -178,9 +173,6 @@ uint32_t phong_reflection(vect3_t normal, vect3_t tangent, vect3_t bitangent, ve
 		diff * light.color.z * diffuse_color.z,
 	};
 
-
-
-
 	//Note: the color is pretty dark after applying world normal
 	float diff_normal = fmaxf(vect3_dot(perturbed_normal, vect3_mul(light_direction, -1.0f)), 0.0f);
 
@@ -208,8 +200,8 @@ uint32_t phong_reflection(vect3_t normal, vect3_t tangent, vect3_t bitangent, ve
 	//specular factor
 	//float spec = powf(fmaxf(vect3_dot(view_direction, reflect_direction), 0.0f), 32.0f);
 
-	float spec = powf(fmaxf(vect3_dot(perturbed_normal, halfway_direction), 0.0f), 32.0f);
-	//float spec = 0.0f;
+	float spec = powf(fmaxf(vect3_dot(perturbed_normal, halfway_direction), 0.0f), shiny);
+
 	vect3_t specular = {
 		spec * glow_color.x * light_color.x,
 		spec * glow_color.y * light_color.y,
@@ -224,26 +216,140 @@ uint32_t phong_reflection(vect3_t normal, vect3_t tangent, vect3_t bitangent, ve
 	};*/
 
 	//Glow component
-	float glow_intensity =1.0f;
+	float glow_intensity =2.0f;
 	vect3_t glow = {
-		glow_color.x * glow_intensity,
-		glow_color.y * glow_intensity,
-		glow_color.z * glow_intensity,
+		glow_color.x * glow_intensity + specular.x,
+		glow_color.y * glow_intensity + specular.y,
+		glow_color.z * glow_intensity + specular.z,
 	};
 
 	vect3_t result = {
-	ambient.x + diffuse_normal.x + specular.x,
+		ambient.x + diffuse_normal.x + specular.x,
 		ambient.y + diffuse_normal.y + specular.y,
 		ambient.z + diffuse_normal.z + specular.z,
-
 	};
-
 
 	// Clamp the results to [0, 1]
 	result.x = CLAMP(result.x, 0.0f, 1.0f);
 	result.y = CLAMP(result.y, 0.0f, 1.0f);
 	result.z = CLAMP(result.z, 0.0f, 1.0f);
 	
+
+	return pack_color(result.x, result.y, result.z, 1.0f);
+}
+/// <summary>
+/// Use the metallic and roughness maps to compute the reflectance properties of the material
+/// </summary>
+uint32_t pbr_reflection(vect3_t normal, vect3_t tangent, vect3_t bitangent, vect3_t light_direction,
+					vect3_t view_direction, uint32_t albedo_map, uint32_t normal_map, uint32_t metallic_map, 
+					uint32_t roughness_map, uint32_t ao_map) {
+
+	//Initialize light colors
+	vect3_t light_color = get_light_color();
+
+	//Normalize the input vector
+	vect3_normalize(&light_direction);
+	vect3_normalize(&normal);
+	vect3_normalize(&tangent);
+	vect3_normalize(&bitangent);
+	vect3_normalize(&view_direction);
+
+	//Calculate halfway direction
+	vect3_t halfway_direction = vect3_add(view_direction, vect3_mul(light_direction, -1.0f));
+	vect3_normalize(&halfway_direction);
+
+
+	//unpack the tangent space normal data from normalmap to temp variable of range [0, 1]
+	vect4_t normal_temp = vect4_new(0.0f, 0.0f, 0.0f, 0.0f);
+	unpack_color(normal_map, &normal_temp.x, &normal_temp.y, &normal_temp.z, &normal_temp.w);
+	vect3_normalize(&normal_temp);
+
+	//transform tangent normal vector from [0, 1] to range [-1, 1] 
+	vect3_t tangent_space_normal = vect3_sub(vect3_mul(vect3_from_vect4(normal_temp), 2.0f), vect3_new(1.0f, 1.0f, 1.0f, 1.0f));
+	vect3_normalize(&tangent_space_normal);
+
+	///Transform the tangent space normal to worldspace and became perterbed normal
+	vect3_t perturbed_normal = transform_NBT_to_world(tangent, bitangent, normal, tangent_space_normal);
+	//vect3_t perturbed_normal = transform_TBN_to_world(tangent, bitangent, normal, tangent_space_normal);
+
+	//unpack the material color 
+	vect4_t albedo_color = vect4_new(0.0f, 0.0f, 0.0f, 0.0f);
+	unpack_color(albedo_map, &albedo_color.x, &albedo_color.y, &albedo_color.z, &albedo_color.w);
+	vect3_t albedo = {albedo_color.x, albedo_color.y, albedo_color.z};
+
+	vect4_t ao_color = vect4_new(0.0f, 0.0f, 0.0f, 0.0f);
+	unpack_color(ao_map, &ao_color.x, &ao_color.y, &ao_color.z, &ao_color.w);
+	float ao = ao_color.x;
+
+	vect4_t metallic_color = vect4_new(0.0f, 0.0f, 0.0f, 0.0f);
+	unpack_color(metallic_map, &metallic_color.x, &metallic_color.y, &metallic_color.z, &metallic_color.w);
+	vect3_t metallic = { metallic_color.x, metallic_color.y, metallic_color.z };
+
+	vect4_t roughness_color = vect4_new(0.0f, 0.0f, 0.0f, 0.0f);
+	unpack_color(roughness_map, &roughness_color.x, &roughness_color.y, &roughness_color.z, &roughness_color.w);
+	float roughness = roughness_color.x;
+	float roughness2 = roughness * roughness;
+
+	// Calculate dot product needed for the BRDF calculation
+	float NdotL = fmaxf(vect3_dot(perturbed_normal, vect3_mul(light_direction, -1.0f)), 0.0f);
+	float NdotV = fmaxf(vect3_dot(perturbed_normal, view_direction), 0.0f);
+	float NdotH = fmaxf(vect3_dot(perturbed_normal, halfway_direction), 0.0f);
+	float VdotH = fmaxf(vect3_dot(view_direction, halfway_direction), 0.0f);
+
+	// Base reflectance value (F0) for non-metals, adjusted by metallic factor
+	float F0 = 0.04f;
+	F0 = F0 * (1.0f - metallic.x) + albedo.x * metallic.x;
+
+	// Calculate the geometric attenuation factor using the Schlick-GGX approximation
+	float k = (roughness + 1.0f) * (roughness + 1.0f) / 8.0f;			// more natrual
+	//float k = roughness2 / 2.0f;										// more distinct 
+	float G = NdotL / (NdotL * (1.0 - k) + k) * NdotV / (NdotV * (1.0 - k) + k);
+
+	// Calculate the normal distribution function (NDF) using the Trowbridge-Reitz GGX function
+	float D = roughness2 / (M_PI * powf((NdotH * NdotH * (roughness2 - 1.0) + 1.0), 2.0f));
+
+	// Calculate the Fresnel term using Schlick's approximation
+	float F = F0 + (1.0f - F0) * powf(1.0 - VdotH, 5.0f);
+
+	// Compute the specular term of the BRDF(Microfacet BRDF)
+	vect3_t specular = {
+	  F * G * D / (4.0 * NdotL * NdotV + 0.001f),
+	  F * G * D / (4.0 * NdotL * NdotV + 0.001f),
+	  F * G * D / (4.0 * NdotL * NdotV + 0.001f)
+	};
+
+	// Calculate the diffuse term (Lambertian reflectance), adjusted by metallic factor
+	vect3_t kD = { 1.0f - specular.x, 1.0f - specular.y, 1.0f - specular.z };
+
+	kD.x *= (1.0f - metallic.x);
+	kD.y *= (1.0f - metallic.x);
+	kD.z *= (1.0f - metallic.x);
+
+
+	//Calculate the final color by combining diffuse and specular, and applying light color and inte1`nsity
+	vect3_t result = {
+		(kD.x * albedo.x / M_PI + specular.x) * NdotL * light_color.x * M_PI*1.3, 
+		(kD.y * albedo.y / M_PI + specular.y) * NdotL * light_color.y * M_PI*1.3,
+		(kD.z * albedo.z / M_PI + specular.z) * NdotL * light_color.z * M_PI*1.3,
+	};
+
+	
+	//vect3_t result = {
+	//   F,
+	//   F,
+	//   F,
+	//};
+
+	// Clamp the results to [0, 1]
+	result.x = CLAMP(result.x, 0.0f, 1.0f);
+	result.y = CLAMP(result.y, 0.0f, 1.0f);
+	result.z = CLAMP(result.z, 0.0f, 1.0f);
+
+	//Apply ambient occlusion (AO) to the final color
+	/*result.x *= ao;
+	result.y *= ao;
+	result.z *= ao;*/
+
 
 	return pack_color(result.x, result.y, result.z, 1.0f);
 }

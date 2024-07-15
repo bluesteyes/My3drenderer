@@ -7,6 +7,7 @@
 
 #define MIN(a,b)(((a) < (b)) ? (a):(b))
 #define MAX(a,b)(((a) > (b)) ? (a):(b))
+#define CLAMP(x, lower, upper) ((x) < (lower) ? (lower) : ((x) > (upper) ? (upper) : (x)))
 
 //Create implementation for triangle.h functions
 vect3_t get_face_normal(vect4_t vertices[3]) {
@@ -692,6 +693,7 @@ void draw_aabb_textured_triangle(
 	vect3_t b0, vect3_t b1, vect3_t b2,
 	vect3_t c0, vect3_t c1, vect3_t c2,
 	upng_t* texture, upng_t* normalmap, upng_t* glowmap, upng_t* roughmap,
+	upng_t* metallic, upng_t* ao, 
 	uint32_t flat_color 
 
 ) {
@@ -768,7 +770,7 @@ void draw_aabb_textured_triangle(
 				int normalmap_height = upng_get_height(normalmap);
 				int roughmap_width = upng_get_width(roughmap);
 				int roughmap_height = upng_get_height(roughmap);
-	
+
 
 				//map the uv coordinates to the full texture & normalmap width and height
 				int tex_x = abs((int)(interpolated_u * texture_width)) % texture_width;
@@ -779,6 +781,7 @@ void draw_aabb_textured_triangle(
 
 				int roughmap_x = abs((int)(interpolated_u * roughmap_width)) % roughmap_width;
 				int roughmap_y = abs((int)(interpolated_v * roughmap_height)) % roughmap_height;
+
 
 				//* adjust the value of 1/w so the pixels that are closer to the camera with smaller values
 				interpolated_reciprocal_w = 1.0 - interpolated_reciprocal_w;
@@ -815,33 +818,52 @@ void draw_aabb_textured_triangle(
 				// Only draw the pixel if the depth value is less than the one previously stored in the z-buffer
 				if (interpolated_reciprocal_w < get_z_buffer_at(x, y)) {
 
+
+					///Sample the texture maps
 					//get diffuse texture
+
+
 					uint32_t* texture_buffer = (uint32_t*)upng_get_buffer(texture);
 					uint32_t texture_pixel = texture_buffer[(texture_width * tex_y) + tex_x];
+					
 
 					//get tangent normal from the normal map texture
 					uint32_t* normalmap_buffer = (uint32_t*)upng_get_buffer(normalmap);
-					uint32_t tangent_normal = normalmap_buffer[(normalmap_width) * normalmap_y + normalmap_x];
+					uint32_t tangent_normal = normalmap_buffer[(normalmap_width)*normalmap_y + normalmap_x];
 					
+
 					//get glow texture
 					uint32_t* glowmap_buffer = (uint32_t*)upng_get_buffer(glowmap);
 					uint32_t glowmap_pixel = glowmap_buffer[(texture_width * tex_y) + tex_x];
-
-					//get metal texture
-					uint32_t* roughmap_buffer = (uint32_t*)upng_get_buffer(roughmap);
-					uint32_t roughmap_pixel = roughmap_buffer[(roughmap_width * roughmap_y) + roughmap_x];
-
-					///******************** Normal Mapping ***********************///
-					//Get the normal from the normal map
 					
 
-
+					//get roughness texture
+					uint32_t* roughmap_buffer = (uint32_t*)upng_get_buffer(roughmap);
+					uint32_t roughmap_pixel = roughmap_buffer[(roughmap_width * roughmap_y) + roughmap_x];
+					
+					//get metallic texture
+					uint32_t* metallic_buffer = (uint32_t*)upng_get_buffer(metallic);
+					uint32_t metallic_pixel = metallic_buffer[(texture_width * tex_y) + tex_x];
+					
+					
+					//get ao texture
+					uint32_t* ao_buffer = (uint32_t*)upng_get_buffer(ao);
+					uint32_t ao_pixel = ao_buffer[(texture_width * tex_y) + tex_x];
+					
+					
+				
+					///*************** Call Fragment Shading Model ***************///
+					//Phong Reflection model
 					uint32_t phong_color = phong_reflection(interpolated_normal, interpolated_tangent, interpolated_bitangent, 
 						get_light_direction(), view_direction,texture_pixel, glowmap_pixel, roughmap_pixel, tangent_normal, get_material_shininess());
 
-					//Blinn-Phong shading
+					//Blinn-Phong Reflection model 
 					uint32_t blinn_phong_color = blinn_phong_reflection(interpolated_normal, get_light_direction(), view_direction,
 						texture_pixel, get_material_shininess(), get_light_ambient_strgenth(), get_material_specular_strength());
+
+					//PBR reflection model
+					uint32_t pbr_color = pbr_reflection(interpolated_normal, interpolated_tangent, interpolated_bitangent,
+						get_light_direction(), view_direction, texture_pixel, tangent_normal,  metallic_pixel, roughmap_pixel, ao_pixel);
 
 					///unpack the texture pixel to pixel color 
 					//vect4_t pixel_color = vect4_new(0.0, 0.0, 0.0, 0.0);
@@ -859,12 +881,18 @@ void draw_aabb_textured_triangle(
 					//vect4_t result = mul_colors(pixel_color, blinn_phong_shading);
 					//uint32_t shaded_texture_pixel = pack_color(result.x, result.y, result.z, result.w);
 
-					uint32_t interpolated_normal_color = pack_color(interpolated_normal.x, interpolated_normal.y, interpolated_normal.z, 1.0f);
 
-				
+					interpolated_normal.x = CLAMP(interpolated_normal.x, 0.0f, 1.0f);
+					interpolated_normal.y = CLAMP(interpolated_normal.y, 0.0f, 1.0f);
+					interpolated_normal.z = CLAMP(interpolated_normal.z, 0.0f, 1.0f);
+
+					uint32_t interpolated_normal_color = pack_color(interpolated_normal.x, interpolated_normal.y, interpolated_normal.z, 1.0f);
+					uint32_t interpolated_tangent_color = pack_color(interpolated_tangent.x, interpolated_tangent.y, interpolated_tangent.z, 1.0f);
+					uint32_t interpolated_bitangent_color = pack_color(interpolated_bitangent.x, interpolated_bitangent.y, interpolated_bitangent.z, 1.0f);
+						
 
 					// Draw a pixel at position (x,y) with a color
-					draw_pixel(x, y, phong_color);
+					draw_pixel(x, y, pbr_color);
 
 					// Update the z-buffer value with the 1/w of this current pixel
 					update_z_buffer_at(x, y, interpolated_reciprocal_w);

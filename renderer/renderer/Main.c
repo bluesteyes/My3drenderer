@@ -93,7 +93,7 @@ void setup()
 	//load_mesh("./assets/crab.obj", "./assets/crab.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
 	//load_mesh("./assets/drone.obj", "./assets/drone.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
 	//load_mesh("./assets/shiba.obj", "./assets/shiba_diffuse.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0,0));
-	//load_mesh("./assets/shiba.obj", "./assets/shiba_diffuse.png", vect3_new(1, 1, 1), vect3_new(0, 0, +3), vect3_new(0, 3,0));
+	//load_mesh("./assets/cube.obj", "./assets/cube.png", vect3_new(1, 1, 1), vect3_new(0, 0, +8), vect3_new(0, 0,0));
 	//
 
 	/*load_mesh_with_normalmap(
@@ -107,16 +107,18 @@ void setup()
 		vect3_new(-1, 0, 0)
 	);*/
 
-	/*load_mesh_with_normalmap(
+	load_mesh_with_pbr(
 		"./assets/gun.obj",
 		"./assets/gun_diffuse.png",
 		"./assets/gun_normal.png",
 		"./assets/gun_metallic.png",
 		"./assets/gun_roughness.png",
+		"./assets/gun_metallic.png",
+		"./assets/gun_diffuse.png",
 		vect3_new(1, 1,   1),
 		vect3_new(0, 0,  +6),
 		vect3_new(0, 0,   0)
-	);*/
+	);
 
 	//load_mesh_with_normalmap(
 	//"./assets/snowman.obj",
@@ -130,16 +132,46 @@ void setup()
 	//);
 
 
-	load_mesh_with_normalmap(
+
+	/*load_mesh_with_normalmap(
+		"./assets/helmet.obj",
+		"./assets/helmet_D.png",
+		"./assets/helmet_N.png",
+		"./assets/helmet_R.png",
+		"./assets/helmet_M.png",
+		vect3_new(1, 1, 1),
+		vect3_new(0, 0, +5),
+		vect3_new(0, -6, 0)
+	);*/
+
+
+	/*load_mesh_with_pbr(
 	"./assets/helmet.obj",
 	"./assets/helmet_D.png",
 	"./assets/helmet_N.png",
 	"./assets/helmet_M.png",
 	"./assets/helmet_R.png",
+	"./assets/helmet_M.png",
+	"./assets/helmet_M.png",
 	vect3_new(1, 1, 1),
 	vect3_new(0, 0, +5),
-	vect3_new(0, -6, 0)
-	);
+	vect3_new(0, -3.5, 0)
+	);*/
+
+
+	//load_mesh_with_pbr(
+	//	"./assets/rivet.obj",
+	//	"./assets/rivet_diffuse.png",
+	//	"./assets/rivet_normal.png",
+	//	"./assets/rivet_diffuse.png",
+	//	"./assets/rivet_roughness.png",
+	//	"./assets/rivet_metallic.png",
+	//	"./assets/rivet_diffuse.png",
+	//	vect3_new(1, 1, 1),
+	//	vect3_new(0, 0, +5),
+	//	vect3_new(0.0, 0.5, 0.5)
+	//);
+
 	
 
 	//load multiply mesh
@@ -596,6 +628,8 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 				.normalmap = mesh->normalmaps,
 				.glowmap = mesh->glowmaps,
 				.roughmap = mesh->roughmaps, 
+				.metallic = mesh->metallic,
+				.ao = mesh->ao,
 
 				.light_intensity_factor = diffuse_intensity_factor,
 			};
@@ -635,7 +669,7 @@ void update(void){
 
 		//Change the mesh scale/rotation values per animation frame
 		//mesh->rotation.x += 0.5 * delta_time;
-		//mesh->rotation.y += 0.2 * delta_time;
+		//mesh->rotation.y += 0.5 * delta_time;
 		//mesh->rotation.z += 0.0 * delta_time;
 		//mesh->scale.x += 0;
 		//mesh->scale.y += 0;
@@ -715,6 +749,8 @@ void render(void){
 				triangle.normalmap,
 				triangle.glowmap,
 				triangle.roughmap,
+				triangle.metallic,
+				triangle.ao,
 				triangle.color
 			);
 

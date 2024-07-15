@@ -23,7 +23,8 @@ mat4_t mat4_look_at(vect3_t eye, vect3_t target, vect3_t up);
 mat4_t mat4_make_transpose(mat4_t m);
 vect3_t mat4_mul_vect3_no_translation(mat4_t m, vect3_t v);
 mat4_t mat4_make_inverse(mat4_t m);
-vect3_t transform_tangent_to_world(vect3_t tangent, vect3_t bitangent, vect3_t normal, vect3_t tangent_normal);
+vect3_t transform_NBT_to_world(vect3_t tangent, vect3_t bitangent, vect3_t normal, vect3_t tangent_normal);
+vect3_t transform_TBN_to_world(vect3_t tangent, vect3_t bitangent, vect3_t normal, vect3_t tangent_normal);
 
 
 

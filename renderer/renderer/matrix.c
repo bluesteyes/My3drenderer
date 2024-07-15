@@ -363,7 +363,7 @@ mat4_t mat4_make_inverse(mat4_t m) {
 
 
 //transform tangent normal from tangent space to world space
-vect3_t transform_tangent_to_world(vect3_t tangent, vect3_t bitangent, vect3_t normal, vect3_t tangent_normal ) {
+vect3_t transform_NBT_to_world(vect3_t tangent, vect3_t bitangent, vect3_t normal, vect3_t tangent_normal ) {
 
 	/// TBN matrix and its not working, really cost me a night to find this problem
 	// | tangent.x     bitangent.x     normal.x   | | tangent_normal.x |
@@ -389,6 +389,27 @@ vect3_t transform_tangent_to_world(vect3_t tangent, vect3_t bitangent, vect3_t n
 
 	vect3_normalize(&result);
 	
+	return result;
+
+}
+
+//transform tangent normal from tangent space to world space
+vect3_t transform_TBN_to_world(vect3_t tangent, vect3_t bitangent, vect3_t normal, vect3_t tangent_normal) {
+
+	
+	// | tangent.x     bitangent.x     normal.x   | | tangent_normal.x |
+	// | tangent.y     bitangent.y     normal.y   | | tangent_normal.y |
+	// | tangent.z     bitangent.z     normal.z   | | tangent_normal.z |
+
+
+	vect3_t result = {
+		vect3_dot(tangent_normal, tangent),
+		vect3_dot(tangent_normal, bitangent),
+		vect3_dot(tangent_normal, normal),
+	};
+
+	vect3_normalize(&result);
+
 	return result;
 
 }

@@ -19,6 +19,8 @@ typedef struct {
 	upng_t* normalmaps;			//mesh dynamic array of normalmaps
 	upng_t* glowmaps;			//mesh dynamic array of glowmaps
 	upng_t* roughmaps;
+	upng_t* metallic;
+	upng_t* ao;
 	vect3_t rotation;			//mesh rotation with x, y, and z values
 	vect3_t scale;				//mesh scale with x, y, and z values
 	vect3_t translation;		//mesh translation with x, y, and z values
@@ -35,11 +37,21 @@ void load_mesh_with_normalmap(char* obj_filename, char* png_filename, char* norm
 	char* glowmap_filename, char* roughmap_filename,
 	vect3_t scale, vect3_t translation, vect3_t rotation);
 
+void load_mesh_with_pbr(char* obj_filename, char* png_filename, char* normalmap_filename,
+	char* glowmap_filename, char* roughmap_filename, char* metalmap_filename, char* aomap_filename,
+	vect3_t scale, vect3_t translation, vect3_t rotation);
+
+
 void load_mesh_obj_data(mesh_t* mesh, char* obj_filename);
 void load_mesh_png_data(mesh_t* mesh, char* png_filename);
 void load_mesh_normalmap_data(mesh_t* mesh, char* normalmap_filename);
 void load_mesh_glowmap_data(mesh_t* mesh, char* glowmap_filename);
 void load_mesh_roughmap_data(mesh_t* mesh, char* roughmap_filename);
+
+void load_mesh_metalmap_data(mesh_t* mesh,char* metalmap_filename);
+
+void load_mesh_aomap_data(mesh_t* mesh, char* aomap_filename);
+
 
 int get_num_meshes(void);
 mesh_t* get_mesh(int mesh_index);
