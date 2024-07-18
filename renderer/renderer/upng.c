@@ -50,7 +50,7 @@ freely, subject to the following restrictions:
 #define DEFLATE_CODE_BITLEN 15
 #define DISTANCE_BITLEN 15
 #define CODE_LENGTH_BITLEN 7
-#define MAX_BIT_LENGTH 15 /* largest bitlen used by any tree type */
+#define MAX_BIT_LENGTH 30 /* largest bitlen used by any tree type */
 
 #define DEFLATE_CODE_BUFFER_SIZE (NUM_DEFLATE_CODE_SYMBOLS * 2)
 #define DISTANCE_BUFFER_SIZE (NUM_DISTANCE_SYMBOLS * 2)

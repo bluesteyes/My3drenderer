@@ -142,6 +142,7 @@
     <ClCompile Include="material.c" />
     <ClCompile Include="matrix.c" />
     <ClCompile Include="mesh.c" />
+    <ClCompile Include="pbr.c" />
     <ClCompile Include="swap.c" />
     <ClCompile Include="texture.c" />
     <ClCompile Include="triangle.c" />
@@ -157,6 +158,7 @@
     <ClInclude Include="material.h" />
     <ClInclude Include="matrix.h" />
     <ClInclude Include="mesh.h" />
+    <ClInclude Include="pbr.h" />
     <ClInclude Include="swap.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="triangle.h" />

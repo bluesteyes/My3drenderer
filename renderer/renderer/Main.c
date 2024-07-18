@@ -14,6 +14,7 @@
 #include "triangle.h"
 #include "texture.h"
 #include "light.h"
+#include "pbr.h"
 
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -93,19 +94,21 @@ void setup()
 	//load_mesh("./assets/crab.obj", "./assets/crab.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
 	//load_mesh("./assets/drone.obj", "./assets/drone.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0, 0));
 	//load_mesh("./assets/shiba.obj", "./assets/shiba_diffuse.png", vect3_new(1, 1, 1), vect3_new(0, 0, +5), vect3_new(0, 0,0));
-	//load_mesh("./assets/cube.obj", "./assets/cube.png", vect3_new(1, 1, 1), vect3_new(0, 0, +8), vect3_new(0, 0,0));
+	//load_mesh("./assets/Lighter.obj", "./assets/cube.png", vect3_new(1, 1, 1), vect3_new(0, 0, +3), vect3_new(0, 0,0));
 	//
 
-	/*load_mesh_with_normalmap(
-		"./assets/Dolphin.obj",					
-		"./assets/Dolphin_Diffuse@1.png", 
-		"./assets/Dolphin_Normal@1.png", 
-		"./assets/Dolphin_Glow@1.png",
-		"./assets/Dolphin_Roughness@1.png",
-		vect3_new(1, 1, 1),		
-		vect3_new(0, 0, +2.5), 
-		vect3_new(-1, 0, 0)
-	);*/
+	//load_mesh_with_pbr(
+	//	"./assets/Dolphin.obj",					
+	//	"./assets/Dolphin_Diffuse@1.png", 
+	//	"./assets/Dolphin_Normal@1.png", 
+	//	"./assets/Dolphin_Glow@1.png",
+	//	"./assets/Dolphin_Roughness@1.png",
+	//	"./assets/Dolphin_Diffuse@1.png",
+	//	"./assets/Dolphin_Diffuse@1.png",
+	//	vect3_new(1, 1, 1),		
+	//	vect3_new(0, 0, +2.5), 
+	//	vect3_new(-1, 0, 0)
+	//);
 
 	load_mesh_with_pbr(
 		"./assets/gun.obj",
@@ -131,8 +134,6 @@ void setup()
 	//vect3_new(0, 0, 0)
 	//);
 
-
-
 	/*load_mesh_with_normalmap(
 		"./assets/helmet.obj",
 		"./assets/helmet_D.png",
@@ -145,32 +146,59 @@ void setup()
 	);*/
 
 
+	//load_mesh_with_pbr(
+	//"./assets/helmet.obj",
+	//"./assets/helmet_D.png",
+	//"./assets/helmet_N.png",
+	//"./assets/helmet_M.png",
+	//"./assets/helmet_R.png",
+	//"./assets/helmet_M.png",
+	//"./assets/helmet_M.png",
+	//vect3_new(1, 1, 1),
+	//vect3_new(0, 0, +5),
+	//vect3_new(0, 5.5, 0)
+	//);
+
+
 	/*load_mesh_with_pbr(
-	"./assets/helmet.obj",
-	"./assets/helmet_D.png",
-	"./assets/helmet_N.png",
-	"./assets/helmet_M.png",
-	"./assets/helmet_R.png",
-	"./assets/helmet_M.png",
-	"./assets/helmet_M.png",
-	vect3_new(1, 1, 1),
-	vect3_new(0, 0, +5),
-	vect3_new(0, -3.5, 0)
+		"./assets/rivet.obj",
+		"./assets/rivet_diffuse.png",
+		"./assets/rivet_normal.png",
+		"./assets/rivet_diffuse.png",
+		"./assets/rivet_roughness.png",
+		"./assets/rivet_metallic.png",
+		"./assets/rivet_diffuse.png",
+		vect3_new(1, 1, 1),
+		vect3_new(0, 0, +3.5),
+		vect3_new(0.3, 1.8, 0.3)
 	);*/
 
-
 	//load_mesh_with_pbr(
-	//	"./assets/rivet.obj",
-	//	"./assets/rivet_diffuse.png",
-	//	"./assets/rivet_normal.png",
-	//	"./assets/rivet_diffuse.png",
-	//	"./assets/rivet_roughness.png",
-	//	"./assets/rivet_metallic.png",
-	//	"./assets/rivet_diffuse.png",
+	//	"./assets/Lighter.obj",
+	//	"./assets/Lighter_B.png",
+	//	"./assets/Lighter_N.png",
+	//	"./assets/Lighter_B.png",
+	//	"./assets/Lighter_R.png",
+	//	"./assets/Lighter_M.png",
+	//	"./assets/Lighter_B.png",
 	//	vect3_new(1, 1, 1),
-	//	vect3_new(0, 0, +5),
-	//	vect3_new(0.0, 0.5, 0.5)
+	//	vect3_new(0, 0, +3),
+	//	vect3_new(0, -2.5, 0)
 	//);
+
+	/*load_mesh_with_pbr(
+		"./assets/ironman.obj",
+		"./assets/ironman_B.png",
+		"./assets/ironman_N.png",
+		"./assets/ironman_B.png",
+		"./assets/ironman_R.png",
+		"./assets/ironman_M.png",
+		"./assets/ironman_A.png",
+		vect3_new(1, 1, 1),
+		vect3_new(0, 0, +2),
+		vect3_new(0, 2.5, 0)
+	);*/
+
 
 	
 
@@ -348,17 +376,20 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 
 		vect4_t transformed_vertices[3];
 
-		
-		///Calculated vertex normal from face normal use vertex indices
+
+
+		///Process normals
 		vect3_t vertex_normals[3];
-		vertex_normals[0] = mesh->normals[mesh_face.a];
+
+		//Calculated vertex normal from face normal use vertex indices
+	/*	vertex_normals[0] = mesh->normals[mesh_face.a];
 		vertex_normals[1] = mesh->normals[mesh_face.b];
-		vertex_normals[2] = mesh->normals[mesh_face.c];
+		vertex_normals[2] = mesh->normals[mesh_face.c];*/
 
 		//Loaded model normal from obj file
-		/*vertex_normals[0] = mesh->model_normals[mesh_face.n0];
+		vertex_normals[0] = mesh->model_normals[mesh_face.n0];
 		vertex_normals[1] = mesh->model_normals[mesh_face.n1];
-		vertex_normals[2] = mesh->model_normals[mesh_face.n2];*/
+		vertex_normals[2] = mesh->model_normals[mesh_face.n2];
 
 		vect3_t transformed_vertex_normals[3];
 
@@ -600,12 +631,12 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 					{triangle_after_clipping.texcoords[2].u, triangle_after_clipping.texcoords[2].v}
 				},
 				.normals = {
-					/*{transformed_vertex_normals[0].x, transformed_vertex_normals[0].y, transformed_vertex_normals[0].z},
+					{transformed_vertex_normals[0].x, transformed_vertex_normals[0].y, transformed_vertex_normals[0].z},
 					{transformed_vertex_normals[1].x, transformed_vertex_normals[1].y, transformed_vertex_normals[1].z},
-					{transformed_vertex_normals[2].x, transformed_vertex_normals[2].y, transformed_vertex_normals[2].z},*/
-					{triangle_after_clipping.normals[0].x, triangle_after_clipping.normals[0].y, triangle_after_clipping.normals[0].z},
+					{transformed_vertex_normals[2].x, transformed_vertex_normals[2].y, transformed_vertex_normals[2].z},
+					/*{triangle_after_clipping.normals[0].x, triangle_after_clipping.normals[0].y, triangle_after_clipping.normals[0].z},
 					{triangle_after_clipping.normals[1].x, triangle_after_clipping.normals[1].y, triangle_after_clipping.normals[1].z},
-					{triangle_after_clipping.normals[2].x, triangle_after_clipping.normals[2].y, triangle_after_clipping.normals[2].z},
+					{triangle_after_clipping.normals[2].x, triangle_after_clipping.normals[2].y, triangle_after_clipping.normals[2].z},*/
 				},
 				.tangents = {
 					{transformed_vertex_tangents[0].x, transformed_vertex_tangents[0].y, transformed_vertex_tangents[0].z},
@@ -667,7 +698,7 @@ void update(void){
 	for (int  mesh_index = 0; mesh_index < get_num_meshes(); mesh_index++){
 		mesh_t* mesh = get_mesh(mesh_index);
 
-		//Change the mesh scale/rotation values per animation frame
+		//Change the mesh scale/rotation values per second
 		//mesh->rotation.x += 0.5 * delta_time;
 		//mesh->rotation.y += 0.5 * delta_time;
 		//mesh->rotation.z += 0.0 * delta_time;
@@ -753,7 +784,6 @@ void render(void){
 				triangle.ao,
 				triangle.color
 			);
-
 		}
 
 		//draw triangle wireframe

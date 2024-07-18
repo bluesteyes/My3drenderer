@@ -4,6 +4,7 @@
 #include "camera.h"
 #include "light.h"
 #include "material.h"
+#include "pbr.h"
 
 #define MIN(a,b)(((a) < (b)) ? (a):(b))
 #define MAX(a,b)(((a) > (b)) ? (a):(b))
@@ -865,6 +866,12 @@ void draw_aabb_textured_triangle(
 					uint32_t pbr_color = pbr_reflection(interpolated_normal, interpolated_tangent, interpolated_bitangent,
 						get_light_direction(), view_direction, texture_pixel, tangent_normal,  metallic_pixel, roughmap_pixel, ao_pixel);
 
+					uint32_t pbr_mr_color = BRDF_PBR_MetallicRoughness(interpolated_normal, interpolated_tangent, interpolated_bitangent,
+						get_light_direction(), view_direction, texture_pixel, tangent_normal, metallic_pixel, roughmap_pixel, ao_pixel);
+
+					uint32_t pbr_sg_color = BRDF_PBR_SpecularGlossiness(interpolated_normal, interpolated_tangent, interpolated_bitangent,
+						get_light_direction(), view_direction, texture_pixel, tangent_normal, metallic_pixel, roughmap_pixel, ao_pixel);
+
 					///unpack the texture pixel to pixel color 
 					//vect4_t pixel_color = vect4_new(0.0, 0.0, 0.0, 0.0);
 					//unpack_color(texture_pixel, &pixel_color.x, &pixel_color.y, &pixel_color.z, &pixel_color.w);
@@ -892,7 +899,7 @@ void draw_aabb_textured_triangle(
 						
 
 					// Draw a pixel at position (x,y) with a color
-					draw_pixel(x, y, pbr_color);
+					draw_pixel(x, y, phong_color);
 
 					// Update the z-buffer value with the 1/w of this current pixel
 					update_z_buffer_at(x, y, interpolated_reciprocal_w);
