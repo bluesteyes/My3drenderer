@@ -110,18 +110,18 @@ void setup()
 	//	vect3_new(-1, 0, 0)
 	//);
 
-	load_mesh_with_pbr(
-		"./assets/gun.obj",
-		"./assets/gun_diffuse.png",
-		"./assets/gun_normal.png",
-		"./assets/gun_metallic.png",
-		"./assets/gun_roughness.png",
-		"./assets/gun_metallic.png",
-		"./assets/gun_diffuse.png",
-		vect3_new(1, 1,   1),
-		vect3_new(0, 0,  +6),
-		vect3_new(0, 0,   0)
-	);
+	//load_mesh_with_pbr(
+	//	"./assets/gun.obj",
+	//	"./assets/gun_diffuse.png",
+	//	"./assets/gun_normal.png",
+	//	"./assets/gun_metallic.png",
+	//	"./assets/gun_roughness.png",
+	//	"./assets/gun_metallic.png",
+	//	"./assets/gun_diffuse.png",
+	//	vect3_new(1, 1,   1),
+	//	vect3_new(0, 0,  +6),
+	//	vect3_new(0, 0,   0)
+	//);
 
 	//load_mesh_with_normalmap(
 	//"./assets/snowman.obj",
@@ -134,73 +134,72 @@ void setup()
 	//vect3_new(0, 0, 0)
 	//);
 
-	/*load_mesh_with_normalmap(
-		"./assets/helmet.obj",
-		"./assets/helmet_D.png",
-		"./assets/helmet_N.png",
-		"./assets/helmet_R.png",
-		"./assets/helmet_M.png",
-		vect3_new(1, 1, 1),
-		vect3_new(0, 0, +5),
-		vect3_new(0, -6, 0)
-	);*/
-
-
 	//load_mesh_with_pbr(
-	//"./assets/helmet.obj",
-	//"./assets/helmet_D.png",
-	//"./assets/helmet_N.png",
-	//"./assets/helmet_M.png",
-	//"./assets/helmet_R.png",
-	//"./assets/helmet_M.png",
-	//"./assets/helmet_M.png",
-	//vect3_new(1, 1, 1),
-	//vect3_new(0, 0, +5),
-	//vect3_new(0, 5.5, 0)
+	//	"./assets/helmet.obj",
+	//	"./assets/helmet_D.png",
+	//	"./assets/helmet_N.png",
+	//	"./assets/helmet_D.png",
+	//	"./assets/helmet_R.png",
+	//	"./assets/helmet_M.png",
+	//	"./assets/helmet_D.png",
+	//	vect3_new(1, 1, 1),
+	//	vect3_new(0, 0, +5),
+	//	vect3_new(0, -1, 0)
 	//);
 
 
-	/*load_mesh_with_pbr(
-		"./assets/rivet.obj",
-		"./assets/rivet_diffuse.png",
-		"./assets/rivet_normal.png",
-		"./assets/rivet_diffuse.png",
-		"./assets/rivet_roughness.png",
-		"./assets/rivet_metallic.png",
-		"./assets/rivet_diffuse.png",
+	//load_mesh_with_pbr(
+	//	"./assets/rivet.obj",
+	//	"./assets/rivet_diffuse.png",
+	//	"./assets/rivet_normal.png",
+	//	"./assets/rivet_diffuse.png",
+	//	"./assets/rivet_roughness.png",
+	//	"./assets/rivet_metallic.png",
+	//	"./assets/rivet_diffuse.png",
+	//	vect3_new(1, 1, 1),
+	//	vect3_new(0, 0, +3.5),
+	//	vect3_new(0.3, 1.8, 0.3)
+	//);
+
+	load_mesh_with_pbr(
+		"./assets/Lighter.obj",
+		"./assets/Lighter_B.png",
+		"./assets/Lighter_N.png",
+		"./assets/Lighter_B.png",
+		"./assets/Lighter_R.png",
+		"./assets/Lighter_M.png",
+		"./assets/Lighter_B.png",
 		vect3_new(1, 1, 1),
-		vect3_new(0, 0, +3.5),
-		vect3_new(0.3, 1.8, 0.3)
-	);*/
+		vect3_new(0, 0, +3),
+		vect3_new(0.0, 1.3, 0.0)
+	);
+
 
 	//load_mesh_with_pbr(
-	//	"./assets/Lighter.obj",
-	//	"./assets/Lighter_B.png",
-	//	"./assets/Lighter_N.png",
-	//	"./assets/Lighter_B.png",
-	//	"./assets/Lighter_R.png",
-	//	"./assets/Lighter_M.png",
-	//	"./assets/Lighter_B.png",
+	//	"./assets/car.obj",
+	//	"./assets/car_B.png",
+	//	"./assets/car_N.png",
+	//	"./assets/car_G.png",
+	//	"./assets/car_R.png",
+	//	"./assets/car_M.png",
+	//	"./assets/car_B.png",
 	//	vect3_new(1, 1, 1),
-	//	vect3_new(0, 0, +3),
-	//	vect3_new(0, -2.5, 0)
+	//	vect3_new(0, 0, +4),
+	//	vect3_new(0.0, 2.5, 0.0)
 	//);
 
 	/*load_mesh_with_pbr(
 		"./assets/ironman.obj",
-		"./assets/ironman_B.png",
-		"./assets/ironman_N.png",
-		"./assets/ironman_B.png",
-		"./assets/ironman_R.png",
-		"./assets/ironman_M.png",
-		"./assets/ironman_A.png",
+		"./assets/ironman_b.png",
+		"./assets/ironman_n.png",
+		"./assets/ironman_b.png",
+		"./assets/ironman_r.png",
+		"./assets/ironman_m.png",
+		"./assets/ironman_a.png",
 		vect3_new(1, 1, 1),
 		vect3_new(0, 0, +2),
-		vect3_new(0, 2.5, 0)
+		vect3_new(0, 3.2, 0)
 	);*/
-
-
-	
 
 	//load multiply mesh
 	for (int mesh_index = 0; mesh_index < get_num_meshes(); mesh_index++){
@@ -254,7 +253,6 @@ void process_input(void)
 				set_render_method(RENDER_TEXTURED);
 				break;
 			}
-
 
 			if (event.key.keysym.sym == SDLK_6){
 				set_render_method(RENDER_TEXTURED_WIRE);
@@ -377,7 +375,6 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 		vect4_t transformed_vertices[3];
 
 
-
 		///Process normals
 		vect3_t vertex_normals[3];
 
@@ -443,7 +440,6 @@ void process_graphic_pipeline_stages(mesh_t* mesh){
 			normal_matrix = mat4_make_inverse(world_matrix);
 			normal_matrix = mat4_make_transpose(normal_matrix);
 			
-
 			//Multiply the world matrix with the original vertex vector
 			transformed_vertex = mat4_mul_vect4(world_matrix, transformed_vertex);
 			
@@ -700,7 +696,7 @@ void update(void){
 
 		//Change the mesh scale/rotation values per second
 		//mesh->rotation.x += 0.5 * delta_time;
-		//mesh->rotation.y += 0.5 * delta_time;
+		//mesh->rotation.y += 0.3 * delta_time;
 		//mesh->rotation.z += 0.0 * delta_time;
 		//mesh->scale.x += 0;
 		//mesh->scale.y += 0;

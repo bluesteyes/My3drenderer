@@ -360,14 +360,14 @@ void calculate_tangents_and_bitangents(mesh_t* mesh) {
 		//mesh->bitangents[i] = vect3_cross(mesh->model_normals[i], mesh->tangents[i]);
 		vect3_normalize(&mesh->bitangents[i]);
 	}
-
-	for (size_t i = 0; i < mesh->num_vertices; i++)
-	{
-		printf("vertex tangents %d: (%f, %f, %f)\n", i, mesh->tangents[i].x, mesh->tangents[i].y, mesh->tangents[i].z);
-		printf("vertex bitangents %d: (%f, %f, %f)\n", i, mesh->bitangents[i].x, mesh->bitangents[i].y, mesh->bitangents[i].z);
-		printf("vertex normals %d: (%f, %f, %f)\n", i, mesh->model_normals[i].x, mesh->model_normals[i].y, mesh->model_normals[i].z);
-	}
-}
+//
+//	for (size_t i = 0; i < mesh->num_vertices; i++)
+//	{
+//		printf("vertex tangents %d: (%f, %f, %f)\n", i, mesh->tangents[i].x, mesh->tangents[i].y, mesh->tangents[i].z);
+//		printf("vertex bitangents %d: (%f, %f, %f)\n", i, mesh->bitangents[i].x, mesh->bitangents[i].y, mesh->bitangents[i].z);
+//		printf("vertex normals %d: (%f, %f, %f)\n", i, mesh->model_normals[i].x, mesh->model_normals[i].y, mesh->model_normals[i].z);
+//	}
+ }
 
 
 void free_meshes(void) {

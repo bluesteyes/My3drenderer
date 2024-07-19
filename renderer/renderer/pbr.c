@@ -8,25 +8,17 @@
 
 vect3_t lerp(vect3_t a, vect3_t b, float t) {
 
-	return vect3_add(vect3_mul(a, 1.0f - t), vect3_mul(b, t));
+	return vect3_add(vect3_mul(a, (1.0f - t)), vect3_mul(b, t));
 }
 
-// Function to compute the GGX NDF
-float GGX_Distribution(float NdotH, float roughness) {
-    float alpha = roughness * roughness;
-    float alpha2 = alpha * alpha;
-    float NdotH2 = NdotH * NdotH;
 
-    float denominator = (NdotH2 * (alpha2 - 1.0f) + 1.0f);
-    denominator = M_PI * denominator * denominator;
-
-    return alpha2 / fmaxf(denominator, SDL_FLT_EPSILON);
-}
 
 // Function to compute the Schlick-GGX geometric attenuation factor
 float GeometrySchlickGGX(float NdotV, float roughness) {
-    float alpha = roughness * roughness;
-    float k = alpha / 2.0f;
+    float alpha = roughness;
+    //float k = alpha / 2.0f;  // for IBL lighting
+
+    float k = (alpha + 1.0f) * (alpha + 1.0f) / 8.0f;  //for direction lighting
 
     float numerator = NdotV;
     float denominator = NdotV * (1.0f - k) + k;
@@ -38,9 +30,21 @@ float GeometrySchlickGGX(float NdotV, float roughness) {
 float GeometrySmith(float NdotV, float NdotL, float roughness) {
     float ggxV = GeometrySchlickGGX(NdotV, roughness);
     float ggxL = GeometrySchlickGGX(NdotL, roughness);
-
     return ggxV * ggxL;
 }
+
+// Function to compute the GGX NDF
+float GGX_Distribution(float NdotH, float roughness) {
+    float alpha = roughness;
+    float alpha2 = alpha * alpha;
+    float NdotH2 = NdotH * NdotH;
+
+    float denominator = (NdotH2 * (alpha2 - 1.0f) + 1.0f);
+    denominator = M_PI * denominator * denominator;
+
+    return alpha2 / fmaxf(denominator, SDL_FLT_EPSILON);
+}
+
 
 // Fresnel function using Schlick's approximation
 vect3_t FresnelSchlick(float cosTheta, vect3_t F0) {
@@ -66,12 +70,10 @@ uint32_t BRDF_PBR_MetallicRoughness(vect3_t normal, vect3_t tangent, vect3_t bit
     //Calculate halfway direction
     vect3_t halfway_direction = vect3_add(view_direction, vect3_mul(light_direction, -1.0f));
     vect3_normalize(&halfway_direction);
-
    
     //unpack the tangent space normal data from normalmap to temp variable of range [0, 1]
     vect4_t unpacked_normal = vect4_new(0.0f, 0.0f, 0.0f, 0.0f);
     unpack_color(normal_map, &unpacked_normal.x, &unpacked_normal.y, &unpacked_normal.z, &unpacked_normal.w);
-    vect3_normalize(&unpacked_normal);
 
     //transform tangent normal vector from [0, 1] to range [-1, 1] 
     vect3_t tangent_space_normal = vect3_sub(vect3_mul(vect3_from_vect4(unpacked_normal), 2.0f), vect3_new(1.0f, 1.0f, 1.0f, 1.0f));
@@ -129,28 +131,28 @@ uint32_t BRDF_PBR_MetallicRoughness(vect3_t normal, vect3_t tangent, vect3_t bit
     kD = vect3_mul(kD, 1.0f - metallic); // Only non-metallic surfaces have diffuse component
 
     vect3_t diffuse = {
-        kD.x * albedo.x,
-        kD.y * albedo.y,
-        kD.z * albedo.z,
+        kD.x * albedo.x / M_PI,
+        kD.y * albedo.y / M_PI,
+        kD.z * albedo.z / M_PI,
     };
 
     // Combine the specular and diffuse components
-   
-   
- /*  vect3_t result = {
-        (diffuse.x + specular.x)* NdotL* light_color.x,
-        (diffuse.y + specular.y)* NdotL* light_color.y,
-        (diffuse.z + specular.z)* NdotL* light_color.z,
-    };*/
+  
+    vect3_t result = {
+      
+      (kD.x* albedo.x / M_PI + specular.x) * NdotL * 2 ,
+      (kD.y* albedo.y / M_PI + specular.y) * NdotL * 2 ,
+      (kD.z* albedo.z / M_PI + specular.z) * NdotL * 2 ,
+        
+    };
 
-      vect3_t result = {
+   /* vect3_t result = {
 
-        (diffuse.x + specular.x)* NdotL* light_color.x,
-        (diffuse.y + specular.y)* NdotL* light_color.y,
-        (diffuse.z + specular.z)* NdotL* light_color.z,
+        (diffuse.x + specular.x)* NdotL* light_color.x * M_PI * 1.3,
+        (diffuse.y + specular.y)* NdotL* light_color.y * M_PI * 1.3,
+        (diffuse.z + specular.z)* NdotL* light_color.z * M_PI * 1.3,
 
-   };
-
+   };*/
 
     // Clamp the results to [0, 1]
     result.x = CLAMP(result.x, 0.0f, 1.0f);
@@ -166,7 +168,6 @@ uint32_t BRDF_PBR_MetallicRoughness(vect3_t normal, vect3_t tangent, vect3_t bit
     return pack_color(result.x, result.y, result.z, 1.0f);
 
 }
-
 
 
 
@@ -193,7 +194,7 @@ uint32_t BRDF_PBR_SpecularGlossiness(vect3_t normal, vect3_t tangent, vect3_t bi
     //unpack the tangent space normal data from normalmap to temp variable of range [0, 1]
     vect4_t unpacked_normal = vect4_new(0.0f, 0.0f, 0.0f, 0.0f);
     unpack_color(normal_map, &unpacked_normal.x, &unpacked_normal.y, &unpacked_normal.z, &unpacked_normal.w);
-    //vect3_normalize(&unpacked_normal);
+  
 
     //transform tangent normal vector from [0, 1] to range [-1, 1] 
     vect3_t tangent_space_normal = vect3_sub(vect3_mul(vect3_from_vect4(unpacked_normal), 2.0f), vect3_new(1.0f, 1.0f, 1.0f, 1.0f));

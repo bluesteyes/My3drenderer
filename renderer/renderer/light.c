@@ -143,7 +143,7 @@ uint32_t phong_reflection(vect3_t normal, vect3_t tangent, vect3_t bitangent, ve
 	///Initialize light colors
 	vect3_t light_color = get_light_color();
 	vect3_t ambient_color = { 0.2f, 0.2f, 0.2f };
-	vect3_t specular_color = { 0.8f, 0.8f, 0.8f };
+	vect3_t specular_color = { 0.2f, 0.2f, 0.2f };
 
 	//unpack the material color and assign r,g,b,a to diffuse color
 	vect4_t diffuse_color = vect4_new(0.0f, 0.0f, 0.0f, 0.0f);
@@ -264,7 +264,7 @@ uint32_t pbr_reflection(vect3_t normal, vect3_t tangent, vect3_t bitangent, vect
 	
 	//transform tangent normal vector from [0, 1] to range [-1, 1] 
 	vect3_t tangent_space_normal = vect3_sub(vect3_mul(vect3_from_vect4(unpacked_normal), 2.0f), vect3_new(1.0f, 1.0f, 1.0f, 1.0f));
-	//vect3_normalize(&tangent_space_normal);
+	vect3_normalize(&tangent_space_normal);
 
 	///Transform the tangent space normal to worldspace and became perterbed normal
 	vect3_t perturbed_normal = transform_NBT_to_world(tangent, bitangent, normal, tangent_space_normal);
@@ -302,14 +302,16 @@ uint32_t pbr_reflection(vect3_t normal, vect3_t tangent, vect3_t bitangent, vect
 		 F0 * (1.0f - metallic.z) + albedo.z * metallic.z,
 	};
 	
-
 	// Calculate the geometric attenuation factor (self-shadowing) using the Schlick-GGX approximation
+	
+	//float k = roughness2 / 2.0f;	                                    // more distinct 
 	float k = (roughness + 1.0f) * (roughness + 1.0f) / 8.0f;			// more natrual
-	//float k = roughness2 / 2.0f;										// more distinct 
+									
 	float G = NdotL / (NdotL * (1.0 - k) + k) * NdotV / (NdotV * (1.0 - k) + k);
 
 	// Calculate the normal distribution function (NDF) using the Trowbridge-Reitz GGX function
 	float D = roughness2 / (M_PI * powf((NdotH * NdotH * (roughness2 - 1.0) + 1.0), 2.0f));
+
 
 	// Calculate the Fresnel term using Schlick's approximation
 
@@ -327,19 +329,12 @@ uint32_t pbr_reflection(vect3_t normal, vect3_t tangent, vect3_t bitangent, vect
 
 	// Calculate the diffuse term (Lambertian reflectance), adjusted by metallic factor
 	vect3_t kD = { 1.0f - specular.x, 1.0f - specular.y, 1.0f - specular.z };
-
 	kD.x *= (1.0f - metallic.x);
 	kD.y *= (1.0f - metallic.y);
 	kD.z *= (1.0f - metallic.z);
 
 
-	//Calculate the final color by combining diffuse and specular, and applying light color and inte1`nsity
-	/*vect3_t result = {
-		(kD.x * albedo.x / M_PI + specular.x) * NdotL * light_color.x * M_PI * 1.3, 
-		(kD.y * albedo.y / M_PI + specular.y) * NdotL * light_color.y * M_PI * 1.3,
-		(kD.z * albedo.z / M_PI + specular.z) * NdotL * light_color.z * M_PI * 1.3,
-	};*/
-
+	//Calculate the final color by combining diffuse and specular, and applying light color and intensity
 	vect3_t result = {
 		(kD.x* albedo.x / M_PI + specular.x)* NdotL* light_color.x* M_PI * 1.3,
 		(kD.y* albedo.y / M_PI + specular.y)* NdotL* light_color.y* M_PI * 1.3,

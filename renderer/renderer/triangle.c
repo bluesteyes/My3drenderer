@@ -183,7 +183,8 @@ void draw_triangle_pixel(
 
 	//printf("Interpolated Normal: (%f, %f, %f)\n", interpolated_normal.x, interpolated_normal.y, interpolated_normal.z);
 
-	vect3_t target_position = vect3_new(x, y, interpolated_reciprocal_w);
+	//vect3_t target_position = vect3_new(x, y, interpolated_reciprocal_w);
+	vect3_t target_position = vect3_new(0.0f, 0.0f, 1.0f);
 
 	vect3_t view_direction = vect3_sub(get_camera_position(), target_position);
 
@@ -254,7 +255,9 @@ void draw_triangle_texel(
 	vect3_t interpolated_normal = vect3_add(vect3_mul(n0, alpha), vect3_add(vect3_mul(n1, beta), vect3_mul(n2, gamma)));
 	vect3_normalize(&interpolated_normal);
 
-	vect3_t target_position = vect3_new(x, y, interpolated_reciprocal_w);
+	//vect3_t target_position = vect3_new(x, y, interpolated_reciprocal_w);
+
+	vect3_t target_position = vect3_new(0.0f, 0.0f, 1.0f);
 
 	vect3_t view_direction = vect3_sub(get_camera_position(), target_position);
 
@@ -657,7 +660,8 @@ void draw_aabb_triangle(
 				//adjust the value of 1/w so the pixels that are closer to the camera with smaller values
 				interpolated_reciprocal_w = 1.0 - interpolated_reciprocal_w;
 
-				vect3_t target_position = vect3_new(x, y, interpolated_reciprocal_w);
+				//vect3_t target_position = vect3_new(x, y, interpolated_reciprocal_w);
+				vect3_t target_position = vect3_new(0.0f, 0.0f, 1.0f);
 
 				vect3_t view_direction = vect3_sub(get_camera_position(), target_position);
 
@@ -802,7 +806,8 @@ void draw_aabb_textured_triangle(
 				vect3_t interpolated_normal = vect3_add(vect3_mul(n0, alpha), vect3_add(vect3_mul(n1, beta), vect3_mul(n2, gamma)));
 				vect3_normalize(&interpolated_normal);
 
-				vect3_t target_position = vect3_new(x, y, interpolated_reciprocal_w);
+				//vect3_t target_position = vect3_new(x, y, interpolated_reciprocal_w);
+				vect3_t target_position = vect3_new(0.0f, 0.0f, 1.0f);
 
 				vect3_t view_direction = vect3_sub(get_camera_position(), target_position);
 
@@ -899,7 +904,7 @@ void draw_aabb_textured_triangle(
 						
 
 					// Draw a pixel at position (x,y) with a color
-					draw_pixel(x, y, phong_color);
+					draw_pixel(x, y, pbr_color);
 
 					// Update the z-buffer value with the 1/w of this current pixel
 					update_z_buffer_at(x, y, interpolated_reciprocal_w);
